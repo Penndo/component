@@ -9,8 +9,8 @@ class ButtonGroup extends React.Component {
     transData = () => {
         const {renderHead,renderData} = this.props
         const controlData = Object.assign(this.props.controlData,{"cellSize":this.props.cellSize});
-        // postMessage('insert',renderHead,renderData,controlData);
-        console.log(renderHead,renderData,controlData);
+        postMessage('insert',renderHead,renderData,controlData);
+        // console.log(renderHead,renderData,controlData);
     }
     //点击取消的时候需要关闭窗口
     
