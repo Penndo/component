@@ -425,17 +425,7 @@ export default function Table(props) {
 
         getControlData("cellSize",cellSize);
     }
-
-    //是否隔行换色
-    function hasIntervalColor(){
-        if(controlData.fill.intervalColor === ""){
-            return false;
-        }else {
-            return true
-        }
-    }
     
-
     return (
         <div className={style.tableContainer}>
             {/* 这里创建右键菜单，默认隐藏 */}
