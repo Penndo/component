@@ -425,6 +425,15 @@ export default function Table(props) {
 
         getControlData("cellSize",cellSize);
     }
+
+    //是否隔行换色
+    function hasIntervalColor(){
+        if(controlData.fill.intervalColor === ""){
+            return false;
+        }else {
+            return true
+        }
+    }
     
 
     return (
@@ -482,14 +491,15 @@ export default function Table(props) {
                     </tr>
                 </thead>
                 <tbody>
-                    {renderData.map((perObject) => {
+                    {renderData.map((perObject,rowIndex) => {
                         return (
                             <tr key={perObject["key"]}>
-                                {renderHead.map((cell) => {
+                                {renderHead.map((cell,cellIndex) => {
                                     return (
                                         <td
                                             style={{
-                                                backgroundColor:controlData.fill.basicColor,
+                                                //各行换色开启，且行数为奇数时，填充intervalColor, 否则填充 basicColor
+                                                backgroundColor:controlData.fill.intervalColor !== "" && rowIndex%2 === 1 ? controlData.fill.intervalColor : controlData.fill.basicColor,
                                                 borderColor:controlData.border.basicColor,
                                             }}
                                             onContextMenu={forRight}

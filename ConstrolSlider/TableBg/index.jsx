@@ -72,7 +72,7 @@ class TableBg extends React.Component {
                         <label>颜色</label>
                     </div>
 
-                    {/*填充色*/}
+                    {/*隔行换色*/}
                     <div style={{display:switchColor?"block":"none"}}>
                         <ColorSwitch 
                             name = "intervalColor" 
