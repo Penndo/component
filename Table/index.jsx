@@ -463,7 +463,8 @@ export default function Table(props) {
                                 style={{
                                     width:index !== renderHead.length - 1 ? defaultCellWidth : "",
                                     backgroundColor:controlData.theadFill.basicColor,
-                                    borderRight:controlData.border.intervalColor !== "" && index !== renderHead.length-1 ? `1px solid ${controlData.border.intervalColor}`: "none"
+                                    borderRight:controlData.border.intervalColor !== "" && index !== renderHead.length-1 ? `1px solid ${controlData.border.intervalColor}`: "none",
+                                    borderBottom:`1px solid ${controlData.border.basicColor}`
                                 }}
                             >
                                 <input 
@@ -482,12 +483,6 @@ export default function Table(props) {
                                         padding:0
                                     }}
                                 />
-                                {/*用来代替边框线*/}
-                                <div style={{
-                                    width:"100%",
-                                    height:"1px",
-                                    backgroundColor:controlData.border.basicColor}}>
-                                </div>
                             </th>
                         })}
                     </tr>
@@ -502,7 +497,8 @@ export default function Table(props) {
                                             style={{
                                                 //各行换色开启，且行数为奇数时，填充intervalColor, 否则填充 basicColor
                                                 backgroundColor:controlData.fill.intervalColor !== "" && rowIndex%2 === 1 ? controlData.fill.intervalColor : controlData.fill.basicColor,
-                                                borderRight:controlData.border.intervalColor !== "" && cellIndex !== renderHead.length-1 ? `1px solid ${controlData.border.intervalColor}`: "none"
+                                                borderRight:controlData.border.intervalColor !== "" && cellIndex !== renderHead.length-1 ? `1px solid ${controlData.border.intervalColor}`: "none",
+                                                borderBottom:rowIndex !== renderData.length-1 ? `1px solid ${controlData.border.basicColor}`: "none"
                                             }}
                                             onContextMenu={forRight}
                                             key={perObject["key"]+cell["key"]}
@@ -521,14 +517,6 @@ export default function Table(props) {
                                                     padding:0
                                                 }}
                                             />
-                                            <div 
-                                                style={{
-                                                    width:cell.offsetWidth+"px",
-                                                    height:"1px",
-                                                    backgroundColor:rowIndex !== renderData.length-1 ? controlData.border.basicColor : transform
-                                                }}
-                                            >
-                                            </div>
                                         </td>
                                     )
                                 })}
