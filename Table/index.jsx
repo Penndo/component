@@ -5,6 +5,7 @@ import TableEdit from "./TableEdit"
 // import dragWidth from "./dragWidth"
 
 import style from "./index.module.less"
+import { transform } from "@babel/core"
 
 //同步行&列数据，更新过来的新数据与上一次的数据进行更新交换，数组长度只增加不减少
 function sync(preData,newData){
@@ -425,7 +426,7 @@ export default function Table(props) {
 
         getControlData("cellSize",cellSize);
     }
-    
+
     return (
         <div className={style.tableContainer}>
             {/* 这里创建右键菜单，默认隐藏 */}
@@ -449,6 +450,11 @@ export default function Table(props) {
                 style={{
                     width:tableWidth*1 + 1 + "px"
                 }}>
+                <colgroup>
+                    {renderHead.map((cell,index)=>{
+                        return (<col key={uuidv4()}></col>) 
+                    })}
+                </colgroup>
                 <thead>
                     <tr>
                         {renderHead.map((cell,index) => {
@@ -457,25 +463,31 @@ export default function Table(props) {
                                 style={{
                                     width:index !== renderHead.length - 1 ? defaultCellWidth : "",
                                     backgroundColor:controlData.theadFill.basicColor,
-                                    borderColor:controlData.border.basicColor,
+                                    borderRight:controlData.border.intervalColor !== "" && index !== renderHead.length-1 ? `1px solid ${controlData.border.intervalColor}`: "none"
                                 }}
                             >
-                            <input 
-                                type="text" 
-                                value={cell["title"]} 
-                                onFocus={gitInitialHead}
-                                onChange={changeTheadValue}
-                                style={{
-                                    width:`calc(100% - ${reservedWidth})`,
-                                    color:controlData.theadTextStyle.basicColor,
-                                    fontSize:controlData.theadTextStyle.fontSize+"px",
-                                    marginTop:top+"px",
-                                    marginRight:right+"px",
-                                    marginBottom:bottom+"px",
-                                    marginLeft:left+"px",
-                                    padding:0
-                                }}
-                            />
+                                <input 
+                                    type="text" 
+                                    value={cell["title"]} 
+                                    onFocus={gitInitialHead}
+                                    onChange={changeTheadValue}
+                                    style={{
+                                        width:`calc(100% - ${reservedWidth})`,
+                                        color:controlData.theadTextStyle.basicColor,
+                                        fontSize:controlData.theadTextStyle.fontSize+"px",
+                                        marginTop:top+"px",
+                                        marginRight:right+"px",
+                                        marginBottom:bottom+"px",
+                                        marginLeft:left+"px",
+                                        padding:0
+                                    }}
+                                />
+                                {/*用来代替边框线*/}
+                                <div style={{
+                                    width:"100%",
+                                    height:"1px",
+                                    backgroundColor:controlData.border.basicColor}}>
+                                </div>
                             </th>
                         })}
                     </tr>
@@ -490,7 +502,7 @@ export default function Table(props) {
                                             style={{
                                                 //各行换色开启，且行数为奇数时，填充intervalColor, 否则填充 basicColor
                                                 backgroundColor:controlData.fill.intervalColor !== "" && rowIndex%2 === 1 ? controlData.fill.intervalColor : controlData.fill.basicColor,
-                                                borderColor:controlData.border.basicColor,
+                                                borderRight:controlData.border.intervalColor !== "" && cellIndex !== renderHead.length-1 ? `1px solid ${controlData.border.intervalColor}`: "none"
                                             }}
                                             onContextMenu={forRight}
                                             key={perObject["key"]+cell["key"]}
@@ -509,6 +521,14 @@ export default function Table(props) {
                                                     padding:0
                                                 }}
                                             />
+                                            <div 
+                                                style={{
+                                                    width:cell.offsetWidth+"px",
+                                                    height:"1px",
+                                                    backgroundColor:rowIndex !== renderData.length-1 ? controlData.border.basicColor : transform
+                                                }}
+                                            >
+                                            </div>
                                         </td>
                                     )
                                 })}
