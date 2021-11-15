@@ -39,12 +39,12 @@ export default function App(){
         textStyle:{
             basicColor:"#333333",
             fontSize:"14",
-            fontWeight:"normal"
+            fontWeight:"regular"
         },
         theadTextStyle:{
             basicColor:"#333333",
             fontSize:"14",
-            fontWeight:"normal"
+            fontWeight:"regular"
         }
     })
     const getCellSize = React.useCallback(
