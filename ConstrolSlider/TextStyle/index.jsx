@@ -41,7 +41,7 @@ class TextStyleSetting extends React.Component {
                         <label>颜色</label>
                     </div>
                     <TextInput style={{width:62}} hasPreInstall={true} preInstallOptions={[12,14,16,20]} canInput={true} label = "字号" defaultValue={14} name="fontSize" inputType="number"  getValue={this.getValue}/>
-                    <TextInput style={{width:132}} hasPreInstall={true} preInstallOptions={["light", "regular", "bold"]} canInput={false} label = "字重" defaultValue="normal" name="fontWeight"  getValue={this.getValue}/>
+                    <TextInput style={{width:132}} hasPreInstall={true} preInstallOptions={["light", "regular", "bold"]} canInput={false} label = "字重" defaultValue="regular" name="fontWeight"  getValue={this.getValue}/>
                 </div>
             </div>
         )
