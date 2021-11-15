@@ -31,16 +31,17 @@ class TextStyleSetting extends React.Component {
     }
 
     render(){
+        const {textStyle} = this.props
         return(
             <div>
                 <p>{this.props.type}</p>
                 <div className={styles["fontStyle"]}>
                     <div>
-                        <ColorPicker style={{ width: 62, height: 24}} defaultColor={"#D8D8D8"} name="basicColor" getValue={this.getValue}/>
+                        <ColorPicker style={{ width: 62, height: 24}} defaultColor={textStyle.basicColor} name="basicColor" getValue={this.getValue}/>
                         <label>颜色</label>
                     </div>
-                    <TextInput style={{width:62}} label = "字号" defaultValue={14} name="fontSize"  getValue={this.getValue}/>
-                    <TextInput style={{width:132}} label = "字重" defaultValue="normal" name="fontWeight"  getValue={this.getValue}/>
+                    <TextInput style={{width:62}} hasPreInstall={true} preInstallOptions={[12,14,16,20]} canInput={true} label = "字号" defaultValue={14} name="fontSize" inputType="number"  getValue={this.getValue}/>
+                    <TextInput style={{width:132}} hasPreInstall={true} preInstallOptions={["light", "regular", "bold"]} canInput={false} label = "字重" defaultValue="normal" name="fontWeight"  getValue={this.getValue}/>
                 </div>
             </div>
         )

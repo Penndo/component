@@ -426,6 +426,24 @@ export default function Table(props) {
         getControlData("cellSize",cellSize);
     }
 
+    function fontWeight(value){
+        let fontWeight;
+        switch (value) {
+            case "light":
+                fontWeight = 200
+                break;
+            case "normal":
+                fontWeight = 400;
+                break;
+            case "bold":
+                fontWeight = 600;
+                break;
+            default:
+                break;
+        }
+        return fontWeight
+    }
+
     return (
         <div className={style.tableContainer}>
             {/* 这里创建右键菜单，默认隐藏 */}
@@ -475,6 +493,7 @@ export default function Table(props) {
                                         width:`calc(100% - ${reservedWidth})`,
                                         color:controlData.theadTextStyle.basicColor,
                                         fontSize:controlData.theadTextStyle.fontSize+"px",
+                                        fontWeight:fontWeight(controlData.theadTextStyle.fontWeight),
                                         marginTop:top+"px",
                                         marginRight:right+"px",
                                         marginBottom:bottom+"px",
@@ -509,6 +528,7 @@ export default function Table(props) {
                                                     width:`calc(100% - ${reservedWidth})`,
                                                     color:controlData.textStyle.basicColor,
                                                     fontSize:controlData.textStyle.fontSize+"px",
+                                                    fontWeight:fontWeight(controlData.textStyle.fontWeight),
                                                     marginTop:top+"px",
                                                     marginRight:right+"px",
                                                     marginBottom:bottom+"px",
