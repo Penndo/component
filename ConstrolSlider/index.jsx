@@ -13,7 +13,7 @@ import styles from "./index.module.less"
 
 export default function ConstrolSlider(props){
 
-    const {tableWidth, tableAmount, dataFrom, padding, fill, border, textStyle} = props.controlData;
+    const {tableWidth, tableAmount, dataFrom, padding, fill, border, textStyle, theadTextStyle} = props.controlData;
     const {getControlData,renderData,renderHead,controlData,cellSize} = props;
 
     const [state, setState] = React.useState("tbodyStyle")
@@ -43,7 +43,7 @@ export default function ConstrolSlider(props){
 
                     <TableBg type="边框" toggleLabel="列分割线" switchColor = {true} switchColorPicker={false} defaultColor="#D8D8D8" getControlData = {getControlData} name="border" data={border}/>
 
-                    <TextStyleSetting type="文本样式" name="textStyle" data={textStyle} getControlData = {getControlData}/>
+                    <TextStyleSetting type="文本样式" name="textStyle" textStyle={textStyle} getControlData = {getControlData}/>
                 
                 </div>
 
@@ -51,7 +51,7 @@ export default function ConstrolSlider(props){
                 
                     <TableBg type="填充" switchColor = {false} defaultColor="#FFFFFF" getControlData = {getControlData} name="theadFill" data={fill}/>
 
-                    <TextStyleSetting type="文本样式" name="theadTextStyle" data={textStyle} getControlData = {getControlData}/>
+                    <TextStyleSetting type="文本样式" name="theadTextStyle" textStyle={theadTextStyle} getControlData = {getControlData}/>
                 
                 </div>
 
