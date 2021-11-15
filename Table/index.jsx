@@ -432,7 +432,7 @@ export default function Table(props) {
             case "light":
                 fontWeight = 200
                 break;
-            case "normal":
+            case "regular":
                 fontWeight = 400;
                 break;
             case "bold":
