@@ -37,7 +37,7 @@ export default function ConstrolSlider(props){
 
                 <SwitchButton witchCheck = {witchCheck} />
 
-                <div style={{display: state === "tbodyStyle" ? "block" : "none"}}>
+                <div className={styles["tbodyStyle"]} style={{display: state === "tbodyStyle" ? "block" : "none"}}>
 
                     <TableBg type="填充" toggleLabel="隔行换色" switchColor = {true} switchColorPicker={true} defaultColor="#FFFFFF" getControlData = {getControlData} name="fill" data={fill}/>
 
@@ -47,7 +47,7 @@ export default function ConstrolSlider(props){
                 
                 </div>
 
-                <div style={{display: state === "theadStyle" ? "block" : "none"}}>
+                <div className={styles["theadStyle"]} style={{display: state === "theadStyle" ? "block" : "none"}}>
                 
                     <TableBg type="填充" switchColor = {false} defaultColor="#FFFFFF" getControlData = {getControlData} name="theadFill" data={fill}/>
 

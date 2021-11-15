@@ -74,7 +74,7 @@ class ColorPicker extends React.Component {
                 </div>
                 <div 
                     onClick = {this.sketchPickerHandle}
-                    style = {{display:isVisable, position:"absolute",right:0,top:28,zIndex:2}}>
+                    style = {{display:isVisable, position:"absolute",right:0,top:28,zIndex:1000}}>
                     <SketchPicker
                         color={colorValue}
                         onChange={this.changeColor}
