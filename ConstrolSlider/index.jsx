@@ -2,13 +2,13 @@ import * as React from "react"
 import TextStyleSetting from "./TextStyle"
 import TableBg from "./TableBg"
 import CellPaddingSetting from "./CellPadding"
-import FormInputV from "./FormInputV"
 import SwitchButton from "./SwitchButton"
 import CellAmount from "./CellAmount"
 import TableData from "./TableData"
 import ButtonGroup from "./ButtonGroup"
 // import TableStyle from "./TableStyle"
 import styles from "./index.module.less"
+import TableWidth from "./TableWidth"
 
 
 export default function ConstrolSlider(props){
@@ -27,7 +27,7 @@ export default function ConstrolSlider(props){
 
             <div className={styles["configureArea"]}>
 
-                <FormInputV type="表格宽度" getControlData = {getControlData} data = {tableWidth}/>
+                <TableWidth type="表格宽度" getControlData = {getControlData} data = {tableWidth}/>
 
                 <CellAmount type="表格数量" getControlData = {getControlData} name="tableAmount" data={tableAmount} />
 

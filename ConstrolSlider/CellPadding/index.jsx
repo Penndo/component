@@ -29,10 +29,10 @@ class CellPaddingSetting extends React.Component {
             <div>
             <p>{this.props.type}</p>
                 <div className={styles["cellPadding"]}>
-                    <TextInput defaultValue = {8} name="top" label = "top" getValue={this.getValue}/>
-                    <TextInput defaultValue = {8} name="right" label = "right" getValue={this.getValue}/>
-                    <TextInput defaultValue = {8} name="bottom" label = "bottom" getValue={this.getValue}/>
-                    <TextInput defaultValue = {8} name="left" label = "left" getValue={this.getValue}/>
+                    <TextInput defaultValue = {8} name="top" label = "top" canInput={true} getValue={this.getValue}/>
+                    <TextInput defaultValue = {8} name="right" label = "right" canInput={true} getValue={this.getValue}/>
+                    <TextInput defaultValue = {8} name="bottom" label = "bottom" canInput={true} getValue={this.getValue}/>
+                    <TextInput defaultValue = {8} name="left" label = "left" canInput={true} getValue={this.getValue}/>
                 </div>
             </div>
         )

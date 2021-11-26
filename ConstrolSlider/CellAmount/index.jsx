@@ -37,8 +37,8 @@ class CellAmount extends React.Component {
             <div>
                 <p>{this.props.type}</p>
                 <div className={styles["cellAmount"]}>
-                    <TextInput defaultValue = {cols} label = "列数" name="cols" getValue = {this.getValue}/>
-                    <TextInput defaultValue = {rows} label = "行数" name="rows" getValue = {this.getValue}/>
+                    <TextInput defaultValue = {cols} label = "列数" name="cols" canInput={true} getValue = {this.getValue}/>
+                    <TextInput defaultValue = {rows} label = "行数" name="rows" canInput={true} getValue = {this.getValue}/>
                 </div>
             </div>
         )
