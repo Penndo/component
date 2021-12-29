@@ -8,8 +8,14 @@ class CellPaddingSetting extends React.Component {
         data:this.props.data
     }
 
-    getValue = (name,value) => {
+    componentDidUpdate(prevProps){
+        if(this.props.data !== prevProps.data){
+            this.setState({data:this.props.data})
+        }
+    }
 
+    getValue = (name,value) => {
+        
         //获取状态中的数据
         const {data} = this.state;
 
@@ -25,15 +31,22 @@ class CellPaddingSetting extends React.Component {
     }
 
     render(){
+        const {area, data} = this.props;
         return (
             <div>
             <p>{this.props.type}</p>
-                <div className={styles["cellPadding"]}>
-                    <TextInput defaultValue = {8} name="top" label = "top" canInput={true} getValue={this.getValue}/>
-                    <TextInput defaultValue = {8} name="right" label = "right" canInput={true} getValue={this.getValue}/>
-                    <TextInput defaultValue = {8} name="bottom" label = "bottom" canInput={true} getValue={this.getValue}/>
-                    <TextInput defaultValue = {8} name="left" label = "left" canInput={true} getValue={this.getValue}/>
-                </div>
+                {this.props.name === "tbodyPadding" 
+                ? 
+                    <div className={styles["cellPadding"]+" "+styles["bodyPadding"]}>
+                        <TextInput defaultValue = {data[area+"_top"]} name={area+"_top"} label = "top" canInput={true} getValue={this.getValue}/>
+                        <TextInput defaultValue = {data[area+"_right"]} name={area+"_right"} label = "right" canInput={true} getValue={this.getValue}/> 
+                        <TextInput defaultValue = {data[area+"_bottom"]} name={area+"_bottom"} label = "bottom" canInput={true} getValue={this.getValue}/>
+                        <TextInput defaultValue = {data[area+"_left"]} name={area+"_left"} label = "left" canInput={true} getValue={this.getValue}/>
+                    </div>
+                :   <div className={styles["cellPadding"]+" "+styles["headPadding"]}>
+                        <TextInput defaultValue = {data[area+"_top"]} name={area+"_top"} label = "top" canInput={true} getValue={this.getValue}/>
+                        <TextInput defaultValue = {data[area+"_bottom"]} name={area+"_bottom"} label = "bottom" canInput={true} getValue={this.getValue}/>
+                    </div>}
             </div>
         )
     }

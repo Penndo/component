@@ -42,7 +42,7 @@ class Button extends React.Component {
         return (
             <button
                 style= {this.judgleStyle(type, primaryStyle, secondaryStyle)}
-                onClick = {this.props.transData}
+                onClick = {this.props.func}
             >
                 {this.props.label}
             </button>

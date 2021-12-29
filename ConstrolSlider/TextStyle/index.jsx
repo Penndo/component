@@ -11,6 +11,12 @@ class TextStyleSetting extends React.Component {
     state = {
         data:this.props.data,
     }
+
+    componentDidUpdate(prevProps){
+        if(this.props.data !== prevProps.data){
+            this.setState({data:this.props.data})
+        }
+    }
     
     //获取颜色值，并更新 data 数据
     getValue = (name,value) => {
@@ -31,7 +37,7 @@ class TextStyleSetting extends React.Component {
     }
 
     render(){
-        const {data} = this.props
+        const {data} = this.props;
         return(
             <div>
                 <p>{this.props.type}</p>

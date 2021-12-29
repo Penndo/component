@@ -17,6 +17,12 @@ class TableBg extends React.Component {
         historyColor:this.props.defaultColor
     }
 
+    componentDidUpdate(prevProps){
+        if(this.props.data !== prevProps.data){
+            this.setState({data:this.props.data})
+        }
+    }
+
     //从 ColorSwitch 中获取 switch 的状态值，用来控制 newData 的数据类型。
     getSwitchState = (switchState) => {
         this.setState({

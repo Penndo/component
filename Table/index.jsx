@@ -50,11 +50,6 @@ function eventPosition(e) {
     return {"tdIndex":tdIndex,"trIndex":trIndex}
 }
 
-//表格宽度调整
-
-
-
-
 export default function Table(props) {
     const controlData = props.controlData
     //获取行、列数
@@ -107,8 +102,9 @@ export default function Table(props) {
 
     // const tableRows = table.current.rows;
     const tableWidth = controlData.tableWidth
-    const {top,right,bottom,left} = controlData.padding
-    const reservedWidth = (left*1 + right*1) + "px";
+    const {b_top,b_right,b_bottom,b_left} = controlData.tbodyPadding
+    const {h_top,h_bottom} = controlData.theadPadding
+    const reservedWidth = (b_left*1 + b_right*1) + "px";
 
     
 
@@ -492,12 +488,12 @@ export default function Table(props) {
                                     style={{
                                         width:`calc(100% - ${reservedWidth})`,
                                         color:controlData.theadTextStyle.basicColor,
-                                        fontSize:controlData.theadTextStyle.fontSize+"px",
+                                        fontSize:controlData.theadTextStyle.fontSize+ "px",
                                         fontWeight:fontWeight(controlData.theadTextStyle.fontWeight),
-                                        marginTop:top+"px",
-                                        marginRight:right+"px",
-                                        marginBottom:bottom+"px",
-                                        marginLeft:left+"px",
+                                        marginTop:h_top + "px",
+                                        marginRight:b_right + "px",
+                                        marginBottom:h_bottom + "px" ,
+                                        marginLeft:b_left + "px",
                                         padding:0
                                     }}
                                 />
@@ -516,7 +512,7 @@ export default function Table(props) {
                                                 //各行换色开启，且行数为奇数时，填充intervalColor, 否则填充 basicColor
                                                 backgroundColor:controlData.fill.intervalColor !== "" && rowIndex%2 === 1 ? controlData.fill.intervalColor : controlData.fill.basicColor,
                                                 borderRight:controlData.border.intervalColor !== "" && cellIndex !== renderHead.length-1 ? `1px solid ${controlData.border.intervalColor}`: "none",
-                                                borderBottom:rowIndex !== renderData.length-1 ? `1px solid ${controlData.border.basicColor}`: "none"
+                                                borderBottom:`1px solid ${controlData.border.basicColor}`
                                             }}
                                             onContextMenu={forRight}
                                             key={perObject["key"]+cell["key"]}
@@ -529,10 +525,10 @@ export default function Table(props) {
                                                     color:controlData.textStyle.basicColor,
                                                     fontSize:controlData.textStyle.fontSize+"px",
                                                     fontWeight:fontWeight(controlData.textStyle.fontWeight),
-                                                    marginTop:top+"px",
-                                                    marginRight:right+"px",
-                                                    marginBottom:bottom+"px",
-                                                    marginLeft:left+"px",
+                                                    marginTop:b_top+"px",
+                                                    marginRight:b_right+"px",
+                                                    marginBottom:b_bottom+"px",
+                                                    marginLeft:b_left+"px",
                                                     padding:0
                                                 }}
                                             />

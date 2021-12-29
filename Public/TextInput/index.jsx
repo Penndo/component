@@ -7,7 +7,7 @@ class TextInput extends React.Component {
     state = {
         defaultValue:this.props.defaultValue,
         showOptions:false
-    }
+    };
 
     //根据传入的输入类型限制，配置不同的正则
     getInputType = (type) => {
@@ -28,7 +28,8 @@ class TextInput extends React.Component {
     //在 react 中对 from 表单的修改都需要为 onChange 添加一个方法。
     onChange = (e) => {
         const reg = this.getInputType(this.props.inputType)
-        const value = e.target.value.replace(reg,"")
+        const value = e.target.value.replace(reg,"");
+        console.log(this.state.defaultValue);
         this.setState({
             defaultValue:value
         })
@@ -37,7 +38,7 @@ class TextInput extends React.Component {
     nothingChanged = (e) => {
     }
 
-    //属性更新后，更新 cols 的显示值
+    //属性更新后，更新状态
     componentDidUpdate(prevProps){
         if(this.props.defaultValue !== prevProps.defaultValue){
             this.setState({defaultValue:this.props.defaultValue})
@@ -57,6 +58,7 @@ class TextInput extends React.Component {
             showOptions:false
         })
         this.props.getValue(e.target.name, e.target.value)
+        console.log(e.target.name,e.target.value)
     }
 
     selectOption = (value)=>{

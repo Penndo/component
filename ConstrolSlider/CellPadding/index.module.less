@@ -1,9 +1,14 @@
 .cellPadding{
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    display: grid;
+    column-gap: 8px;
     div {
-        width: 62px;
         text-align: center;
     }
+}
+.headPadding{
+    grid-template-columns: repeat(2,1fr);
+}
+
+.bodyPadding{
+    grid-template-columns: repeat(4,1fr);
 }

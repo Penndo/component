@@ -1,24 +1,54 @@
 import * as React from "react"
 import Button from "../../Public/Button";
+import Modal from "../../Public/Modal";
 import styles from './index.module.less'
 
 class ButtonGroup extends React.Component {
-    //不同按钮产生的点击事件不同，因此将点击的回掉定义在上层函数。
+
+    state = {
+        createTemplate:false
+    }
+
+    createTemplate = ()=>{
+        console.log("按钮被点击了")
+        this.setState({
+            createTemplate:!this.state.createTemplate
+        })
+    }
 
     //点击确定的时候传递数据
-    transData = () => {
-        const {renderHead,renderData} = this.props
-        const controlData = Object.assign(this.props.controlData,{"cellSize":this.props.cellSize});
-        postMessage('insert',renderHead,renderData,controlData);
-        // console.log(renderHead,renderData,controlData);
+    transData = (renderHead,renderData,controlData) => {
+        return ()=>{
+            // postMessage('insert',renderHead,renderData,controlData);
+            console.log(renderHead,renderData,controlData);
+        }
     }
     //点击取消的时候需要关闭窗口
     
     render(){
+        const {createTemplate} = this.state;
+        const {renderHead,renderData,controlData,cellSize,updateData} = this.props;
+        const allControlData = Object.assign(controlData,{"cellSize":cellSize});
+
+        const storageData = {
+            renderHead:renderHead,
+            renderData:renderData,
+            controlData:allControlData
+        }
+
         return (
-            <div className = {styles["buttonGroup"]} >
-                <Button type = "secondary" label = "取消" />
-                <Button label = "确定" transData={this.transData}/>
+            <div style={{position:"relative"}}>
+                {createTemplate  
+                    ? <Modal updateData={updateData} storageData={storageData} func = {this.createTemplate}  />
+                    :   <div className = {styles["buttonGroup"]} >
+                            <Button label = "创建为模板" type = "secondary" func = {this.createTemplate}/>
+                            <Button label = "生成表格" func={this.transData(renderHead,renderData,allControlData)}/>
+                        </div>
+                }
+                
+                
+
+                
             </div>
         )
     }
