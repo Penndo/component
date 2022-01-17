@@ -81,12 +81,13 @@ class TextInput extends React.Component {
             <div className={styles["textInput"]} style = {{...style}}>
                 <input 
                     type="text" 
-                    onChange={readOnly ? this.onChange : this.nothingChanged} 
+                    onChange={!readOnly ? this.onChange : this.nothingChanged} 
                     onFocus={this.focus}
                     onBlur={this.onBlur} 
                     name={name} 
                     value={defaultValue} 
                     placeholder={placeholder}
+                    readOnly = {readOnly}
                 />
                 {hasPreInstall ? 
                     <div 
