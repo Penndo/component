@@ -1,136 +1,191 @@
-import * as React from "react"
-import Table from "../Table"
-import ConstrolSlider from "../ConstrolSlider";
-import * as IDB from "../Public/IDB";
-import styles from "./index.module.less"
+import * as React from "react";
 import { useState } from "react";
+import {v4 as uuidv4} from "uuid";
+
+import {createIDB, getAllValue,getValue} from "../Public/IDB";
+import { shearData } from "../Public/Tools";
+
+import Table from "../Table";
+import ConstrolSlider from "../ConstrolSlider";
+
+import styles from "./index.module.less";
 
 const defaultStoreName = "defaultStore";
 const defaultHistoryName = "historyStore";
 
-function loadStorageData(setRenderData,setRenderHead,setControlData) {
-    IDB.createIDB().then((db)=>{
-        IDB.getAllValue(db,defaultHistoryName).then((result)=>{
+const originControlData = {
+    tableWidth:"640",
+    tableAmount:{
+        cols:"4",
+        rows:"5"
+    },
+    dataFrom:{
+        api:"https://randomuser.me/api/?results=5&inc=",
+        parameter:"gender,email,nat,phone"
+    },
+    tbodyPadding:{
+        b_top:"8",
+        b_right:"8",
+        b_bottom:"8",
+        b_left:"8"
+    },
+    theadPadding:{
+        h_top:"8",
+        h_bottom:"8"
+    },
+    fill:{
+        basicColor:"#FFFFFF",
+        intervalColor:""
+    },
+    border:{
+        basicColor:"#D8D8D8",
+        intervalColor:""
+    },
+    theadFill:{
+        basicColor:"#FFFFFF"
+    },
+    textStyle:{
+        basicColor:"#333333",
+        fontSize:"14",
+        fontWeight:"regular"
+    },
+    theadTextStyle:{
+        basicColor:"#333333",
+        fontSize:"14",
+        fontWeight:"regular"
+    }
+}
+
+//初始表头数据及格式
+const originHead = [
+    {title:"gender",key:uuidv4()},
+    {title:"email",key:uuidv4()},
+    {title:"nat",key:uuidv4()},
+    {title:"phone",key:uuidv4()}
+]
+
+//初始表格数据及格式
+const originData = [
+    {"gender":"表","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()},
+    {"gender":"格","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()},
+    {"gender":"工","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()},
+    {"gender":"具","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()},
+    {"gender":"具","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()}
+]
+
+//从模板更新页面数据
+function refreshDataFromComponent(setControlData,indexValue) {
+    createIDB().then((db)=>{
+        getValue(db,defaultStoreName,"title",indexValue).then((result)=>{
+            const data = result.information;
+            //更新 controlData 就可以驱动页面重新计算，进而得到最新的 renderData, renderHead
+            setControlData(data.controlData);
+        });
+    })
+}
+
+//加载 indexedDB 本地数据库中的数据，并重新设置 renderData,renderHead, controlData
+function loadStorageData(setControlData) {
+    createIDB().then((db)=>{
+        getAllValue(db,defaultHistoryName).then((result)=>{
             if(!result.length) return false;
             const indexValue = result[0].history;
-            IDB.getValue(db,defaultStoreName,"title",indexValue).then((result)=>{
-                if(!result) return false;
-                console.log(result.information)
-                const data = result.information;
-                setRenderData(data.renderData);
-                setRenderHead(data.renderHead);
-                setControlData(data.controlData);
-            });
+            refreshDataFromComponent(setControlData,indexValue)
         })
     })
 }
 
 export default function App(){
 
+    //初始数据
+    const [dynamicHead, setDynamicHead] = useState(originHead);
+    const [dynamicData, setDynamicData] = useState(originData);
+    const [controlData, setControlData] = useState(originControlData);
+    //单元格尺寸
     const [cellSize, setCellSize] = useState({});
-    const [theadIsEnable, setTheadIsEnable] = useState(false);
 
-    const [controlData, setControlData] = useState({
-        tableWidth:"640",
-        tableAmount:{
-            cols:"4",
-            rows:"5"
-        },
-        dataFrom:{
-            api:"https://randomuser.me/api/?results=5&inc=",
-            parameter:"gender,email,nat,phone"
-        },
-        tbodyPadding:{
-            b_top:"8",
-            b_right:"8",
-            b_bottom:"8",
-            b_left:"8"
-        },
-        theadPadding:{
-            h_top:"8",
-            h_bottom:"8"
-        },
-        fill:{
-            basicColor:"#FFFFFF",
-            intervalColor:""
-        },
-        border:{
-            basicColor:"#D8D8D8",
-            intervalColor:""
-        },
-        theadFill:{
-            basicColor:"#FFFFFF"
-        },
-        textStyle:{
-            basicColor:"#333333",
-            fontSize:"14",
-            fontWeight:"regular"
-        },
-        theadTextStyle:{
-            basicColor:"#333333",
-            fontSize:"14",
-            fontWeight:"regular"
-        }
-    })
-
+    const [headerIndependentStyle, setHeaderIndependentStyle] = useState(false);
+    
+    //拖动时以更新单元格尺寸
     const getCellSize = React.useCallback(
         (data)=>{
             setCellSize(data);
         },[]
     )
 
-    //表头独立启用
-    function theadEnable() {
-        setTheadIsEnable(true)
+    //表格数量更新，更新动态数据 dynamicData
+    function changeCols(count) {
+        let shearedHead = shearData(count,dynamicHead)
+        //当更新后的数据长度大于原有的数据长度时，将这个更长的数据设置为 dynamicData,否则不做处理。因为只是对原有的 dynamicData 进行裁切，不会生成新的单元格。对最终数据呈现 renderData 没有影响
+        if(shearedHead.length > dynamicHead.length){
+            setDynamicHead(shearedHead)
+        }
+    }
+    function changeRows(count) {
+        let shearedData = shearData(count,dynamicData)
+        if(shearedData.length > dynamicData.length){
+            setDynamicData(shearedData)
+        }
     }
 
-    const syncControlData = React.useCallback(
-        (name, data)=>{
+    //传递设置动态数据的函数给 Table。
+    const set_dynamic_data = React.useCallback((data)=>{
+        setDynamicData(data)
+    },[])
+    const set_dynamic_head = React.useCallback((data)=>{
+        setDynamicHead(data)
+    },[])
 
-            let syncData = {}
-            if(!theadIsEnable){              
-                if(name === "tbodyPadding"){
-                        syncData = {theadPadding:{
-                            h_top:data.b_top,
-                            h_bottom:data.b_bottom
-                        }
-                    }
-                }else if(name === "fill"){
-                        syncData = {theadFill:{
-                            basicColor:data.basicColor
-                        }
-                    }
-                }else if(name === "textStyle"){
-                        syncData = {theadTextStyle:{
-                            basicColor:data.basicColor,
-                            fontSize:data.fontSize,
-                            fontWeight:data.fontWeight
-                        }
-                    }
-                }
-            }
-            return {...syncData,[name]:data}
-            
-        },[theadIsEnable]
-    )
+    //表头独立样式启用
+    function syncBodyStyleToHeader() {
+        setHeaderIndependentStyle(true)
+    }
 
     //更新样式表
     const getControlData = React.useCallback(
+
         (name,data)=>{
+                //同步表格样式数据至表头
+                function syncControlData() {
+                    let syncData = {}
+                    if(!headerIndependentStyle){              
+                        if(name === "tbodyPadding"){
+                                syncData = {theadPadding:{
+                                    h_top:data.b_top,
+                                    h_bottom:data.b_bottom
+                                }
+                            }
+                        }else if(name === "fill"){
+                                syncData = {theadFill:{
+                                    basicColor:data.basicColor
+                                }
+                            }
+                        }else if(name === "textStyle"){
+                                syncData = {theadTextStyle:{
+                                    basicColor:data.basicColor,
+                                    fontSize:data.fontSize,
+                                    fontWeight:data.fontWeight
+                                }
+                            }
+                        };
+                    }
+                    return {...syncData,[name]:data}
+                }
 
                 setControlData({
-                    ...controlData,...syncControlData(name,data)
+                    ...controlData,...syncControlData()
                 })
 
-        },[controlData,syncControlData]
+        },[controlData,headerIndependentStyle]
     )
 
     
     const [renderData, setRenderData] = useState([]);
     const [renderHead, setRenderHead] = useState([]);
 
+    //页面加载时，加载一次本地存储的数据
     React.useEffect(()=>{
-        loadStorageData(setRenderData,setRenderHead,setControlData);
+        loadStorageData(setControlData);
     },[])
 
     const getRenderData = React.useCallback(
@@ -145,23 +200,25 @@ export default function App(){
         },[]
     )
 
-    //点击切换模板。
+    //切换模板更新初始数据
     function switchTemplate(indexValue){
-        IDB.createIDB().then((db)=>{
-            IDB.getValue(db,defaultStoreName,"title",indexValue).then((result)=>{
-                // console.log(result.information)
-                const data = result.information;
-                setRenderData(data.renderData);
-                setRenderHead(data.renderHead);
-                setControlData(data.controlData);
-            });
-        })
+        refreshDataFromComponent(setControlData,indexValue)
+    }
+
+
+    function backToInitialState(){
+        setRenderData(originData);
+        setRenderHead(originHead);
+        setControlData(originControlData);
     }
 
     return (
         <div className={styles["container"]}>
             <Table 
-                theadIsEnable={theadIsEnable}
+                dynamicData={dynamicData}
+                dynamicHead={dynamicHead}
+                setDynamicHead={set_dynamic_head}
+                setDynamicData={set_dynamic_data}
                 controlData={controlData} 
                 getControlData={getControlData} 
                 getRenderData={getRenderData} 
@@ -171,8 +228,11 @@ export default function App(){
             />
 
             <ConstrolSlider 
+                changeCols={changeCols}
+                changeRows={changeRows}
                 switchTemplate = {switchTemplate}
-                theadEnable={theadEnable}
+                backToInitialState = {backToInitialState}
+                syncBodyStyleToHeader={syncBodyStyleToHeader}
                 cellSize={cellSize}
                 controlData={controlData} 
                 getControlData={getControlData} 

@@ -27,9 +27,8 @@ class TextInput extends React.Component {
 
     //在 react 中对 from 表单的修改都需要为 onChange 添加一个方法。
     onChange = (e) => {
-        const reg = this.getInputType(this.props.inputType)
+        const reg = this.getInputType(this.props.inputType);
         const value = e.target.value.replace(reg,"");
-        console.log(this.state.defaultValue);
         this.setState({
             defaultValue:value
         })
@@ -57,25 +56,32 @@ class TextInput extends React.Component {
         this.setState({
             showOptions:false
         })
-        this.props.getValue(e.target.name, e.target.value)
+        if(this.props.getValue){
+            this.props.getValue(e.target.name, e.target.value)
+        }
+        
         console.log(e.target.name,e.target.value)
+        if(this.props.changeTableAmount){
+            this.props.changeTableAmount(e.target.value)
+        }
     }
 
     selectOption = (value)=>{
+        console.log(value)
         this.setState({
             defaultValue:value
         })
     }
 
     render(){
-        const {style, placeholder, hasPreInstall, label, labelDisplay, name, preInstallOptions,canInput} = this.props;
+        const {style, placeholder, hasPreInstall, label, labelDisplay, name, preInstallOptions,readOnly} = this.props;
         const {defaultValue,showOptions} = this.state;
 
         return (
             <div className={styles["textInput"]} style = {{...style}}>
                 <input 
                     type="text" 
-                    onChange={canInput ? this.onChange : this.nothingChanged} 
+                    onChange={readOnly ? this.onChange : this.nothingChanged} 
                     onFocus={this.focus}
                     onBlur={this.onBlur} 
                     name={name} 
@@ -88,7 +94,10 @@ class TextInput extends React.Component {
                         style={{display:showOptions?"block":"none"}}>
                         <Options selectOption={this.selectOption} options={preInstallOptions}/>
                     </div>  : null}
-                <label style={{display:labelDisplay}}>{label}</label>
+                {labelDisplay === "block" ?
+                    <label style={{display:labelDisplay}}>{label}</label>:null
+                }
+                
             </div>
         )
     }

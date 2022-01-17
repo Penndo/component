@@ -10,10 +10,11 @@ class switchButton extends React.Component {
     }
 
     handleCheck = (e) => {
+        const name = e.currentTarget.name
         this.setState({
-            interLeaveChecked:e.currentTarget.name
+            interLeaveChecked:name
         });
-        this.props.witchCheck(e.currentTarget.name)
+        this.props.witchCheck(name)
     }
 
     render(){

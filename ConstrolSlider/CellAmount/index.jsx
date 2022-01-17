@@ -9,36 +9,33 @@ class CellAmount extends React.Component {
         data:this.props.data
     }
 
-    getValue = (name,value) => {
-
-        //获取状态中的数据
-        const {data} = this.state;
-
-        //设置新的数据
-        const newData = {...data,[name]: value};
-
-        //更新数据
-        this.setState({
-            data: newData
-        })
-
-        this.props.getControlData(this.props.name, newData)
-    }
-
     componentDidUpdate(prevProps){
         if(this.props.data !== prevProps.data){
             this.setState({data:this.props.data})
         }
     }
 
+    getValue = (name,value) => {
+        //获取状态中的数据
+        const {data} = this.state;
+        //设置新的数据
+        const newData = {...data,[name]: value};
+        //更新数据
+        this.setState({
+            data: newData
+        })
+        this.props.getControlData(this.props.name, newData)
+    }
+
     render(){
-        const {cols,rows} = this.state.data
+        const {cols,rows} = this.state.data;
+        const {changeCols,changeRows} = this.props;
         return (
             <div>
                 <p>{this.props.type}</p>
                 <div className={styles["cellAmount"]}>
-                    <TextInput defaultValue = {cols} label = "列数" name="cols" canInput={true} getValue = {this.getValue}/>
-                    <TextInput defaultValue = {rows} label = "行数" name="rows" canInput={true} getValue = {this.getValue}/>
+                    <TextInput defaultValue = {cols} label = "列数" name="cols" canInput={true}  getValue = {this.getValue} changeTableAmount={changeCols} />
+                    <TextInput defaultValue = {rows} label = "行数" name="rows" canInput={true} getValue = {this.getValue} changeTableAmount={changeRows} />
                 </div>
             </div>
         )

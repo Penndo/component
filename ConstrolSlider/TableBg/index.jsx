@@ -1,16 +1,13 @@
 import * as React from "react";
 import ColorPicker from "../../Public/ColorPicker";
-// import ToggleSwitch from "../../Public/ToggleSwitch";
 import ColorSwitch from "../../Public/ColorSwitch";
 import styles from "./index.module.less";
 
-//示例：https://www.w3schools.com/howto/howto_css_switch.asp
 
 class TableBg extends React.Component {
 
     state = {
         data:this.props.data,
-        isDisplay:"none",
         //switch默认为关闭状态
         switchState:false,
         //historyColor 用来存放当前组件中 colorpicker 的最后一次取值。
@@ -56,7 +53,7 @@ class TableBg extends React.Component {
             newData = {...data,[name]: value};
         }
 
-        //更新 tableAmount
+        //更新数据
         this.setState({
             data: newData,
         })
@@ -65,11 +62,11 @@ class TableBg extends React.Component {
     }
 
     render(){
-        const {defaultColor, toggleLabel,switchColor, switchColorPicker, getControlData} = this.props;
+        const {defaultColor, toggleLabel, switchColor, switchColorPicker, getControlData, type} = this.props;
         const {historyColor} = this.state
         return(
             <div>
-                <p>{this.props.type}</p>
+                <p>{type}</p>
                 <div className={styles["stork"]}>
                     
                     {/*填充色*/}
