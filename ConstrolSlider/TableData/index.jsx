@@ -33,8 +33,8 @@ class TableData extends React.Component {
             <div>
                 <p>{type}</p>
                 <div style = {{...style}} className={styles["fontStyle"]}>
-                    <TextInput style={{width:"100%"}} defaultValue={data.api} name="api" label = "API" placeholder="请输入 API" canInput={true} getValue={this.getValue} />
-                    <TextInput style={{width:"100%"}} defaultValue={data.parameter} name="apiParameter" label = "参数" placeholder="请输入参数" canInput={true} getValue={this.getValue}  />
+                    <TextInput style={{width:"100%"}} defaultValue={data.api} name="api" label = "API" placeholder="请输入 API" readOnly={false} getValue={this.getValue} />
+                    <TextInput style={{width:"100%"}} defaultValue={data.parameter} name="apiParameter" label = "参数" placeholder="请输入参数" readOnly={false} getValue={this.getValue}  />
                 </div>
             </div>
         )
