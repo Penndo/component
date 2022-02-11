@@ -56,6 +56,11 @@ const originControlData = {
     }
 }
 
+const originCellSize = {
+    height:[34,34,34,34,34],
+    width:[160,160,160,160]
+}
+
 //初始表头数据及格式
 const originHead = [
     {title:"gender",key:uuidv4()},
@@ -74,24 +79,20 @@ const originData = [
 ]
 
 //从模板更新页面数据
-function refreshDataFromComponent(setControlData,indexValue) {
-    createIDB().then((db)=>{
-        getValue(db,defaultStoreName,"title",indexValue).then((result)=>{
-            const data = result.information;
-            //更新 controlData 就可以驱动页面重新计算，进而得到最新的 renderData, renderHead
-            setControlData(data.controlData);
-        });
-    })
-}
-
-//加载 indexedDB 本地数据库中的数据，并重新设置 renderData,renderHead, controlData
-function loadStorageData(setControlData) {
+function refreshDataFromComponent(setControlData,setRenderData,setRenderHead,setCellSize) {
     createIDB().then((db)=>{
         getAllValue(db,defaultHistoryName).then((result)=>{
             if(!result.length) return false;
             const indexValue = result[0].history;
-            refreshDataFromComponent(setControlData,indexValue)
-        })
+            getValue(db,defaultStoreName,"title",indexValue).then((result)=>{
+                const data = result.information;
+                //更新 controlData 就可以驱动页面重新计算，进而得到最新的 renderData, renderHead
+                setControlData(data.controlData);
+                setRenderData(data.renderData);
+                setRenderHead(data.renderHead);
+                setCellSize(data.cellSize)
+            });
+        });
     })
 }
 
@@ -102,7 +103,7 @@ export default function App(){
     const [dynamicData, setDynamicData] = useState(originData);
     const [controlData, setControlData] = useState(originControlData);
     //单元格尺寸
-    const [cellSize, setCellSize] = useState({});
+    const [cellSize, setCellSize] = useState(originCellSize);
 
     const [headerIndependentStyle, setHeaderIndependentStyle] = useState(false);
     
@@ -185,7 +186,7 @@ export default function App(){
 
     //页面加载时，加载一次本地存储的数据
     React.useEffect(()=>{
-        loadStorageData(setControlData);
+        refreshDataFromComponent(setControlData,setRenderData,setRenderHead,setCellSize);
     },[])
 
     const getRenderData = React.useCallback(
@@ -201,15 +202,16 @@ export default function App(){
     )
 
     //切换模板更新初始数据
-    function switchTemplate(indexValue){
-        refreshDataFromComponent(setControlData,indexValue)
+    function switchTemplate(){
+        refreshDataFromComponent(setControlData,setRenderData,setRenderHead,setCellSize)
     }
 
 
     function backToInitialState(){
-        setRenderData(originData);
-        setRenderHead(originHead);
+        setCellSize(originCellSize);
         setControlData(originControlData);
+        setRenderHead(originHead);
+        setRenderData(originData);
     }
 
     return (
@@ -223,7 +225,7 @@ export default function App(){
                 getControlData={getControlData} 
                 getRenderData={getRenderData} 
                 getRenderHead={getRenderHead}
-                cellSize={cellSize} 
+                cellSize={cellSize}
                 getCellSize={getCellSize}
             />
 

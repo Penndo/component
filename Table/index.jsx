@@ -25,7 +25,7 @@ function eventPosition(e) {
 
 export default function Table(props) {
 
-    const {controlData, getControlData, getCellSize, getRenderData, getRenderHead,dynamicData,dynamicHead,setDynamicData,setDynamicHead} = props;
+    const {controlData,cellSize, getControlData, getCellSize, getRenderData, getRenderHead,dynamicData,dynamicHead,setDynamicData,setDynamicHead} = props;
     //获取行、列数
     const {cols,rows} = controlData.tableAmount;
 
@@ -47,13 +47,12 @@ export default function Table(props) {
     const [renderHead, setRenderHead] = useState([]);
     const [renderData, setRenderData] = useState([]);
 
-    // const tableRows = table.current.rows;
-    const tableWidth = controlData.tableWidth
-    const {b_top,b_right,b_bottom,b_left} = controlData.tbodyPadding
-    const {h_top,h_bottom} = controlData.theadPadding
+    const tableWidth = controlData.tableWidth;
+    const {b_top,b_right,b_bottom,b_left} = controlData.tbodyPadding;
+    const {h_top,h_bottom} = controlData.theadPadding;
     const reservedWidth = (b_left*1 + b_right*1) + "px";
 
-    
+    console.log(cellSize.width.length);
 
     React.useEffect(() => {
         //将表头数据整合为对象，并加入 key
@@ -85,6 +84,7 @@ export default function Table(props) {
     },[api,apiParameter,setDynamicHead,setDynamicData])
 
     React.useEffect(()=>{
+
         //获取当前 table 的行和列。列从行中进一步获取。
         let tableRows = Array.from(table.current.rows);
         let tableCols = Array.from(table.current.rows[0].cells);
@@ -94,7 +94,7 @@ export default function Table(props) {
         //获取单元格高度
         let newstHeightArr = [];
         //用来存放单元格尺寸的对象
-        let cellSize = {};
+        let newCellSize = {};
 
         //用循环获得行的高度
         for(let i=0;i<tableRows.length;i++){
@@ -107,14 +107,14 @@ export default function Table(props) {
         };
     
         //将获取的尺寸放进尺寸对象中
-        cellSize.width = newstWidthArr;
-        cellSize.height = newstHeightArr
+        newCellSize.width = newstWidthArr;
+        newCellSize.height = newstHeightArr;
+        getCellSize(newCellSize);
+
 
         //复制一份 tbody 和 thead 的数据
         let longestData = dynamicData.slice();
         let longestHead = dynamicHead.slice();
-
-        console.log(dynamicHead.length)
 
         //裁切数据，删除掉大于表格数量的数据，表格数量不够的话进行补充
         //更新 controlData, 比较cols和longestHead.length的大小。如果cols<longestHead.length,就对现有表格进行裁剪，如果cols>longestHead.length,就对表格数量进行增加。
@@ -152,9 +152,8 @@ export default function Table(props) {
         //获取 renderData，renderHead 数据返回给 头部的 App。为什么？因为最后需要把这部分数据传给 sketch
         getRenderData(mergedData);
         getRenderHead(readyRenderHead);
-        getCellSize(cellSize);
         
-    },[cols,rows,dynamicHead,dynamicData,getRenderData,getRenderHead,getCellSize,controlData,setDynamicData,setDynamicHead])
+    },[cols,rows,dynamicHead,dynamicData,getRenderData,getRenderHead,getCellSize,controlData])
   
     //table 输入
     function changeTbodyValue(e){
@@ -293,6 +292,8 @@ export default function Table(props) {
         ox:"",
         index:""
     });
+
+    console.log(dragableTable.scaleTheadArr)
     
     //给一个初始的单元格宽度，表格宽度除以表头数量然后取整。
     const defaultCellWidth = Math.floor(tableWidth / renderHead.length);
@@ -307,10 +308,9 @@ export default function Table(props) {
             let mouseDowntheadItems = mouseDownCurrent.parentNode.cells;
             //将获取的 thead 中的所有子元素放入数组
             let mouseDowntheadArr = Array.from(mouseDowntheadItems);
-            console.log(mouseDowntheadArr.length)
             //获取当前单元格的序号
             let mouseDownCurrentIndex = mouseDowntheadArr.indexOf(mouseDownCurrent)
-    
+
             //如果不是最后一个单元格，且鼠标位置在单元格右侧侧 8 像素范围内
             if(mouseDownCurrentIndex !== mouseDowntheadArr.length-1 && event.nativeEvent.offsetX > mouseDownCurrent.offsetWidth - 8){
                 
@@ -354,7 +354,7 @@ export default function Table(props) {
             }            
         }
 
-        //鼠标按下的时候将表格的拖动状态设置为 true
+        //鼠标按下的时候将已经表格的拖动状态设置为 true
         if(dragableTable.status === true){
     
             //x的变量等于当前鼠标的 offsetX 减去 mouseDown 时初次获取的鼠标位置
@@ -381,22 +381,26 @@ export default function Table(props) {
         }
     }
     
-    function onMouseUp(event){
-        
-        setDragableTable({...dragableTable,status:false});
-        event.target.style.cursor = "default";
-        let newstWidthArr = [];
-        let newstHeightArr = [];
-        let cellSize = {};
-    
-        for(let i=0;i<dragableTable.scaleTheadArr.length;i++){
-            newstWidthArr.push(dragableTable.scaleTheadArr[i].offsetWidth)
-            newstHeightArr.push(dragableTable.scaleTheadArr[i].offsetHeight*1 + 2)
-        }
-        cellSize.width = newstWidthArr;
-        cellSize.height = newstHeightArr
 
-        getControlData("cellSize",cellSize);
+    //这里导致 width.length 为 0
+    function onMouseUp(event){
+        if(event.target.tagName === "TH"){
+            setDragableTable({...dragableTable,status:false});
+            event.target.style.cursor = "default";
+            let newstWidthArr = [];
+            let newstHeightArr = [];
+            let cellSize = {};
+        
+            for(let i=0;i<dragableTable.scaleTheadArr.length;i++){
+                newstWidthArr.push(dragableTable.scaleTheadArr[i].offsetWidth)
+                newstHeightArr.push(dragableTable.scaleTheadArr[i].offsetHeight*1)
+            }
+            
+            console.log(dragableTable.scaleTheadArr)
+            cellSize.width = newstWidthArr;
+            cellSize.height = newstHeightArr
+            getCellSize(cellSize)
+        }
     }
 
     function fontWeight(value){
@@ -441,7 +445,7 @@ export default function Table(props) {
                     width:tableWidth*1 + 1 + "px"
                 }}>
                 <colgroup>
-                    {renderHead.map((cell,index)=>{
+                    {renderHead.map(()=>{
                         return (<col key={uuidv4()}></col>) 
                     })}
                 </colgroup>
@@ -451,7 +455,8 @@ export default function Table(props) {
                             return <th 
                                 key={cell["key"]}
                                 style={{
-                                    width:index !== renderHead.length - 1 ? defaultCellWidth : "",
+                                    width:cellSize.width.length ? cellSize.width[index] : defaultCellWidth,
+                                    // width:index !== renderHead.length - 1 ? defaultCellWidth : "",
                                     backgroundColor:controlData.theadFill.basicColor,
                                     borderRight:controlData.border.intervalColor !== "" && index !== renderHead.length-1 ? `1px solid ${controlData.border.intervalColor}`: "none",
                                     borderBottom:`1px solid ${controlData.border.basicColor}`

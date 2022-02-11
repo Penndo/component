@@ -34,7 +34,7 @@ class CellPaddingSetting extends React.Component {
         const {area, data} = this.props;
         return (
             <div>
-            <p>{this.props.type}</p>
+                <p>{this.props.type}</p>
                 {this.props.name === "tbodyPadding" 
                 ? 
                     <div className={styles["cellPadding"]+" "+styles["bodyPadding"]}>

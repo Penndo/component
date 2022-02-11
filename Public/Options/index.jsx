@@ -3,8 +3,6 @@ import {createIDB, deleteItem, getAllValue, update} from "../IDB";
 import ToolTips from "../ToolTips";
 import {v4 as uuidv4} from "uuid";
 
-import closePng from "../../images/close.png";
-
 import styles from "./index.module.less";
 
 
@@ -56,7 +54,7 @@ class Options extends React.Component{
                                 {
                                     canDelete ? 
                                         <div className={styles["closePart"]}>
-                                            <img src={closePng} alt="closePng" onClick={this.deleteData(item,updateData)}/>
+                                            <p onClick={this.deleteData(item,updateData)}>删除模板</p>
                                             <div className={styles["toolTips"]}>
                                                 <ToolTips  tips="删除模板" />
                                             </div>
