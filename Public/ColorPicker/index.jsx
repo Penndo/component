@@ -17,6 +17,14 @@ class ColorPicker extends React.Component {
         isVisable:"none",
     }
 
+    componentDidUpdate(prevProps){
+        if(this.props.defaultColor !== prevProps.defaultColor){
+            this.setState({
+                colorValue:this.props.defaultColor
+            })
+        }
+    }
+
     changeColor = (color) => {
         this.setState({colorValue: color.hex})
         this.props.getValue(this.props.name, color.hex)
@@ -55,7 +63,7 @@ class ColorPicker extends React.Component {
     }
     
     render() {
-        const {style, defaultColor} = this.props;
+        const {style} = this.props;
         const {isVisable, colorValue} = this.state
         return (
             <div className={styles["colorPicker"]}>
@@ -74,7 +82,7 @@ class ColorPicker extends React.Component {
                         style={{
                             width:style.width-6,
                             height:style.height-6,
-                            backgroundColor: defaultColor
+                            backgroundColor: colorValue
                         }}
                     ></div>
                 </div>

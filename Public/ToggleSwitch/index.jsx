@@ -5,13 +5,21 @@ import styles from './index.module.less'
 class ToggleSwitch extends React.Component {
 
     state = {
-        interLeaveChecked: false,
+        interLeaveChecked: this.props.interLeaveChecked,
     }
 
-    handleCheck = () => {
-        this.props.handleSwitch(!this.state.interLeaveChecked)
+    componentDidUpdate(prevProps){
+        if(this.props.interLeaveChecked !== prevProps.interLeaveChecked){
+            this.setState({
+                interLeaveChecked:this.props.interLeaveChecked
+            })
+        }
+    }
+
+    handleCheck = (event) => {
+        this.props.handleSwitch(event.target.checked)
         this.setState({
-            interLeaveChecked:!this.state.interLeaveChecked
+            interLeaveChecked:event.target.checked
         })
     }
 

@@ -52,8 +52,6 @@ export default function Table(props) {
     const {h_top,h_bottom} = controlData.theadPadding;
     const reservedWidth = (b_left*1 + b_right*1) + "px";
 
-    console.log(cellSize.width.length);
-
     React.useEffect(() => {
         //将表头数据整合为对象，并加入 key
         let addKeyHead = [];
@@ -292,8 +290,6 @@ export default function Table(props) {
         ox:"",
         index:""
     });
-
-    console.log(dragableTable.scaleTheadArr)
     
     //给一个初始的单元格宽度，表格宽度除以表头数量然后取整。
     const defaultCellWidth = Math.floor(tableWidth / renderHead.length);

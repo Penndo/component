@@ -9,7 +9,7 @@ class TableBg extends React.Component {
     state = {
         data:this.props.data,
         //switch默认为关闭状态
-        switchState:false,
+        switchState:true,
         //historyColor 用来存放当前组件中 colorpicker 的最后一次取值。
         historyColor:this.props.defaultColor
     }
@@ -17,6 +17,9 @@ class TableBg extends React.Component {
     componentDidUpdate(prevProps){
         if(this.props.data !== prevProps.data){
             this.setState({data:this.props.data})
+        }        
+        if(this.props.defaultColor !== prevProps.defaultColor){
+            this.setState({historyColor:this.props.defaultColor})
         }
     }
 
@@ -28,7 +31,7 @@ class TableBg extends React.Component {
     }
     
     //获取颜色值，并更新 data 数据
-    getValue = (name,value) => {
+    getValue = (name,value,object) => {
 
         //获取状态中的 data, switchState, historyColor 数据
         const {data, switchState, historyColor} = this.state;
@@ -48,9 +51,12 @@ class TableBg extends React.Component {
         //如果该组件运用于边框，边框颜色没有设置选择器。this.props.switchColorPicker 为 false 。在这种条件下开启边框色，允许修改填充色的同时修改边框色。
         //修改 fill 一并修改 intervalColor 的值。如果未开启，那么传给 intervalColor 的值为 “”。
         if(!switchColorPicker && switchState){
-            newData = {...data,"basicColor": historyColor,"intervalColor": value}
-        }else{
-            newData = {...data,[name]: value};
+            newData = {...data,"basicColor": value,"intervalColor":value,...object}
+        }else if(!switchColorPicker && !switchState){
+            newData = {...data,"basicColor": historyColor,"intervalColor":"",...object}
+        }
+        else{
+            newData = {...data,[name]: value,...object};
         }
 
         //更新数据
@@ -62,32 +68,36 @@ class TableBg extends React.Component {
     }
 
     render(){
-        const {defaultColor, toggleLabel, switchColor, switchColorPicker, getControlData, type} = this.props;
-        const {historyColor} = this.state
+        const {defaultColor, toggleLabel, switchColor, interLeaveChecked, switchColorPicker, getControlData, type, data} = this.props;
+        const {historyColor, switchState} = this.state
         return(
             <div>
                 <p>{type}</p>
                 <div className={styles["stork"]}>
                     
-                    {/*填充色*/}
+                    {/*填充色 边框色*/}
                     <div>
                         <ColorPicker style={{ width: 62, height: 24}} defaultColor={defaultColor} name = "basicColor" getValue={this.getValue}/>
                         <label>颜色</label>
                     </div>
 
-                    {/*隔行换色*/}
-                    <div style={{display:switchColor?"block":"none"}}>
+                    {/*隔行换色 分割线颜色*/}
+                    {
+                        switchColor ? 
                         <ColorSwitch 
                             name = "intervalColor" 
-                            defaultColor={defaultColor} 
-                            historyColor={historyColor} 
+                            defaultColor={defaultColor}
+                            historyColor={switchState ? data.intervalColor : historyColor} 
                             toggleLabel={toggleLabel} 
+                            interLeaveChecked = {interLeaveChecked}
                             switchColorPicker={switchColorPicker} 
                             getControlData={getControlData}
                             getValue={this.getValue} 
                             getSwitchState={this.getSwitchState} 
-                        />
-                    </div>
+                        />:
+                        null
+                    }
+                    
 
                     
 
