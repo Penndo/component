@@ -48,6 +48,35 @@ export default function Table(props) {
     const {h_top,h_bottom} = controlData.theadPadding;
     const reservedWidth = (b_left*1 + b_right*1) + "px";
 
+    // React.useEffect(() => {
+    //     //将表头数据整合为对象，并加入 key
+    //     let addKeyHead = [];
+    //     let parameter = apiParameter.split(",");
+    //     for(let i=0;i<parameter.length;i++){
+    //         let headItem = {};
+    //         headItem.title = parameter[i];
+    //         headItem.key = uuidv4();
+    //         addKeyHead.push(headItem);
+    //     }
+    //     setDynamicHead(addKeyHead);
+
+    //     //fetch请求成功后更新 dynamicData
+    //     fetch(api+apiParameter)
+    //     .then((response) => response.json())
+    //     .then((json) => {
+    //         setDynamicData(
+    //             //为原始数据加上 key
+    //             function (){
+    //                 let addKeyData = json.results.slice()
+    //                 for(let i=0;i<addKeyData.length;i++){
+    //                     addKeyData[i]["key"] = uuidv4();
+    //                 }
+    //                 return addKeyData;
+    //             }
+    //         );
+    //     });
+    // },[api,apiParameter,setDynamicHead,setDynamicData])
+
     React.useEffect(()=>{
 
         //获取当前 table 的行和列。列从行中进一步获取。
