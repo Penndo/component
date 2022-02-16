@@ -9,7 +9,7 @@ class TableBg extends React.Component {
     state = {
         data:this.props.data,
         //switch默认为关闭状态
-        switchState:true,
+        switchState:false,
         //historyColor 用来存放当前组件中 colorpicker 的最后一次取值。
         historyColor:this.props.data.intervalColor !== "" && this.props.data.intervalColor !== undefined ? this.props.data.intervalColor : this.props.defaultColor
     }
@@ -37,7 +37,7 @@ class TableBg extends React.Component {
     getValue = (name,value,object) => {
 
         //获取状态中的 data, switchState, historyColor 数据
-        const {data, historyColor} = this.state;
+        const {data,switchState,historyColor} = this.state;
 
         const {switchColorPicker} = this.props
 
@@ -53,7 +53,7 @@ class TableBg extends React.Component {
 
         //如果该组件运用于边框，边框颜色没有设置选择器。this.props.switchColorPicker 为 false 。在这种条件下开启边框色，允许修改填充色的同时修改边框色。
         //修改 fill 一并修改 intervalColor 的值。如果未开启，那么传给 intervalColor 的值为 “”。
-        if(!switchColorPicker){
+        if(!switchColorPicker && switchState){
             newData = {...data,"basicColor": value !== "" ? value : historyColor ,"intervalColor":value,...object}
         }else{
             newData = {...data,[name]: value,...object};
