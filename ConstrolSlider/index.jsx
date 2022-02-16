@@ -71,14 +71,14 @@ export default function ConstrolSlider(props){
 
                 <div className={styles["tbodyStyle"]} style={{display: styleType === "tbodyStyle" ? "block" : "none"}}>
                     <CellPaddingSetting type="padding" name="tbodyPadding" area="b" data={tbodyPadding} getControlData = {getControlData}/>
-                    <TableBg type="填充" toggleLabel="隔行换色" switchColor = {true} switchColorPicker={true} interLeaveChecked = {fill.interLeaveChecked} name="fill" data={fill} defaultColor={fill.basicColor} getControlData = {getControlData} />
-                    <TableBg type="边框" toggleLabel="列分割线" switchColor = {true} switchColorPicker={false} interLeaveChecked = {border.interLeaveChecked} name="border" data={border} defaultColor={border.basicColor} getControlData = {getControlData} />
+                    <TableBg type="填充" toggleLabel="隔行换色" switchColor = {true} switchColorPicker={true} name="fill" data={fill} getControlData = {getControlData} />
+                    <TableBg type="边框" toggleLabel="列分割线" switchColor = {true} switchColorPicker={false} name="border" data={border} getControlData = {getControlData} />
                     <TextStyleSetting type="文本样式" name="textStyle" data={textStyle} getControlData = {getControlData}/>
                 </div>
 
                 <div className={styles["theadStyle"]} style={{display: styleType === "theadStyle" ? "block" : "none"}}>
                     <CellPaddingSetting type="padding" name="theadPadding" area="h" data={theadPadding} getControlData = {getControlData}/>
-                    <TableBg type="填充" switchColor = {false} interLeaveChecked = {false} name="theadFill" data={theadFill} defaultColor={theadFill.basicColor} getControlData = {getControlData} />
+                    <TableBg type="填充" switchColor = {false} name="theadFill" data={theadFill} getControlData = {getControlData} />
                     <TextStyleSetting type="文本样式" name="theadTextStyle" data={theadTextStyle} getControlData = {getControlData}/>
                 </div>
 
