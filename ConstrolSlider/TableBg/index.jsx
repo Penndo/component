@@ -8,20 +8,23 @@ class TableBg extends React.Component {
 
     state = {
         //switch默认为关闭状态
-        switchState:this.props.data.interLeaveChecked,
+        switchState:this.props.data.switchState,
         //lastPickedColor 用来存放当前组件中 colorpicker 的最后一次取值。
-        lastPickedColor:this.props.data.intervalColor !== "" && this.props.data.intervalColor !== undefined ? this.props.data.intervalColor : this.props.data.basicColor
+        lastPickedColor:this.props.data.intervalColor
     }
 
     componentDidUpdate(prevProps){
-        if(this.props.data.intervalColor !== "" && this.props.data.intervalColor !== undefined){
-            if(this.props.data.intervalColor !== prevProps.data.intervalColor){
-                this.setState({lastPickedColor:this.props.data.intervalColor})
+
+        const {data} = this.props
+
+        if(data.intervalColor !== "" && data.intervalColor !== undefined){
+            if(data.intervalColor !== prevProps.data.intervalColor){
+                this.setState({lastPickedColor:data.intervalColor})
             }
         }
         
-        if(this.props.data.interLeaveChecked !== prevProps.data.interLeaveChecked){
-            this.setState({switchState:this.props.data.interLeaveChecked})
+        if(data.switchState !== prevProps.data.switchState){
+            this.setState({switchState:data.switchState})
         }
 
     }
@@ -54,17 +57,10 @@ class TableBg extends React.Component {
         //如果该组件运用于边框，边框颜色没有设置选择器。this.props.switchColorPicker 为 false 。在这种条件下开启边框色，允许修改填充色的同时修改边框色。
         //修改 fill 一并修改 intervalColor 的值。如果未开启，那么传给 intervalColor 的值为 “”。
         if(!switchColorPicker && switchState){
-            console.log("border",value)
             newData = {...data,"basicColor": value !== "" ? value : lastPickedColor ,"intervalColor":value,...object}
         }else{
-            console.log("fill",switchState)
             newData = {...data,[name]: value,...object};
         }
-
-        //更新数据
-        this.setState({
-            data: newData,
-        })
 
         this.props.getControlData(this.props.name, newData)
     }
@@ -90,9 +86,9 @@ class TableBg extends React.Component {
                         <ColorSwitch 
                             name = "intervalColor" 
                             defaultColor={data.basicColor}
-                            historyColor={switchState ? data.intervalColor : lastPickedColor} 
+                            lastPickedColor={switchState ? data.intervalColor : lastPickedColor} 
                             toggleLabel={toggleLabel} 
-                            interLeaveChecked = {data.interLeaveChecked}
+                            switchState = {data.switchState}
                             switchColorPicker={switchColorPicker} 
                             getControlData={getControlData}
                             getValue={this.getValue} 

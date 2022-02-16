@@ -35,12 +35,12 @@ const originControlData = {
     },
     fill:{
         basicColor:"#FFFFFF",
-        interLeaveChecked:false,
+        switchState:false,
         intervalColor:""
     },
     border:{
         basicColor:"#D8D8D8",
-        interLeaveChecked:false,
+        switchState:false,
         intervalColor:""
     },
     theadFill:{
