@@ -26,7 +26,7 @@ class ColorSwitch extends React.Component {
 
     handleSwitch = (switchState) => { 
         //开关打开时，将 historyColor 传到 intervalColor 中；开关关闭时，将 “空” 传到 intervalColor 中
-        this.props.getValue("intervalColor", switchState ? this.props.historyColor : "",{"switchState":switchState});
+        this.props.getValue("intervalColor", switchState ? this.props.historyColor : "",{"interLeaveChecked":switchState});
         this.setState({
             isDisplay: switchState,
             intervalDefaultColor: this.props.historyColor,
