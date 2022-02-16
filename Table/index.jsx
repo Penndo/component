@@ -29,10 +29,6 @@ export default function Table(props) {
     //获取行、列数
     const {cols,rows} = controlData.tableAmount;
 
-    //获取数据源、参数
-    const {api} = controlData.dataFrom;
-    const apiParameter = controlData.dataFrom.parameter;
-
     //用来控制右键菜单是否可见的状态
     const [visable, setVisable] = useState("none");
     
@@ -51,35 +47,6 @@ export default function Table(props) {
     const {b_top,b_right,b_bottom,b_left} = controlData.tbodyPadding;
     const {h_top,h_bottom} = controlData.theadPadding;
     const reservedWidth = (b_left*1 + b_right*1) + "px";
-
-    React.useEffect(() => {
-        //将表头数据整合为对象，并加入 key
-        let addKeyHead = [];
-        let parameter = apiParameter.split(",");
-        for(let i=0;i<parameter.length;i++){
-            let headItem = {};
-            headItem.title = parameter[i];
-            headItem.key = uuidv4();
-            addKeyHead.push(headItem);
-        }
-        setDynamicHead(addKeyHead);
-
-        //fetch请求成功后更新 dynamicData
-        fetch(api+apiParameter)
-        .then((response) => response.json())
-        .then((json) => {
-            setDynamicData(
-                //为原始数据加上 key
-                function (){
-                    let addKeyData = json.results.slice()
-                    for(let i=0;i<addKeyData.length;i++){
-                        addKeyData[i]["key"] = uuidv4();
-                    }
-                    return addKeyData;
-                }
-            );
-        });
-    },[api,apiParameter,setDynamicHead,setDynamicData])
 
     React.useEffect(()=>{
 

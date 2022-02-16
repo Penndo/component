@@ -4,7 +4,6 @@ import TableBg from "./TableBg"
 import CellPaddingSetting from "./CellPadding"
 import SwitchButton from "./SwitchButton"
 import CellAmount from "./CellAmount"
-import TableData from "./TableData"
 import ButtonGroup from "./ButtonGroup"
 import styles from "./index.module.less"
 import TableWidth from "./TableWidth"
@@ -46,7 +45,7 @@ export default function ConstrolSlider(props){
     },[controlData])
 
     //从 styleData 中获取更详细的样式数据
-    const {tableWidth, tableAmount, dataFrom, tbodyPadding, theadPadding, theadFill, fill, border, textStyle, theadTextStyle} = styleData;
+    const {tableWidth, tableAmount, tbodyPadding, theadPadding, theadFill, fill, border, textStyle, theadTextStyle} = styleData;
     
     //默认样式给到 tbodyStyle.通过下面 return 查看
     const [styleType, setStyleType] = React.useState("tbodyStyle");
@@ -66,7 +65,7 @@ export default function ConstrolSlider(props){
                 <TemplateSelecter defaultStorageData={defaultStorageData} historyStorageData={historyStorageData} switchTemplate={switchTemplate} backToInitialState={backToInitialState} updateData={updateData} type="选择模板"/>
                 <TableWidth type="表格宽度" getControlData = {getControlData} data = {tableWidth}/>
                 <CellAmount type="表格数量" getControlData = {getControlData} name="tableAmount" data={tableAmount} changeCols = {changeCols} changeRows={changeRows} />
-                <TableData type = "数据源" getControlData = {getControlData} name="dataFrom" data={dataFrom}/>
+                {/* <TableData type = "数据源" getControlData = {getControlData} name="dataFrom" data={dataFrom}/> */}
                 <SwitchButton witchCheck = {witchCheck}  />
 
                 <div className={styles["tbodyStyle"]} style={{display: styleType === "tbodyStyle" ? "block" : "none"}}>

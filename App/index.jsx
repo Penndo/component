@@ -73,7 +73,7 @@ const originHead = [
 
 //初始表格数据及格式
 const originData = [
-    {"gender":"表","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()},
+    {"gender":"yupe","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()},
     {"gender":"格","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()},
     {"gender":"工","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()},
     {"gender":"具","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()},
@@ -81,7 +81,7 @@ const originData = [
 ]
 
 //从模板更新页面数据
-function refreshDataFromComponent(setControlData,setRenderData,setRenderHead,setCellSize) {
+function refreshDataFromComponent(setControlData,setRenderData,setRenderHead,setCellSize,setDynamicHead,setDynamicData) {
     createIDB().then((db)=>{
         getAllValue(db,defaultHistoryName).then((result)=>{
             if(!result.length) return false;
@@ -90,7 +90,9 @@ function refreshDataFromComponent(setControlData,setRenderData,setRenderHead,set
                 const data = result.information;
                 //更新 controlData 就可以驱动页面重新计算，进而得到最新的 renderData, renderHead
                 setControlData(data.controlData);
+                setDynamicData(data.renderData);
                 setRenderData(data.renderData);
+                setDynamicHead(data.renderHead);
                 setRenderHead(data.renderHead);
                 setCellSize(data.cellSize)
             });
@@ -204,7 +206,7 @@ export default function App(){
 
     //页面加载时，加载一次本地存储的数据
     React.useEffect(()=>{
-        refreshDataFromComponent(setControlData,setRenderData,setRenderHead,setCellSize);
+        refreshDataFromComponent(setControlData,setRenderData,setRenderHead,setCellSize,setDynamicHead,setDynamicData);
     },[])
 
     const getRenderData = React.useCallback(
@@ -221,7 +223,7 @@ export default function App(){
 
     //切换模板更新初始数据
     function switchTemplate(){
-        refreshDataFromComponent(setControlData,setRenderData,setRenderHead,setCellSize)
+        refreshDataFromComponent(setControlData,setRenderData,setRenderHead,setCellSize,setDynamicHead,setDynamicData)
     }
 
 
