@@ -148,36 +148,52 @@ export default function App(){
     const getControlData = React.useCallback(
 
         (name,data)=>{
-                //同步表格样式数据至表头
-                function syncControlData() {
-                    let syncData = {}
-                    if(!headerIndependentStyle){              
-                        if(name === "tbodyPadding"){
-                                syncData = {theadPadding:{
-                                    h_top:data.b_top,
-                                    h_bottom:data.b_bottom
-                                }
-                            }
-                        }else if(name === "fill"){
-                                syncData = {theadFill:{
-                                    basicColor:data.basicColor
-                                }
-                            }
-                        }else if(name === "textStyle"){
-                                syncData = {theadTextStyle:{
-                                    basicColor:data.basicColor,
-                                    fontSize:data.fontSize,
-                                    fontWeight:data.fontWeight
-                                }
-                            }
-                        };
-                    }
-                    return {...syncData,[name]:data}
-                }
 
-                setControlData({
-                    ...controlData,...syncControlData()
-                })
+            //用来判断表头样式和表格样式是否全等。如果不全等就让样式独立编辑。
+            const headerIndependentStyle_condition = 
+                controlData.tbodyPadding.b_top !== controlData.theadPadding.h_top || 
+                controlData.tbodyPadding.b_bottom !== controlData.theadPadding.h_bottom ||
+                controlData.fill.basicColor !== controlData.theadFill.basicColor ||
+                controlData.textStyle.basicColor !== controlData.theadTextStyle.basicColor ||
+                controlData.textStyle.fontSize !== controlData.theadTextStyle.fontSize ||
+                controlData.textStyle.fontWeight !== controlData.theadTextStyle.fontWeight;
+
+            let lastHeaderIndependentStyle = headerIndependentStyle;
+
+            if(headerIndependentStyle_condition){
+                lastHeaderIndependentStyle = true;
+            }
+
+            //同步表格样式数据至表头
+            function syncControlData() {
+                let syncData = {}
+                if(!lastHeaderIndependentStyle){              
+                    if(name === "tbodyPadding"){
+                            syncData = {theadPadding:{
+                                h_top:data.b_top,
+                                h_bottom:data.b_bottom
+                            }
+                        }
+                    }else if(name === "fill"){
+                            syncData = {theadFill:{
+                                basicColor:data.basicColor
+                            }
+                        }
+                    }else if(name === "textStyle"){
+                            syncData = {theadTextStyle:{
+                                basicColor:data.basicColor,
+                                fontSize:data.fontSize,
+                                fontWeight:data.fontWeight
+                            }
+                        }
+                    };
+                }
+                return {...syncData,[name]:data}
+            }
+
+            setControlData({
+                ...controlData,...syncControlData()
+            })
 
         },[controlData,headerIndependentStyle]
     )
