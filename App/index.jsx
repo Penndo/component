@@ -73,7 +73,7 @@ const originHead = [
 
 //初始表格数据及格式
 const originData = [
-    {"gender":"yupe","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()},
+    {"gender":"表","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()},
     {"gender":"格","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()},
     {"gender":"工","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()},
     {"gender":"具","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()},
@@ -232,6 +232,8 @@ export default function App(){
         setControlData(originControlData);
         setRenderHead(originHead);
         setRenderData(originData);
+        setDynamicHead(originHead);
+        setDynamicData(originData);
     }
 
     return (

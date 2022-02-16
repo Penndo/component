@@ -29,6 +29,10 @@ export default function Table(props) {
     //获取行、列数
     const {cols,rows} = controlData.tableAmount;
 
+    //获取数据源、参数
+    // const {api} = controlData.dataFrom;
+    // const apiParameter = controlData.dataFrom.parameter;
+
     //用来控制右键菜单是否可见的状态
     const [visable, setVisable] = useState("none");
     
