@@ -11,16 +11,19 @@ class TableBg extends React.Component {
         //switch默认为关闭状态
         switchState:true,
         //historyColor 用来存放当前组件中 colorpicker 的最后一次取值。
-        historyColor:this.props.defaultColor
+        historyColor:this.props.data.intervalColor !== "" && this.props.data.intervalColor !== undefined ? this.props.data.intervalColor : this.props.defaultColor
     }
 
     componentDidUpdate(prevProps){
         if(this.props.data !== prevProps.data){
             this.setState({data:this.props.data})
-        }        
-        if(this.props.defaultColor !== prevProps.defaultColor){
-            this.setState({historyColor:this.props.defaultColor})
         }
+        if(this.props.data.intervalColor !== "" && this.props.data.intervalColor !== undefined){
+            if(this.props.data.intervalColor !== prevProps.data.intervalColor){
+                this.setState({historyColor:this.props.data.intervalColor})
+            }
+        }
+
     }
 
     //从 ColorSwitch 中获取 switch 的状态值，用来控制 newData 的数据类型。
@@ -34,7 +37,7 @@ class TableBg extends React.Component {
     getValue = (name,value,object) => {
 
         //获取状态中的 data, switchState, historyColor 数据
-        const {data, switchState, historyColor} = this.state;
+        const {data, historyColor} = this.state;
 
         const {switchColorPicker} = this.props
 
@@ -50,12 +53,9 @@ class TableBg extends React.Component {
 
         //如果该组件运用于边框，边框颜色没有设置选择器。this.props.switchColorPicker 为 false 。在这种条件下开启边框色，允许修改填充色的同时修改边框色。
         //修改 fill 一并修改 intervalColor 的值。如果未开启，那么传给 intervalColor 的值为 “”。
-        if(!switchColorPicker && switchState){
-            newData = {...data,"basicColor": value,"intervalColor":value,...object}
-        }else if(!switchColorPicker && !switchState){
-            newData = {...data,"basicColor": historyColor,"intervalColor":"",...object}
-        }
-        else{
+        if(!switchColorPicker){
+            newData = {...data,"basicColor": value !== "" ? value : historyColor ,"intervalColor":value,...object}
+        }else{
             newData = {...data,[name]: value,...object};
         }
 
@@ -69,7 +69,8 @@ class TableBg extends React.Component {
 
     render(){
         const {defaultColor, toggleLabel, switchColor, interLeaveChecked, switchColorPicker, getControlData, type, data} = this.props;
-        const {historyColor, switchState} = this.state
+        const {historyColor, switchState} = this.state;
+        
         return(
             <div>
                 <p>{type}</p>
