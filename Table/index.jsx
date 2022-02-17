@@ -2,7 +2,7 @@ import * as React from "react"
 import { useRef, useState } from "react"
 import { v4 as uuidv4 } from "uuid"
 import TableEdit from "./TableEdit"
-import {shearData} from "../Public/Tools"
+import {shearData,recalculate_CellSize} from "../Public/Tools"
 
 import style from "./index.module.less"
 
@@ -52,6 +52,8 @@ export default function Table(props) {
     const {h_top,h_bottom} = controlData.theadPadding;
     const reservedWidth = (b_left*1 + b_right*1) + "px";
 
+
+
     // React.useEffect(() => {
     //     //将表头数据整合为对象，并加入 key
     //     let addKeyHead = [];
@@ -83,12 +85,12 @@ export default function Table(props) {
 
     React.useEffect(()=>{
 
-        //获取当前 table 的行和列。列从行中进一步获取。
+        //自动去获取列的高度。因为我们没有手动去干预，如果后面需要手动干预高度，可能这里也不需要了
         let tableRows = Array.from(table.current.rows);
-        let tableCols = Array.from(table.current.rows[0].cells);
+        // let tableCols = Array.from(table.current.rows[0].cells);
 
         //获取单元格宽度
-        let newstWidthArr = [];
+        // let newstWidthArr = [];
         //获取单元格高度
         let newstHeightArr = [];
         //用来存放单元格尺寸的对象
@@ -99,17 +101,17 @@ export default function Table(props) {
             newstHeightArr.push(tableRows[i].offsetHeight)
         };
 
-        //用循环获得列的宽度
-        for(let i=0;i<tableCols.length;i++){
-            newstWidthArr.push(tableCols[i].offsetWidth)
-        };
+        // //用循环获得列的宽度
+        // for(let i=0;i<tableCols.length;i++){
+        //     newstWidthArr.push(tableCols[i].offsetWidth)
+        // };
     
         //将获取的尺寸放进尺寸对象中
-        newCellSize.width = newstWidthArr;
+        newCellSize.width = cellSize.width;
         newCellSize.height = newstHeightArr;
-        getCellSize(newCellSize);
+        getCellSize(newCellSize)
 
-
+        // console.log(newCellSize)
         //复制一份 tbody 和 thead 的数据
         let longestData = dynamicData.slice();
         let longestHead = dynamicHead.slice();
@@ -151,7 +153,7 @@ export default function Table(props) {
         getRenderData(mergedData);
         getRenderHead(readyRenderHead);
         
-    },[cols,rows,dynamicHead,dynamicData,getRenderData,getRenderHead,getCellSize,controlData])
+    },[cols,rows,dynamicHead,dynamicData,getRenderData,getRenderHead,getCellSize,cellSize.width,controlData])
   
     //table 输入
     function changeTbodyValue(e){
@@ -261,23 +263,30 @@ export default function Table(props) {
     //增减列
     function changeCol(how){
         return function(){
+            const width = 160;
+            let cellArr = cellSize.width.slice();
             let insert = renderHead.slice();
             switch (how) {
                 case "after":
                     insert.splice(tdIndex + 1, 0, {key:uuidv4()});
+                    cellArr.splice(tdIndex + 1, 0, width)
                     break;
                 case "front":
                     insert.splice(tdIndex, 0, {key:uuidv4()});
+                    cellArr.splice(tdIndex, 0, width)
                     break;
                 case "remove":
                     insert.splice(tdIndex, 1);
+                    cellArr.splice(tdIndex, 1)
                     break;
                 default:
                     break;
             }
+            let newCellSize = recalculate_CellSize(cellArr,tableWidth);
+            getCellSize({...cellSize,...newCellSize});
             setDynamicHead(insert); //这里更新了 dynamic 所以可以正常展示。
             setVisable("none");
-            getValue("cols",insert.length)
+            getValue("cols",insert.length);
         }
     }
 
@@ -377,7 +386,6 @@ export default function Table(props) {
         }
     }
     
-
     //这里导致 width.length 为 0
     function onMouseUp(event){
         if(event.target.tagName === "TH"){
@@ -392,9 +400,10 @@ export default function Table(props) {
                 newstHeightArr.push(dragableTable.scaleTheadArr[i].offsetHeight*1)
             }
             
-            console.log(dragableTable.scaleTheadArr)
+            
             cellSize.width = newstWidthArr;
-            cellSize.height = newstHeightArr
+            cellSize.height = newstHeightArr;
+            console.log(cellSize.width)
             getCellSize(cellSize)
         }
     }

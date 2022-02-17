@@ -3,7 +3,7 @@ import { useState } from "react";
 import {v4 as uuidv4} from "uuid";
 
 import {createIDB, getAllValue,getValue} from "../Public/IDB";
-import { shearData } from "../Public/Tools";
+import { shearData,recalculate_CellSize } from "../Public/Tools";
 
 import Table from "../Table";
 import ConstrolSlider from "../ConstrolSlider";
@@ -118,14 +118,36 @@ export default function App(){
         },[]
     )
 
-    //表格数量更新，更新动态数据 dynamicData
+    //表格数量更新，更新动态数据 dynamicData,以及各列的宽度
     function changeCols(count) {
+        //更新表格数据
         let shearedHead = shearData(count,dynamicHead)
-        //当更新后的数据长度大于原有的数据长度时，将这个更长的数据设置为 dynamicData,否则不做处理。因为只是对原有的 dynamicData 进行裁切，不会生成新的单元格。对最终数据呈现 renderData 没有影响
-        if(shearedHead.length > dynamicHead.length){
+        if(shearedHead.length > dynamicHead.length){ //当更新后的数据长度大于原有的数据长度时，将这个更长的数据设置为 dynamicData,否则不做处理。因为只是对原有的 dynamicData 进行裁切，不会生成新的单元格。对最终数据呈现 renderData 没有影响
             setDynamicHead(shearedHead)
         }
+
+        //更新列宽度
+        const tableWidth = controlData.tableWidth;
+        const width = 160;
+        const cellArr = cellSize.width;
+        const oldCellAmount = cellArr.length; //获取原有的数组长度
+        const changeAmount = count - oldCellAmount; //获取长度改变量，>0 是增加列，<0 是减少列。
+    
+        let newCellArr=[];//先定义一个新数组。
+    
+        //如果是增加列
+        if(changeAmount > 0){
+            const increasedCellArr = new Array(changeAmount).fill(width);//要添加的数组
+            newCellArr = cellArr.concat(increasedCellArr);//添加了新增数组后的新数组。
+        }else{ //如果是减少列
+            newCellArr = cellArr.slice(0,count);//重新拷贝一份cols长度的数组
+        }
+        
+        //recalculate_CellSize 函数会重新处理表格宽度
+        let newCellSize = recalculate_CellSize(newCellArr,tableWidth)
+        getCellSize({...cellSize,...newCellSize});
     }
+
     function changeRows(count) {
         let shearedData = shearData(count,dynamicData)
         if(shearedData.length > dynamicData.length){

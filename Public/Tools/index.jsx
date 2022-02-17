@@ -29,6 +29,41 @@ function sync(preData,newData){
     }
 }
 
+function recalculate_CellSize(cellArr,tableWidth){
+
+    //计算数组值的总和
+    function arr_sum(arr) {
+        return arr.reduce((acc,cur)=>acc + cur,0)
+    }
+
+    const sum_NewCellSize = arr_sum(cellArr);//新数组所有值的和。用于比例的计算;
+    
+    //计算比例
+    const cellSizePercentage = [];//用来存放比例值
+    for(let i=0;i<cellArr.length;i++){
+        cellSizePercentage.push(cellArr[i]/sum_NewCellSize)
+    };//通过循环将比例值放入 cellSizePercentage 中
+    
+    //更新宽度
+    const newCellWidth = [];
+    for(let i=0;i<cellSizePercentage.length;i++){
+        newCellWidth.push(Math.floor(cellSizePercentage[i] * tableWidth))
+    }
+
+    //因为数据误差这里需要补全，简单处理，用最后一列的宽度吧
+    const sum_checkCellWidth = arr_sum(newCellWidth);
+    if(sum_checkCellWidth < tableWidth){
+        const change = tableWidth - sum_checkCellWidth;//差值
+        const lastItemWidth = newCellWidth[newCellWidth.length-1] + change;//修改最后一项的值
+        newCellWidth.splice(newCellWidth.length-1,1,lastItemWidth);//替换最后一项
+    }
+
+    let newCellSize = {};
+    newCellSize.width = newCellWidth;
+    return newCellSize;
+
+}
+
 function useShowModal(e) {
     const [selecter, setSelecter] = useState(false);
     const [eventTarget, setEventTarget] = useState(null);
@@ -120,4 +155,4 @@ function withModal_WrappedComponent(WrappedComponent) {
 
 
 
-export {shearData,sync,useShowModal,withModal_WrappedComponent}
+export {shearData,sync,recalculate_CellSize,useShowModal,withModal_WrappedComponent}
