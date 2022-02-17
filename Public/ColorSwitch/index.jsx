@@ -29,7 +29,7 @@ class ColorSwitch extends React.Component {
         this.props.getValue("intervalColor", switchState ? this.props.lastPickedColor : "",{"switchState":switchState});
         this.setState({
             switchState: switchState,
-            intervalDefaultColor: this.props.lastPickedColor,
+            intervalDefaultColor: this.state.lastPickedColor,
         })  
 
         //用来控制 keyValue 的值，进而控制 colorPicker 是否更新，switch 每次打开时，keyValue + 1，生成一个新的colorPicker。

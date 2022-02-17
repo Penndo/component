@@ -9,8 +9,8 @@ class TableBg extends React.Component {
     state = {
         //switch默认为关闭状态
         switchState:this.props.data.switchState,
-        //lastPickedColor 用来存放当前组件中 colorpicker 的最后一次取值。
-        lastPickedColor:this.props.data.intervalColor
+        //lastPickedColor 用来存放当前组件中 colorpicker 的最后一次取值。因为组件共用，需要判断是否有 intervalColor。才能用来赋值。
+        lastPickedColor:this.props.data.intervalColor !== "" && this.props.data.intervalColor !== undefined ? this.props.data.intervalColor : this.props.data.basicColor
     }
 
     componentDidUpdate(prevProps){
@@ -68,6 +68,7 @@ class TableBg extends React.Component {
     render(){
         const {toggleLabel, switchColor, switchColorPicker, getControlData, type, data} = this.props;
         const {lastPickedColor, switchState} = this.state;
+        console.log(lastPickedColor)
         
         return(
             <div>
