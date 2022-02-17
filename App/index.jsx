@@ -17,21 +17,21 @@ const originControlData = {
     tableWidth:"640",
     tableAmount:{
         cols:"4",
-        rows:"5"
+        rows:"4"
     },
     dataFrom:{
         api:"https://randomuser.me/api/?results=5&inc=",
         parameter:"gender,email,nat,phone"
     },
     tbodyPadding:{
-        b_top:"8",
-        b_right:"8",
-        b_bottom:"8",
-        b_left:"8"
+        b_top:"12",
+        b_right:"16",
+        b_bottom:"12",
+        b_left:"16"
     },
     theadPadding:{
-        h_top:"8",
-        h_bottom:"8"
+        h_top:"12",
+        h_bottom:"12"
     },
     fill:{
         basicColor:"#FFFFFF",
@@ -39,9 +39,9 @@ const originControlData = {
         intervalColor:""
     },
     border:{
-        basicColor:"#D8D8D8",
-        switchState:false,
-        intervalColor:""
+        basicColor:"#EDEDED",
+        switchState:true,
+        intervalColor:"#EDEDED"
     },
     theadFill:{
         basicColor:"#FFFFFF"
@@ -65,19 +65,18 @@ const originCellSize = {
 
 //初始表头数据及格式
 const originHead = [
-    {title:"gender",key:uuidv4()},
-    {title:"email",key:uuidv4()},
-    {title:"nat",key:uuidv4()},
-    {title:"phone",key:uuidv4()}
+    {title:"A",key:uuidv4()},
+    {title:"B",key:uuidv4()},
+    {title:"C",key:uuidv4()},
+    {title:"D",key:uuidv4()}
 ]
 
 //初始表格数据及格式
 const originData = [
-    {"gender":"表","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()},
-    {"gender":"格","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()},
-    {"gender":"工","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()},
-    {"gender":"具","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()},
-    {"gender":"具","email":"zcool.com","nat":"bilibili.com","phone":"artstation.com",key:uuidv4()}
+    {"A":"表","B":"","C":"","D":"",key:uuidv4()},
+    {"A":"格","B":"","C":"","D":"",key:uuidv4()},
+    {"A":"工","B":"","C":"","D":"",key:uuidv4()},
+    {"A":"具","B":"","C":"","D":"",key:uuidv4()}
 ]
 
 //从模板更新页面数据
