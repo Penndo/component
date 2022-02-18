@@ -65,18 +65,18 @@ const originCellSize = {
 
 //初始表头数据及格式
 const originHead = [
-    {title:"A",key:uuidv4()},
-    {title:"B",key:uuidv4()},
-    {title:"C",key:uuidv4()},
-    {title:"D",key:uuidv4()}
+    {serialNumber:"0",colID:1,title:"A",key:uuidv4()},
+    {serialNumber:"1",colID:2,title:"B",key:uuidv4()},
+    {serialNumber:"2",colID:3,title:"C",key:uuidv4()},
+    {serialNumber:"3",colID:4,title:"D",key:uuidv4()}
 ]
 
 //初始表格数据及格式
 const originData = [
-    {"A":"表","B":"","C":"","D":"",key:uuidv4()},
-    {"A":"格","B":"","C":"","D":"",key:uuidv4()},
-    {"A":"工","B":"","C":"","D":"",key:uuidv4()},
-    {"A":"具","B":"","C":"","D":"",key:uuidv4()}
+    {rowID:1,1:"表",2:"",3:"",4:"",key:uuidv4()},
+    {rowID:2,1:"格",2:"",3:"",4:"",key:uuidv4()},
+    {rowID:3,1:"工",2:"",3:"",4:"",key:uuidv4()},
+    {rowID:4,1:"具",2:"",3:"",4:"",key:uuidv4()}
 ]
 
 //从模板更新页面数据
@@ -116,43 +116,6 @@ export default function App(){
             setCellSize(data);
         },[]
     )
-
-    //表格数量更新，更新动态数据 dynamicData,以及各列的宽度
-    function changeCols(count) {
-        //更新表格数据
-        let shearedHead = shearData(count,dynamicHead)
-        if(shearedHead.length > dynamicHead.length){ //当更新后的数据长度大于原有的数据长度时，将这个更长的数据设置为 dynamicData,否则不做处理。因为只是对原有的 dynamicData 进行裁切，不会生成新的单元格。对最终数据呈现 renderData 没有影响
-            setDynamicHead(shearedHead)
-        }
-
-        //更新列宽度
-        const tableWidth = controlData.tableWidth;
-        const width = 160;
-        const cellArr = cellSize.width;
-        const oldCellAmount = cellArr.length; //获取原有的数组长度
-        const changeAmount = count - oldCellAmount; //获取长度改变量，>0 是增加列，<0 是减少列。
-    
-        let newCellArr=[];//先定义一个新数组。
-    
-        //如果是增加列
-        if(changeAmount > 0){
-            const increasedCellArr = new Array(changeAmount).fill(width);//要添加的数组
-            newCellArr = cellArr.concat(increasedCellArr);//添加了新增数组后的新数组。
-        }else{ //如果是减少列
-            newCellArr = cellArr.slice(0,count);//重新拷贝一份cols长度的数组
-        }
-        
-        //recalculate_CellSize 函数会重新处理表格宽度
-        let newCellSize = recalculate_CellSize(newCellArr,tableWidth)
-        getCellSize({...cellSize,...newCellSize});
-    }
-
-    function changeRows(count) {
-        let shearedData = shearData(count,dynamicData)
-        if(shearedData.length > dynamicData.length){
-            setDynamicData(shearedData)
-        }
-    }
 
     //传递设置动态数据的函数给 Table。
     const set_dynamic_data = React.useCallback((data)=>{
@@ -221,6 +184,61 @@ export default function App(){
         },[controlData,headerIndependentStyle]
     )
 
+    const [colID, setColID] = useState(maxID(dynamicHead,"colID"))
+    const [rowID, setRowID] = useState(maxID(dynamicData,"rowID"))
+
+    function maxID(data,name){
+        let IDArr = [];
+        for(let i=0;i<data.length;i++){
+            IDArr.push(data[i][name])
+        };
+        return Math.max(...IDArr)
+    }
+
+    const getColID = React.useCallback((colID)=>{
+        setColID(colID)
+    },[])
+
+    const getRowID = React.useCallback((rowID)=>{
+        setRowID(rowID)
+    },[])
+
+    //表格数量更新，更新动态数据 dynamicData,以及各列的宽度
+    function changeCols(count) {
+        //更新表格数据
+        let shearedHead = shearData(count,dynamicHead,colID,"colID",getColID)
+        if(shearedHead.length > dynamicHead.length){ //当更新后的数据长度大于原有的数据长度时，将这个更长的数据设置为 dynamicData,否则不做处理。因为只是对原有的 dynamicData 进行裁切，不会生成新的单元格。对最终数据呈现 renderData 没有影响
+            setDynamicHead(shearedHead)
+        }
+
+        //更新列宽度
+        const tableWidth = controlData.tableWidth;
+        const width = 160;
+        const cellArr = cellSize.width;
+        const oldCellAmount = cellArr.length; //获取原有的数组长度
+        const changeAmount = count - oldCellAmount; //获取长度改变量，>0 是增加列，<0 是减少列。
+
+        let newCellArr=[];//先定义一个新数组。
+
+        //如果是增加列
+        if(changeAmount > 0){
+            const increasedCellArr = new Array(changeAmount).fill(width);//要添加的数组
+            newCellArr = cellArr.concat(increasedCellArr);//添加了新增数组后的新数组。
+        }else{ //如果是减少列
+            newCellArr = cellArr.slice(0,count);//重新拷贝一份cols长度的数组
+        }
+        
+        //recalculate_CellSize 函数会重新处理表格宽度
+        let newCellSize = recalculate_CellSize(newCellArr,tableWidth)
+        getCellSize({...cellSize,...newCellSize});
+    }
+
+    function changeRows(count) {
+        let shearedData = shearData(count,dynamicData,rowID,"rowID",getRowID)
+        if(shearedData.length > dynamicData.length){
+            setDynamicData(shearedData)
+        }
+    }
     
     const [renderData, setRenderData] = useState([]);
     const [renderHead, setRenderHead] = useState([]);
@@ -260,6 +278,10 @@ export default function App(){
     return (
         <div className={styles["container"]}>
             <Table 
+                colID={colID}
+                rowID={rowID}
+                getColID={getColID}
+                getRowID={getRowID}
                 dynamicData={dynamicData}
                 dynamicHead={dynamicHead}
                 setDynamicHead={set_dynamic_head}

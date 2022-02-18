@@ -25,7 +25,7 @@ function eventPosition(e) {
 
 export default function Table(props) {
 
-    const {controlData,cellSize, getControlData, getCellSize, getRenderData, getRenderHead,dynamicData,dynamicHead,setDynamicData,setDynamicHead} = props;
+    const {controlData,cellSize,colID,rowID,getColID,getRowID,getControlData, getCellSize, getRenderData, getRenderHead,dynamicData,dynamicHead,setDynamicData,setDynamicHead} = props;
     //获取行、列数
     const {cols,rows} = controlData.tableAmount;
 
@@ -122,11 +122,15 @@ export default function Table(props) {
         let readyRenderData = shearData(rows,longestData);
         //此时，数据新增了，但是dynamicData 的数据没变，还是原始数据。
 
-        //处理 readyRenderHead 中的 title，使其不能为空，而是对应的列数
+
+        let mergedHead = [];
+        // 处理 readyRenderHead 中的 serialNumber，使其为对应的编号
         for(let i=0;i<readyRenderHead.length;i++){
-            if(typeof readyRenderHead[i]["title"] === "number" || readyRenderHead[i]["title"] === "" || readyRenderHead[i]["title"] === undefined){
-                readyRenderHead[i]["title"] = i;
-            }
+            let col = {};
+            readyRenderHead[i]["serialNumber"] = i;
+            col["title"] = "";
+            Object.assign(col, readyRenderHead[i]);
+            mergedHead.push(col);
         }
 
         // 整合数据，新建一个空数据容器
@@ -135,10 +139,10 @@ export default function Table(props) {
         //填充并合并数据
         for(let i=0;i<readyRenderData.length;i++){
             let row = {};
-            //根据列数来循环，以此确定将要往 row 这个空对象中添加多少个 key:value
+            // 根据列数来循环，以此确定将要往 row 这个空对象中添加多少个 key:value
             for(let j=0;j<readyRenderHead.length;j++){
                 //先将标题中的值定义为 “”，再用原有的数据去覆盖。
-                row[readyRenderHead[j]["title"]] = "";
+                row[readyRenderHead[j]["colID"]] = "";
             }
             //用原有数据去覆盖生成的新数据。
             Object.assign(row, readyRenderData[i]);
@@ -147,11 +151,11 @@ export default function Table(props) {
         } 
         
         // console.log(mergedData)
-        setRenderHead(readyRenderHead);
+        setRenderHead(mergedHead);
         setRenderData(mergedData);
         //获取 renderData，renderHead 数据返回给 头部的 App。为什么？因为最后需要把这部分数据传给 sketch
         getRenderData(mergedData);
-        getRenderHead(readyRenderHead);
+        getRenderHead(mergedHead);
         
     },[cols,rows,dynamicHead,dynamicData,getRenderData,getRenderHead,getCellSize,cellSize.width,controlData])
   
@@ -159,46 +163,16 @@ export default function Table(props) {
     function changeTbodyValue(e){
         const {trIndex,tdIndex} = eventPosition(e);
         let insert = renderData.slice();
-        insert[trIndex][renderHead[tdIndex]["title"]] = e.target.value;
+        insert[trIndex][renderHead[tdIndex]["colID"]] = e.target.value;
         setDynamicData(insert);
-    }
-
-
-    //记录表头最后的值。保证表格不会因为表头的值被删除了而出现异常。
-    const [lastHead, setLastHead] = useState("");
-
-    function gitInitialHead(e){
-        console.log("focus")
-        setLastHead(e.target.value);
     }
 
     function changeTheadValue(e){
         const {tdIndex} = eventPosition(e);
-
         //获取最新输入的值。
-        let newTitle = e.target.value
-        let insertData = renderData.slice();
         let insertHead = renderHead.slice();
-
-        //表头内容不能为空, 且当前输入项不能等于表头中的其他项。
-        //find(), 查找数组中的某个复合条件的元素是否存在。如果存在返回第一个找到的值，如果不存在，返回 undefined
-        const equal = insertHead.find(element => element.title === newTitle) === undefined;
-
-        if(newTitle !== "" && equal){
-            //表格数据要以表头数据为参考，这里修改了表头的值，表格数据就不能正常展示了。
-            insertHead[tdIndex]["title"] = e.target.value;
-
-            //循环renderData 中的所有项。为 newTitle 赋值
-            for(let i=0;i<insertData.length;i++){
-                insertData[i][newTitle] = insertData[i][lastHead];
-                delete insertData[i][lastHead];
-            }
-
-            setLastHead(newTitle);
-
-            setDynamicData(insertData);
-            setDynamicHead(insertHead);
-        }
+        insertHead[tdIndex]["title"] = e.target.value;
+        setDynamicHead(insertHead);
     }
     
     //自定义右键菜单
@@ -241,10 +215,10 @@ export default function Table(props) {
             let insert = renderData.slice()
             switch (how) {
                 case "after":
-                    insert.splice(trIndex + 1, 0, {key:uuidv4()});
+                    insert.splice(trIndex + 1, 0, {key:uuidv4(),rowID:rowID+1});
                     break;
                 case "front":
-                    insert.splice(trIndex, 0, {key:uuidv4()});
+                    insert.splice(trIndex, 0, {key:uuidv4(),rowID:rowID+1});
                     break;
                 case "remove":
                     insert.splice(trIndex, 1)
@@ -257,22 +231,24 @@ export default function Table(props) {
             setVisable("none");
             //然后改变了 controlData 中的数值
             getValue("rows",insert.length);
+            getRowID(rowID + 1)
         }
     }
 
     //增减列
     function changeCol(how){
         return function(){
+            console.log("增减列")
             const width = 160;
             let cellArr = cellSize.width.slice();
             let insert = renderHead.slice();
             switch (how) {
                 case "after":
-                    insert.splice(tdIndex + 1, 0, {key:uuidv4()});
+                    insert.splice(tdIndex + 1, 0, {key:uuidv4(),colID:colID+1});
                     cellArr.splice(tdIndex + 1, 0, width)
                     break;
                 case "front":
-                    insert.splice(tdIndex, 0, {key:uuidv4()});
+                    insert.splice(tdIndex, 0, {key:uuidv4(),colID:colID+1});
                     cellArr.splice(tdIndex, 0, width)
                     break;
                 case "remove":
@@ -287,6 +263,7 @@ export default function Table(props) {
             setDynamicHead(insert); //这里更新了 dynamic 所以可以正常展示。
             setVisable("none");
             getValue("cols",insert.length);
+            getColID(colID + 1)
         }
     }
 
@@ -470,7 +447,6 @@ export default function Table(props) {
                                 <input 
                                     type="text" 
                                     value={cell["title"]} 
-                                    onFocus={gitInitialHead}
                                     onChange={changeTheadValue}
                                     style={{
                                         width:`calc(100% - ${reservedWidth})`,
@@ -505,7 +481,7 @@ export default function Table(props) {
                                             key={perObject["key"]+cell["key"]}
                                         >
                                             <input type="text" 
-                                                value={perObject[cell["title"]]} 
+                                                value={perObject[cell["colID"]]} 
                                                 onChange={changeTbodyValue}
                                                 style={{
                                                     width:`calc(100% - ${reservedWidth})`,

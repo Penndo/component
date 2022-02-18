@@ -2,20 +2,23 @@ import React, { useState } from "react";
 import {v4 as uuidv4} from "uuid"
 
 //裁切数据，仅保留表格数量的数据大小，若表格数量比已有数据大，那么就要新增表格数量
-function shearData(count,data){
+function shearData(count,data,id,name,updateStatus){
     if(count <= data.length){
         return data.slice(0,count)
     }else{
         let newly = [];
         let newlyLength = count - data.length;
-        for(let i=0;i<newlyLength;i++){
+        for(let i=0,j=1;i<newlyLength;i++,j++){
             let newlyItem = {};
             newlyItem.key = uuidv4();
+            newlyItem[name] = id + j;
             newly.push(newlyItem);
         }
+        updateStatus(id + newlyLength)
         return data.concat(newly);
     }
 }
+
 
 //同步行&列数据，更新过来的新数据与上一次的数据进行更新交换，数组长度只增加不减少
 function sync(preData,newData){
@@ -29,6 +32,7 @@ function sync(preData,newData){
     }
 }
 
+//增加列后，重新计算列宽度。
 function recalculate_CellSize(cellArr,tableWidth){
 
     //计算数组值的总和

@@ -68,7 +68,6 @@ class TableBg extends React.Component {
     render(){
         const {toggleLabel, switchColor, switchColorPicker, getControlData, type, data} = this.props;
         const {lastPickedColor, switchState} = this.state;
-        console.log(lastPickedColor)
         
         return(
             <div>
