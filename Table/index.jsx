@@ -157,7 +157,7 @@ export default function Table(props) {
         getRenderData(mergedData);
         getRenderHead(mergedHead);
         
-    },[cols,rows,dynamicHead,dynamicData,getRenderData,getRenderHead,getCellSize,cellSize.width,controlData])
+    },[cols,rows,dynamicHead,dynamicData,getRenderData,getRenderHead,getCellSize,cellSize.width,controlData,colID,rowID,getColID,getRowID])
   
     //table 输入
     function changeTbodyValue(e){
