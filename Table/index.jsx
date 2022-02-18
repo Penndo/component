@@ -118,8 +118,8 @@ export default function Table(props) {
 
         //裁切数据，删除掉大于表格数量的数据，表格数量不够的话进行补充
         //更新 controlData, 比较cols和longestHead.length的大小。如果cols<longestHead.length,就对现有表格进行裁剪，如果cols>longestHead.length,就对表格数量进行增加。
-        let readyRenderHead = shearData(cols,longestHead);
-        let readyRenderData = shearData(rows,longestData);
+        let readyRenderHead = shearData(cols,longestHead,colID,"colID",getColID);
+        let readyRenderData = shearData(rows,longestData,rowID,"rowID",getRowID);
         //此时，数据新增了，但是dynamicData 的数据没变，还是原始数据。
 
 
