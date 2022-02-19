@@ -59,7 +59,7 @@ const originControlData = {
 }
 
 const originCellSize = {
-    height:[34,34,34,34,34],
+    height:[34,34,34,34],
     width:[160,160,160,160]
 }
 
