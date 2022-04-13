@@ -59,7 +59,7 @@ const originControlData = {
 }
 
 const originCellSize = {
-    height:[34,34,34,34],
+    height:[40,40,40,40,40],
     width:[160,160,160,160]
 }
 
@@ -105,12 +105,10 @@ export default function App(){
     const [dynamicHead, setDynamicHead] = useState(originHead);
     const [dynamicData, setDynamicData] = useState(originData);
     const [controlData, setControlData] = useState(originControlData);
+
     //单元格尺寸
     const [cellSize, setCellSize] = useState(originCellSize);
-
     const [headerIndependentStyle, setHeaderIndependentStyle] = useState(false);
-    
-    //拖动时以更新单元格尺寸
     const getCellSize = React.useCallback(
         (data)=>{
             setCellSize(data);
@@ -264,7 +262,6 @@ export default function App(){
     function switchTemplate(){
         refreshDataFromComponent(setControlData,setRenderData,setRenderHead,setCellSize,setDynamicHead,setDynamicData)
     }
-
 
     function backToInitialState(){
         setCellSize(originCellSize);
