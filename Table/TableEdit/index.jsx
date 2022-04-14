@@ -14,8 +14,10 @@ class TableEdit extends React.Component {
                 <li onClick={this.props.addColRight}>右方插入列</li>
                 <li onClick={this.props.removeCurrentRow}>移除该行</li>
                 <li onClick={this.props.removeCurrentCol}>移除该列</li>
-                <li>复制</li>
-                <li>删除</li>
+                <li onClick={this.props.duplicateRow}>复制该行</li>
+                <li onClick = {this.props.duplicateCol}>复制该列</li>
+                <li onClick={this.props.clearRow}>清空该行</li>
+                <li onClick={this.props.clearCol}>清空该列</li>
             </ul>
         )
     }

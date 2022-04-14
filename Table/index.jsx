@@ -144,9 +144,11 @@ export default function Table(props) {
         getRenderData(mergedData);
         getRenderHead(mergedHead);
         getCellSize(newCellSize);
-        
+
     },[cols,rows,dynamicHead,dynamicData,getRenderData,getRenderHead,getCellSize,cellSize.width,controlData,colID,rowID,getColID,getRowID])
-  
+    
+    // console.log(renderHead,renderData)
+
     //table 输入
     function changeTbodyValue(e){
         const {trIndex,tdIndex} = eventPosition(e);
@@ -226,32 +228,112 @@ export default function Table(props) {
     //增减列
     function changeCol(how){
         return function(){
-            console.log("增减列")
             const width = 160;
-            let cellArr = cellSize.width.slice();
+            let cellWidthArr = cellSize.width.slice();
             let insert = renderHead.slice();
             switch (how) {
                 case "after":
                     insert.splice(tdIndex + 1, 0, {key:uuidv4(),colID:colID+1});
-                    cellArr.splice(tdIndex + 1, 0, width)
+                    cellWidthArr.splice(tdIndex + 1, 0, width)
                     break;
                 case "front":
                     insert.splice(tdIndex, 0, {key:uuidv4(),colID:colID+1});
-                    cellArr.splice(tdIndex, 0, width)
+                    cellWidthArr.splice(tdIndex, 0, width)
                     break;
                 case "remove":
                     insert.splice(tdIndex, 1);
-                    cellArr.splice(tdIndex, 1)
+                    cellWidthArr.splice(tdIndex, 1)
                     break;
                 default:
                     break;
             }
-            let newCellSize = recalculate_CellSize(cellArr,tableWidth);
+            let newCellSize = recalculate_CellSize(cellWidthArr,tableWidth);
             getCellSize({...cellSize,...newCellSize});
             setDynamicHead(insert); //这里更新了 dynamic 所以可以正常展示。
             setVisable("none");
             getValue("cols",insert.length);
             getColID(colID + 1)
+        }
+    }
+
+    //复制行
+    function duplicateRow(){
+        return function() {
+            let insert = renderData.slice();
+            let copiedRow = insert[trIndex];
+            let keyWords = {
+                key:uuidv4(),rowID:rowID+1
+            };
+            let merged = {...copiedRow,...keyWords};
+
+            insert.splice(trIndex + 1, 0, merged);
+
+            setDynamicData(insert);
+            setVisable("none");
+            getValue("rows",insert.length);
+            getRowID(rowID + 1)
+        }
+    }
+
+    //复制列
+    function duplicateCol(){
+        return function(){
+            const width = 160;
+            let cellWidthArr = cellSize.width.slice();
+            let insert_Head = renderHead.slice();
+            let insert_Data = renderData.slice();
+            let copiedTitle = insert_Head[tdIndex].title;
+            let newColID = colID + 1;
+            let newCellSize;
+
+            insert_Head.splice(tdIndex + 1, 0, {title:copiedTitle,key:uuidv4(),colID:newColID});
+            insert_Data.forEach((obj)=>{
+                obj[newColID] = obj[insert_Head[tdIndex].colID]
+            });
+
+            cellWidthArr.splice(tdIndex + 1, 0, width);
+            newCellSize = recalculate_CellSize(cellWidthArr,tableWidth);
+
+            getCellSize({...cellSize,...newCellSize});
+            setDynamicHead(insert_Head); 
+            setDynamicData(insert_Data);
+            setVisable("none");
+            getValue("cols",insert_Head.length);
+            getColID(colID + 1)
+        }
+    }
+
+    //清空行
+    function clearRow(){
+        return function() {
+            let insert = renderData.slice();
+            let willClearRow = insert[trIndex];
+
+            for(let property in willClearRow){
+                if(property !== "key" && property !== rowID){
+                    insert[trIndex][property] = ""
+                }
+            };
+
+            setDynamicData(insert);
+            setVisable("none");
+        }
+    }
+
+    //清空列
+    function clearCol(){
+        return function() {
+            let insert_Head = renderHead.slice();
+            let insert_Data = renderData.slice();
+
+            insert_Head[tdIndex].title = "";
+            insert_Data.forEach((obj)=>{
+                obj[insert_Head[tdIndex].colID] = ""
+            });
+
+            setDynamicHead(insert_Head); 
+            setDynamicData(insert_Data);
+            setVisable("none");
         }
     }
 
@@ -365,7 +447,6 @@ export default function Table(props) {
                 newstHeightArr.push(dragableTable.scaleTheadArr[i].offsetHeight*1)
             }
             
-            
             cellSize.width = newstWidthArr;
             cellSize.height = newstHeightArr;
             console.log(cellSize.width)
@@ -403,6 +484,10 @@ export default function Table(props) {
                     addColRight={changeCol("after")}
                     removeCurrentRow={changeRow("remove")}
                     removeCurrentCol={changeCol("remove")}
+                    duplicateRow = {duplicateRow()}
+                    duplicateCol = {duplicateCol()}
+                    clearRow = {clearRow()}
+                    clearCol = {clearCol()}
                 />
             </div>
 

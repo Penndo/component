@@ -19,8 +19,8 @@ class ButtonGroup extends React.Component {
     //点击确定的时候传递数据
     transData = (renderHead,renderData,controlData,cellSize) => {
         return ()=>{
-            postMessage('insert',renderHead,renderData,controlData,cellSize);
-            // console.log(renderHead,renderData,controlData,cellSize);
+            // postMessage('insert',renderHead,renderData,controlData,cellSize);
+            console.log(renderHead,renderData,controlData,cellSize);
         }
     }
     //点击取消的时候需要关闭窗口
