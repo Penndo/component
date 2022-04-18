@@ -4,6 +4,7 @@ import styles from './index.module.less';
 import Options from "../../Public/Options";
 
 const defaultHistoryName = "historyStore";
+const defaultSelection = "默认内容"
 
 class TemplateSelecter extends React.Component {
 
@@ -17,9 +18,16 @@ class TemplateSelecter extends React.Component {
 
     //props 更新后 更新 state
     componentDidUpdate(prevProps){
+
         if(this.props.historyStorageData !== prevProps.historyStorageData){
+            
             if(this.props.historyStorageData.length){
-                this.setState({inputValue:this.props.historyStorageData[0].history})
+                if(this.state.inputValue === defaultSelection){
+                    this.setState({inputValue:defaultSelection})
+                }else{
+                    this.setState({inputValue:this.props.historyStorageData[0].history})
+                }
+                
             }else{
                 this.setState({inputValue:""})
             }
@@ -60,20 +68,24 @@ class TemplateSelecter extends React.Component {
             inputValue:value,
             selecter:false
         });
-        createIDB().then((db)=>{
-            //更新历史选择数据
-            update(db,defaultHistoryName,{id:1,history:value});
-        });
-        //从模板更新数据，关键字是这个 value
-        this.props.switchTemplate(value);
+
+        if(value !== defaultSelection){
+            createIDB().then((db)=>{
+                //更新历史选择数据
+                update(db,defaultHistoryName,{id:1,history:value});
+            });
+            //从模板更新数据，关键字是这个 value
+            this.props.switchTemplate(value);
+        }
+
     }
 
     render(){
         const {defaultStorageData, updateData, backToInitialState} = this.props
         const {selecter,inputValue} = this.state;
-
+        console.log(this.state.inputValue);
         //获取defaultStorageData 中所有的 title 值，也就是选项
-        let options = [];
+        let options = [defaultSelection];
         for(let i=0;i<defaultStorageData.length;i++){
             options.push(defaultStorageData[i].title);
         }
@@ -85,7 +97,7 @@ class TemplateSelecter extends React.Component {
                     //如果选项值长度为 0 就不渲染下拉组件，而如果
                     defaultStorageData.length ? 
                     <div className={styles["preInstall"]} style={{display:selecter ? "block" : "none"}}>
-                        <Options backToInitialState={backToInitialState} canDelete={true} options ={options} updateData={updateData} selectOption={this.setInputValue}/>
+                        <Options backToInitialState={backToInitialState} canDelete={true} options ={options} updateData={updateData} defaultSelection = {defaultSelection} selectOption={this.setInputValue}/>
                     </div>
                     : null
                 }
