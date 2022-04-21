@@ -207,8 +207,6 @@ export default function App(){
         setDynamicData(originData);
     }
 
-    console.log(renderData,renderHead);
-
     return (
         <div className={styles["container"]}>
             <Table 

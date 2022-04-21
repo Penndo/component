@@ -83,24 +83,6 @@ export default function Table(props) {
     // },[api,apiParameter,setDynamicHead,setDynamicData])
 
     React.useEffect(()=>{
-        //获取行的高度。因为我们没有手动去干预，如果后面需要手动干预高度，可能这里也不需要了
-        let tableRows = Array.from(table.current.rows);
-        let newstHeightArr = [];
-        let newCellSize = {};
-        for(let i=0;i<tableRows.length;i++){
-            newstHeightArr.push(tableRows[i].offsetHeight)
-        };
-
-        if(Math.max(...newstHeightArr) === 0){
-            newCellSize = {
-                height:[40,40,40,40,40],
-                width:[160,160,160,160]
-            };
-        }else{
-            newCellSize.width = cellSize.width;
-            newCellSize.height = newstHeightArr;
-        }
-
         //复制一份 tbody 和 thead 的数据
         let longestData = dynamicData.slice();
         let longestHead = dynamicHead.slice();
@@ -143,11 +125,31 @@ export default function Table(props) {
         setRenderData(mergedData);
         getRenderData(mergedData);
         getRenderHead(mergedHead);
-        getCellSize(newCellSize);
 
-    },[cols,rows,dynamicHead,dynamicData,getRenderData,getRenderHead,getCellSize,cellSize.width,controlData,colID,rowID,getColID,getRowID])
+    },[cols,rows,dynamicHead,dynamicData,getRenderData,getRenderHead,colID,rowID,getColID,getRowID])
     
-    // console.log(renderHead,renderData)
+    React.useEffect(()=>{
+        //获取行的高度。因为我们没有手动去干预，如果后面需要手动干预高度，可能这里也不需要了
+        let tableRows = Array.from(table.current.rows);
+        let newstHeightArr = [];
+        let newCellSize = {};
+        for(let i=0;i<tableRows.length;i++){
+            newstHeightArr.push(tableRows[i].offsetHeight)
+        };
+
+        if(Math.max(...newstHeightArr) === 0){
+            newCellSize = {
+                height:[40,40,40,40,40],
+                width:[160,160,160,160]
+            };
+        }else{
+            newCellSize.width = cellSize.width;
+            newCellSize.height = newstHeightArr;
+        }
+        console.log(table.current.rows.length)
+        getCellSize(newCellSize);
+    },[renderHead,renderData,cellSize.width,getCellSize])
+    // console.log(table.current.rows.length)
 
     //table 输入
     function changeTbodyValue(e){
@@ -217,10 +219,11 @@ export default function Table(props) {
                     break;
             }
             //先去更新了dynamicData,然后导致renderData 的更新，进而重新渲染页面。
+            getValue("rows",insert.length);
+            console.log(cellSize)
             setDynamicData(insert);
             setVisable("none");
             //然后改变了 controlData 中的数值
-            getValue("rows",insert.length);
             getRowID(rowID + 1)
         }
     }

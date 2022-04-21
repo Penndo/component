@@ -83,7 +83,6 @@ class TemplateSelecter extends React.Component {
     render(){
         const {defaultStorageData, updateData, backToInitialState} = this.props
         const {selecter,inputValue} = this.state;
-        console.log(this.state.inputValue);
         //获取defaultStorageData 中所有的 title 值，也就是选项
         let options = [defaultSelection];
         for(let i=0;i<defaultStorageData.length;i++){
