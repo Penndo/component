@@ -4,30 +4,16 @@ import styles from './index.module.less'
 
 class ToggleSwitch extends React.Component {
 
-    state = {
-        switchState: this.props.switchState,
-    }
-
-    componentDidUpdate(prevProps){
-        if(this.props.switchState !== prevProps.switchState){
-            this.setState({
-                switchState:this.props.switchState
-            })
-        }
-    }
-
-    handleCheck = (event) => {
-        this.props.handleSwitch(event.target.checked)
-        this.setState({
-            switchState:event.target.checked
-        })
-    }
-
     render(){
-        const {switchState} = this.state
+        const {switchState,changeSwitchState,typeName} = this.props
         return (
             <label className={styles["label"]}>
-                <input type="checkbox" id="interLeave" onChange = {this.handleCheck} checked={switchState}/>
+                <input 
+                    type="checkbox" id="interLeave" 
+                    onChange = {
+                        (event) => {changeSwitchState(typeName,event.target.checked)}
+                    } 
+                    checked={switchState}/>
                 <div className={styles["switch"]}>
                     <div className={styles["dot"]}>
                     </div>

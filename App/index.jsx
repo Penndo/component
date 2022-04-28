@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState } from "react";
+import {useRef, useState } from "react";
 
 import {createIDB, getAllValue,getValue} from "../Public/IDB";
 import { shearData,recalculate_CellSize } from "../Public/Tools";
@@ -18,6 +18,7 @@ function refreshDataFromComponent(setControlData,setRenderData,setRenderHead,set
         getAllValue(db,defaultHistoryName).then((result)=>{
             if(!result.length) return false;
             const indexValue = result[0].history;
+            
             getValue(db,defaultStoreName,"title",indexValue).then((result)=>{
                 const data = result.information;
                 //更新 controlData 就可以驱动页面重新计算，进而得到最新的 renderData, renderHead
@@ -34,6 +35,8 @@ function refreshDataFromComponent(setControlData,setRenderData,setRenderHead,set
 
 export default function App(){
 
+    const table_ref = useRef(null)
+
     //初始数据
     const [dynamicHead, setDynamicHead] = useState(originHead);
     const [dynamicData, setDynamicData] = useState(originData);
@@ -43,7 +46,6 @@ export default function App(){
     
     //单元格尺寸
     const [cellSize, setCellSize] = useState(originCellSize);
-
     const getCellSize = React.useCallback(
         (data)=>{
             setCellSize(data);
@@ -65,9 +67,7 @@ export default function App(){
 
     //更新样式表
     const getControlData = React.useCallback(
-
-        (name,data)=>{
-
+        (data,name)=>{
             //用来判断表头样式和表格样式是否全等。如果不全等就让样式独立编辑。
             const headerIndependentStyle_condition = 
                 controlData.tbodyPadding.b_top !== controlData.theadPadding.h_top || 
@@ -88,28 +88,33 @@ export default function App(){
                 let syncData = {}
                 if(!lastHeaderIndependentStyle){              
                     if(name === "tbodyPadding"){
-                            syncData = {theadPadding:{
-                                h_top:data.b_top,
-                                h_bottom:data.b_bottom
-                            }
+                        const {b_top,b_bottom} = data.tbodyPadding
+                        syncData = {
+                            theadPadding:{
+                                h_top:b_top,
+                                h_bottom:b_bottom
+                                }
                         }
                     }else if(name === "fill"){
-                            syncData = {theadFill:{
-                                basicColor:data.basicColor
+                        syncData = {
+                            theadFill:{
+                                basicColor:data.fill.basicColor
                             }
                         }
                     }else if(name === "textStyle"){
-                            syncData = {theadTextStyle:{
-                                basicColor:data.basicColor,
-                                fontSize:data.fontSize,
-                                fontWeight:data.fontWeight
+                        const {basicColor,fontSize,fontWeight} = data.textStyle;
+                        syncData = {
+                            theadTextStyle:{
+                                basicColor:basicColor,
+                                fontSize:fontSize,
+                                fontWeight:fontWeight
                             }
                         }
                     };
                 }
-                return {...syncData,[name]:data}
+                return {...syncData,...data}
             }
-
+           
             setControlData({
                 ...controlData,...syncControlData()
             })
@@ -210,6 +215,7 @@ export default function App(){
     return (
         <div className={styles["container"]}>
             <Table 
+                table_ref = {table_ref}
                 colID={colID}
                 rowID={rowID}
                 getColID={getColID}
@@ -227,6 +233,7 @@ export default function App(){
             />
 
             <ConstrolSlider 
+                table_ref = {table_ref}
                 changeCols={changeCols}
                 changeRows={changeRows}
                 switchTemplate = {switchTemplate}

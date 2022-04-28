@@ -34,8 +34,6 @@ class TextInput extends React.Component {
         })
     }
 
-    nothingChanged = (e) => {
-    }
 
     //属性更新后，更新状态
     componentDidUpdate(prevProps){
@@ -57,10 +55,9 @@ class TextInput extends React.Component {
             showOptions:false
         })
         if(this.props.getValue){
-            this.props.getValue(e.target.name, e.target.value)
+            this.props.getValue(this.props.typeName, this.props.propertyName, e.target.value)
         }
         
-        console.log(e.target.name,e.target.value)
         if(this.props.changeTableAmount){
             this.props.changeTableAmount(e.target.value)
         }

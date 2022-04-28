@@ -5,37 +5,14 @@ import TextInput from "../../Public/TextInput"
 
 class CellAmount extends React.Component {
 
-    state = {
-        data:this.props.data
-    }
-
-    componentDidUpdate(prevProps){
-        if(this.props.data !== prevProps.data){
-            this.setState({data:this.props.data})
-        }
-    }
-
-    getValue = (name,value) => {
-        //获取状态中的数据
-        const {data} = this.state;
-        //设置新的数据
-        const newData = {...data,[name]: value};
-        //更新数据
-        this.setState({
-            data: newData
-        })
-        this.props.getControlData(this.props.name, newData)
-    }
-
     render(){
-        const {cols,rows} = this.state.data;
-        const {changeCols,changeRows} = this.props;
+        const {changeCols,changeRows,typeName,getValue,data} = this.props;
         return (
             <div>
                 <p>{this.props.type}</p>
                 <div className={styles["cellAmount"]}>
-                    <TextInput defaultValue = {cols} label = "列数" name="cols" readOnly={false}  getValue = {this.getValue} changeTableAmount={changeCols} />
-                    <TextInput defaultValue = {rows} label = "行数" name="rows" readOnly={false} getValue = {this.getValue} changeTableAmount={changeRows} />
+                    <TextInput defaultValue = {data.cols} label = "列数" typeName={typeName} propertyName="cols" readOnly={false}  getValue = {getValue} changeTableAmount={changeCols} />
+                    <TextInput defaultValue = {data.rows} label = "行数" typeName={typeName} propertyName="rows" readOnly={false} getValue = {getValue} changeTableAmount={changeRows} />
                 </div>
             </div>
         )

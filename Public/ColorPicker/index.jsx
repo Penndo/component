@@ -1,17 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import SketchPicker from 'react-color/lib/Sketch';
 
 import styles from './index.module.less';
 
 class ColorPicker extends React.Component {
-    static propTypes = {
-        onChange: PropTypes.func,
-        value: PropTypes.string,
-        style: PropTypes.object,
-        className: PropTypes.string
-    };
-
     state = {
         colorValue:this.props.defaultColor,
         isVisable:"none",
@@ -19,15 +11,13 @@ class ColorPicker extends React.Component {
 
     componentDidUpdate(prevProps){
         if(this.props.defaultColor !== prevProps.defaultColor){
-            this.setState({
-                colorValue:this.props.defaultColor
-            })
+            this.setState({colorValue:this.props.defaultColor})
         }
     }
 
     changeColor = (color) => {
-        this.setState({colorValue: color.hex})
-        this.props.getValue(this.props.name, color.hex)
+        this.setState({colorValue: color.hex});
+        this.props.getValue(this.props.typeName,this.props.propertyName,color.hex)
     }
 
     HiddenPopover = (e) => {
@@ -41,7 +31,6 @@ class ColorPicker extends React.Component {
     //因为给 document 添加点击事件。所以，在点击色板的时候事件也会冒泡的 document 上面去，导致色板被隐藏。因此我们在色板上加一个 stopPropagation 就可以防止 document 上的事件被触发。
     sketchPickerHandle = (e) => {
         e.stopPropagation();
-        console.log(e.currentTarget,"sketchPicker区域被点击了")
     }
     
     
@@ -64,7 +53,7 @@ class ColorPicker extends React.Component {
     
     render() {
         const {style} = this.props;
-        const {isVisable, colorValue} = this.state
+        const {isVisable, colorValue} = this.state;
         return (
             <div className={styles["colorPicker"]}>
                 {/* 颜色显示的包裹框，如图的边框 */}

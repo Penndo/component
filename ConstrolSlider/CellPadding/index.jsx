@@ -4,48 +4,24 @@ import TextInput from "../../Public/TextInput"
 
 class CellPaddingSetting extends React.Component {
 
-    state = {
-        data:this.props.data
-    }
-
-    componentDidUpdate(prevProps){
-        if(this.props.data !== prevProps.data){
-            this.setState({data:this.props.data})
-        }
-    }
-
-    getValue = (name,value) => {
-        
-        //获取状态中的数据
-        const {data} = this.state;
-
-        //插入修改的数据
-        const newData = {...data,[name]: value};
-
-        //更新数据
-        this.setState({
-            data: newData
-        })
-        
-        this.props.getControlData(this.props.name, newData)
-    }
-
     render(){
-        const {area, data} = this.props;
+        const {type, area, data, typeName, getValue} = this.props;
         return (
             <div>
-                <p>{this.props.type}</p>
-                {this.props.name === "tbodyPadding" 
-                ? 
+                <p>{type}</p>
+                {
+                    typeName === "tbodyPadding"
+                    ? 
                     <div className={styles["cellPadding"]+" "+styles["bodyPadding"]}>
-                        <TextInput defaultValue = {data[area+"_top"]} name={area+"_top"} label = "top" readOnly={false} getValue={this.getValue}/>
-                        <TextInput defaultValue = {data[area+"_right"]} name={area+"_right"} label = "right" readOnly={false} getValue={this.getValue}/> 
-                        <TextInput defaultValue = {data[area+"_bottom"]} name={area+"_bottom"} label = "bottom" readOnly={false} getValue={this.getValue}/>
-                        <TextInput defaultValue = {data[area+"_left"]} name={area+"_left"} label = "left" readOnly={false} getValue={this.getValue}/>
+                        <TextInput defaultValue = {data[area+"_top"]} typeName = {typeName} propertyName={area+"_top"} label = "top" readOnly={false} getValue={getValue}/>
+                        <TextInput defaultValue = {data[area+"_right"]} typeName = {typeName} propertyName={area+"_right"} label = "right" readOnly={false} getValue={getValue}/> 
+                        <TextInput defaultValue = {data[area+"_bottom"]} typeName = {typeName} propertyName={area+"_bottom"} label = "bottom" readOnly={false} getValue={getValue}/>
+                        <TextInput defaultValue = {data[area+"_left"]} typeName = {typeName} propertyName={area+"_left"} label = "left" readOnly={false} getValue={getValue}/>
                     </div>
-                :   <div className={styles["cellPadding"]+" "+styles["headPadding"]}>
-                        <TextInput defaultValue = {data[area+"_top"]} name={area+"_top"} label = "top" readOnly={false} getValue={this.getValue}/>
-                        <TextInput defaultValue = {data[area+"_bottom"]} name={area+"_bottom"} label = "bottom" readOnly={false} getValue={this.getValue}/>
+                    :  
+                    <div className={styles["cellPadding"]+" "+styles["headPadding"]}>
+                        <TextInput defaultValue = {data[area+"_top"]} typeName = {typeName} propertyName={area+"_top"} label = "top" readOnly={false} getValue={getValue}/>
+                        <TextInput defaultValue = {data[area+"_bottom"]} typeName = {typeName} propertyName={area+"_bottom"} label = "bottom" readOnly={false} getValue={getValue}/>
                     </div>}
             </div>
         )

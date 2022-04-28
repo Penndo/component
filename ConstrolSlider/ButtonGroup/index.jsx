@@ -19,8 +19,17 @@ class ButtonGroup extends React.Component {
     //点击确定的时候传递数据
     transData = (renderHead,renderData,controlData,cellSize) => {
         return ()=>{
-            // postMessage('insert',renderHead,renderData,controlData,cellSize);
-            console.log(renderHead,renderData,controlData,cellSize);
+            const tableRows = this.props.table_ref.current.rows;
+            let newCellSize = {};
+            let newstHeightArr = [];
+            for(let i=0;i<tableRows.length;i++){
+                newstHeightArr.push(tableRows[i].offsetHeight)
+            };
+            newCellSize.width = cellSize.width;
+            newCellSize.height = newstHeightArr;
+
+            // postMessage('insert',renderHead,renderData,controlData,newCellSize);
+            console.log(renderHead,renderData,controlData,newCellSize);
         }
     }
     //点击取消的时候需要关闭窗口

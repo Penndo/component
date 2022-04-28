@@ -25,7 +25,7 @@ function eventPosition(e) {
 
 export default function Table(props) {
 
-    const {controlData,cellSize,colID,rowID,getColID,getRowID,getControlData, getCellSize, getRenderData, getRenderHead,dynamicData,dynamicHead,setDynamicData,setDynamicHead} = props;
+    const {controlData,cellSize,colID,rowID,getColID,getRowID,getControlData, getCellSize, getRenderData, getRenderHead,dynamicData,dynamicHead,setDynamicData,setDynamicHead,getTable,table_ref} = props;
     const {cols,rows} = controlData.tableAmount;
 
     //获取数据源、参数
@@ -40,7 +40,7 @@ export default function Table(props) {
     const [trIndex, setTrIndex] = useState(null)
 
     const rightPanel = useRef(null);
-    const table = useRef(null)
+    // const table_ref = useRef(null)
 
     //渲染数据
     const [renderHead, setRenderHead] = useState([]);
@@ -126,31 +126,8 @@ export default function Table(props) {
         getRenderData(mergedData);
         getRenderHead(mergedHead);
 
-    },[cols,rows,dynamicHead,dynamicData,getRenderData,getRenderHead,colID,rowID,getColID,getRowID])
+    },[cols,rows,dynamicHead,dynamicData,getRenderData,getRenderHead,colID,rowID,getColID,getRowID,getTable])
     
-    React.useEffect(()=>{
-        //获取行的高度。因为我们没有手动去干预，如果后面需要手动干预高度，可能这里也不需要了
-        let tableRows = Array.from(table.current.rows);
-        let newstHeightArr = [];
-        let newCellSize = {};
-        for(let i=0;i<tableRows.length;i++){
-            newstHeightArr.push(tableRows[i].offsetHeight)
-        };
-
-        if(Math.max(...newstHeightArr) === 0){
-            newCellSize = {
-                height:[40,40,40,40,40],
-                width:[160,160,160,160]
-            };
-        }else{
-            newCellSize.width = cellSize.width;
-            newCellSize.height = newstHeightArr;
-        }
-        console.log(table.current.rows.length)
-        getCellSize(newCellSize);
-    },[renderHead,renderData,cellSize.width,getCellSize])
-    // console.log(table.current.rows.length)
-
     //table 输入
     function changeTbodyValue(e){
         const {trIndex,tdIndex} = eventPosition(e);
@@ -495,7 +472,7 @@ export default function Table(props) {
             </div>
 
             <table
-                ref = {table}
+                ref = {table_ref}
                 onMouseDown = {onMouseDown}
                 onMouseMove = {onMouseMove}
                 onMouseUp={onMouseUp}

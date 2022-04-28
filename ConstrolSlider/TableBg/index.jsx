@@ -6,69 +6,8 @@ import styles from "./index.module.less";
 
 class TableBg extends React.Component {
 
-    state = {
-        //switch默认为关闭状态
-        switchState:this.props.data.switchState,
-        //lastPickedColor 用来存放当前组件中 colorpicker 的最后一次取值。因为组件共用，需要判断是否有 intervalColor。才能用来赋值。
-        lastPickedColor:this.props.data.intervalColor !== "" && this.props.data.intervalColor !== undefined ? this.props.data.intervalColor : this.props.data.basicColor
-    }
-
-    componentDidUpdate(prevProps){
-
-        const {data} = this.props
-
-        if(data.intervalColor !== "" && data.intervalColor !== undefined){
-            if(data.intervalColor !== prevProps.data.intervalColor){
-                this.setState({lastPickedColor:data.intervalColor})
-            }
-        }
-        
-        if(data.switchState !== prevProps.data.switchState){
-            this.setState({switchState:data.switchState})
-        }
-
-    }
-
-    //从 ColorSwitch 中获取 switch 的状态值，用来控制 newData 的数据类型。
-    getSwitchState = (switchState) => {
-        this.setState({
-            switchState:switchState
-        })
-    }
-    
-    //获取颜色值，并更新 data 数据
-    getValue = (name,value,object) => {
-
-        //获取状态中的 data, switchState, lastPickedColor 数据
-        const {switchState,lastPickedColor} = this.state;
-
-        const {switchColorPicker,data} = this.props
-
-        //当隔行换色按钮关闭时，传给 data 的颜色值为 “”，不更新 lastPickedColor。以便在下次开启隔行换色时有值可以使用。
-        if(value !== ""){
-            this.setState({
-                lastPickedColor: value
-            })
-        }
-
-        //设置新的 data
-        let newData = {}
-
-        //如果该组件运用于边框，边框颜色没有设置选择器。this.props.switchColorPicker 为 false 。在这种条件下开启边框色，允许修改填充色的同时修改边框色。
-        //修改 fill 一并修改 intervalColor 的值。如果未开启，那么传给 intervalColor 的值为 “”。
-        if(!switchColorPicker && switchState){
-            newData = {...data,"basicColor": value !== "" ? value : lastPickedColor ,"intervalColor":value,...object}
-        }else{
-            newData = {...data,[name]: value,...object};
-        }
-
-        this.props.getControlData(this.props.name, newData)
-    }
-
     render(){
-        const {toggleLabel, switchColor, switchColorPicker, getControlData, type, data} = this.props;
-        const {lastPickedColor, switchState} = this.state;
-        
+        const {toggleLabel, switchColor, switchColorPicker, type, typeName, data, getValue, changeSwitchState, fillInterval_usedCount} = this.props;
         return(
             <div>
                 <p>{type}</p>
@@ -76,7 +15,7 @@ class TableBg extends React.Component {
                     
                     {/*填充色 边框色*/}
                     <div>
-                        <ColorPicker style={{ width: 62, height: 24}} defaultColor={data.basicColor} name = "basicColor" getValue={this.getValue}/>
+                        <ColorPicker style={{ width: 62, height: 24}} defaultColor={data.basicColor} propertyName = "basicColor" typeName={typeName} getValue={getValue}/>
                         <label>颜色</label>
                     </div>
 
@@ -84,22 +23,18 @@ class TableBg extends React.Component {
                     {
                         switchColor ? 
                         <ColorSwitch 
-                            name = "intervalColor" 
-                            defaultColor={data.basicColor}
-                            lastPickedColor={switchState ? data.intervalColor : lastPickedColor} 
+                            fillInterval_usedCount={fillInterval_usedCount}
+                            typeName = {typeName}
+                            propertyName = "intervalColor" 
+                            defaultColor = {data.intervalColor}
                             toggleLabel={toggleLabel} 
-                            switchState = {data.switchState}
+                            switchState = {this.props.switchState[typeName]}
                             switchColorPicker={switchColorPicker} 
-                            getControlData={getControlData}
-                            getValue={this.getValue} 
-                            getSwitchState={this.getSwitchState} 
+                            getValue={getValue} 
+                            changeSwitchState={changeSwitchState} 
                         />:
                         null
                     }
-                    
-
-                    
-
                 </div>
             </div>
         )
