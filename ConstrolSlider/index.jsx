@@ -154,8 +154,11 @@ export default function ConstrolSlider(props){
         if(fillInterval_usedCount === 1){
             setLastPickedColor({fill:fill.basicColor,border:fill.basicColor})
         }
-        
-    },[fillInterval_usedCount,fill.basicColor])
+        setSwitchState({
+            fill:fill.switchState,
+            border:border.switchState
+        })
+    },[fillInterval_usedCount,fill.basicColor,fill.switchState,border.switchState])
     
     //默认样式给到 tbodyStyle.通过下面 return 查看
     const [styleType, setStyleType] = React.useState("tbodyStyle");
