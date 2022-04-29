@@ -25,7 +25,7 @@ function eventPosition(e) {
 
 export default function Table(props) {
 
-    const {controlData,cellSize,colID,rowID,getColID,getRowID,getControlData, getCellSize, getRenderData, getRenderHead,dynamicData,dynamicHead,setDynamicData,setDynamicHead,getTable,table_ref} = props;
+    const {controlData,cellSize,colID,rowID,getColID,getRowID,getControlData,renderHead,renderData, getCellSize, getRenderData, getRenderHead,dynamicData,dynamicHead,setDynamicData,setDynamicHead,getTable,table_ref} = props;
     const {cols,rows} = controlData.tableAmount;
 
     //获取数据源、参数
@@ -43,8 +43,8 @@ export default function Table(props) {
     // const table_ref = useRef(null)
 
     //渲染数据
-    const [renderHead, setRenderHead] = useState([]);
-    const [renderData, setRenderData] = useState([]);
+    // const [renderHead, setRenderHead] = useState([]);
+    // const [renderData, setRenderData] = useState([]);
 
     const tableWidth = controlData.tableWidth;
     const {b_top,b_right,b_bottom,b_left} = controlData.tbodyPadding;
@@ -121,8 +121,8 @@ export default function Table(props) {
             mergedData.push(row);
         } 
 
-        setRenderHead(mergedHead);
-        setRenderData(mergedData);
+        // setRenderHead(mergedHead);
+        // setRenderData(mergedData);
         getRenderData(mergedData);
         getRenderHead(mergedHead);
 

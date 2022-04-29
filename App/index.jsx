@@ -13,7 +13,7 @@ const defaultStoreName = "defaultStore";
 const defaultHistoryName = "historyStore";
 
 //从模板更新页面数据
-function refreshDataFromComponent(setControlData,setRenderData,setRenderHead,setCellSize,setDynamicHead,setDynamicData) {
+function refreshDataFromComponent(setControlData,setCellSize,setDynamicHead,setDynamicData) {
     createIDB().then((db)=>{
         getAllValue(db,defaultHistoryName).then((result)=>{
             if(!result.length) return false;
@@ -24,9 +24,9 @@ function refreshDataFromComponent(setControlData,setRenderData,setRenderHead,set
                 //更新 controlData 就可以驱动页面重新计算，进而得到最新的 renderData, renderHead
                 setControlData(data.controlData);
                 setDynamicData(data.renderData);
-                setRenderData(data.renderData);
+                // setRenderData(data.renderData);
                 setDynamicHead(data.renderHead);
-                setRenderHead(data.renderHead);
+                // setRenderHead(data.renderHead);
                 setCellSize(data.cellSize)
             });
         });
@@ -42,7 +42,11 @@ export default function App(){
     const [dynamicData, setDynamicData] = useState(originData);
     const [controlData, setControlData] = useState(originControlData);
 
+    //表头是否独立样式
     const [headerIndependentStyle, setHeaderIndependentStyle] = useState(false);
+    function syncBodyStyleToHeader() {
+        setHeaderIndependentStyle(true)
+    }
     
     //单元格尺寸
     const [cellSize, setCellSize] = useState(originCellSize);
@@ -59,11 +63,6 @@ export default function App(){
     const set_dynamic_head = React.useCallback((data)=>{
         setDynamicHead(data)
     },[])
-
-    //表头独立样式启用
-    function syncBodyStyleToHeader() {
-        setHeaderIndependentStyle(true)
-    }
 
     //更新样式表
     const getControlData = React.useCallback(
@@ -121,6 +120,12 @@ export default function App(){
 
         },[controlData,headerIndependentStyle]
     )
+
+    //隔行换色的开启次数，作为其key，没重新开启一次，重新创建一个新的组件
+    const [fillInterval_usedCount, setFillInterval_usedCount] = React.useState(1);
+    function refreshInterval_usedCount(value){
+        setFillInterval_usedCount(value)
+    }
 
     const [colID, setColID] = useState(maxID(dynamicHead,"colID"))
     const [rowID, setRowID] = useState(maxID(dynamicData,"rowID"))
@@ -183,7 +188,7 @@ export default function App(){
 
     //页面加载时，加载一次本地存储的数据
     React.useEffect(()=>{
-        refreshDataFromComponent(setControlData,setRenderData,setRenderHead,setCellSize,setDynamicHead,setDynamicData);
+        refreshDataFromComponent(setControlData,setCellSize,setDynamicHead,setDynamicData);
     },[])
 
     const getRenderData = React.useCallback(
@@ -200,14 +205,15 @@ export default function App(){
 
     //切换模板更新初始数据
     function switchTemplate(){
-        refreshDataFromComponent(setControlData,setRenderData,setRenderHead,setCellSize,setDynamicHead,setDynamicData)
+        setFillInterval_usedCount(1)
+        refreshDataFromComponent(setControlData,setCellSize,setDynamicHead,setDynamicData)
     }
 
     function backToInitialState(){
         setCellSize(originCellSize);
         setControlData(originControlData);
-        setRenderHead(originHead);
-        setRenderData(originData);
+        // setRenderHead(originHead);
+        // setRenderData(originData);
         setDynamicHead(originHead);
         setDynamicData(originData);
     }
@@ -226,6 +232,8 @@ export default function App(){
                 setDynamicData={set_dynamic_data}
                 controlData={controlData} 
                 getControlData={getControlData} 
+                renderData={renderData}
+                renderHead={renderHead}
                 getRenderData={getRenderData} 
                 getRenderHead={getRenderHead}
                 cellSize={cellSize}
@@ -233,6 +241,8 @@ export default function App(){
             />
 
             <ConstrolSlider 
+                fillInterval_usedCount = {fillInterval_usedCount}
+                refreshInterval_usedCount = {refreshInterval_usedCount}
                 table_ref = {table_ref}
                 changeCols={changeCols}
                 changeRows={changeRows}

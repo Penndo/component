@@ -81,7 +81,7 @@ class TemplateSelecter extends React.Component {
     }
 
     render(){
-        const {defaultStorageData, updateData, backToInitialState} = this.props
+        const {defaultStorageData, updateData, backToInitialState, refreshInterval_usedCount} = this.props
         const {selecter,inputValue} = this.state;
         //获取defaultStorageData 中所有的 title 值，也就是选项
         let options = [defaultSelection];
@@ -96,7 +96,7 @@ class TemplateSelecter extends React.Component {
                     //如果选项值长度为 0 就不渲染下拉组件，而如果
                     defaultStorageData.length ? 
                     <div className={styles["preInstall"]} style={{display:selecter ? "block" : "none"}}>
-                        <Options backToInitialState={backToInitialState} canDelete={true} options ={options} updateData={updateData} defaultSelection = {defaultSelection} selectOption={this.setInputValue}/>
+                        <Options backToInitialState={backToInitialState} canDelete={true} options ={options} updateData={updateData} defaultSelection = {defaultSelection} selectOption={this.setInputValue} refreshInterval_usedCount = {refreshInterval_usedCount}/>
                     </div>
                     : null
                 }

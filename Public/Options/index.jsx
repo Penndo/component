@@ -41,6 +41,7 @@ class Options extends React.Component{
     }
 
     defaultData = () => {
+        this.props.refreshInterval_usedCount(1)
         this.props.backToInitialState();
         this.props.selectOption(this.props.defaultSelection)
     }

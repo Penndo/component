@@ -7,7 +7,7 @@ import styles from "./index.module.less";
 class TableBg extends React.Component {
 
     render(){
-        const {toggleLabel, switchColor, switchColorPicker, type, typeName, data, getValue, changeSwitchState, fillInterval_usedCount} = this.props;
+        const {toggleLabel, switchColor, switchColorPicker, type, typeName, data, getValue, changeSwitchState, switchState, fillInterval_usedCount} = this.props;
         return(
             <div>
                 <p>{type}</p>
@@ -28,7 +28,7 @@ class TableBg extends React.Component {
                             propertyName = "intervalColor" 
                             defaultColor = {data.intervalColor}
                             toggleLabel={toggleLabel} 
-                            switchState = {this.props.switchState[typeName]}
+                            switchState = {switchState}
                             switchColorPicker={switchColorPicker} 
                             getValue={getValue} 
                             changeSwitchState={changeSwitchState} 
