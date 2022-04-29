@@ -55,11 +55,19 @@ class Modal extends React.Component {
         })
     }
 
-    
-
-
     newTemplate = (modalName,storageData,func,updateFunc) => {
+        const tableRows = this.props.table_ref.current.rows;
         return function() {
+
+            //重新去获取表格的行高
+            let newCellSize = {};
+            let newstHeightArr = [];
+            for(let i=0;i<tableRows.length;i++){
+                newstHeightArr.push(tableRows[i].offsetHeight)
+            };
+            newCellSize.width = storageData.cellSize.width;
+            newCellSize.height = newstHeightArr;
+            storageData.cellSize = newCellSize
             createModal(modalName,storageData,updateFunc);
             func();
         }

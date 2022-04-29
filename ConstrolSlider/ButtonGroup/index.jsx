@@ -16,9 +16,24 @@ class ButtonGroup extends React.Component {
         })
     }
 
+    // //重新获取表格的行高
+    // newCellSize = (table_ref,cellSize)=>{
+    //     const tableRows = table_ref.current.rows;
+    //     let newCellSize = {};
+    //     let newstHeightArr = [];
+    //     for(let i=0;i<tableRows.length;i++){
+    //         newstHeightArr.push(tableRows[i].offsetHeight)
+    //     };
+    //     newCellSize.width = cellSize.width;
+    //     newCellSize.height = newstHeightArr;
+    //     return newCellSize;
+    // }
+
     //点击确定的时候传递数据
     transData = (renderHead,renderData,controlData,cellSize) => {
         return ()=>{
+
+            // const newCellSize = this.newCellSize(this.props.table_ref,cellSize)
             const tableRows = this.props.table_ref.current.rows;
             let newCellSize = {};
             let newstHeightArr = [];
@@ -48,7 +63,7 @@ class ButtonGroup extends React.Component {
         return (
             <div style={{position:"relative"}}>
                 {createTemplate  
-                    ? <Modal updateData={updateData} storageData={storageData} func = {this.createTemplate}  />
+                    ? <Modal table_ref={this.props.table_ref} updateData={updateData} storageData={storageData} func = {this.createTemplate}  />
                     :   <div className = {styles["buttonGroup"]} >
                             <Button label = "创建为模板" type = "secondary" func = {this.createTemplate}/>
                             <Button label = "生成表格" func={this.transData(renderHead,renderData,controlData,cellSize)}/>
