@@ -28,7 +28,6 @@ export default function ConstrolSlider(props){
         if(value !== "" && typeName === "fill"){
             setLastPickedColor({...lastPickedColor,[typeName]:value})
         }
-        console.log(typeName,propertyName,value)
         let newData = {}
         if(typeName === propertyName){
             newData = {[typeName]:value}
@@ -43,8 +42,7 @@ export default function ConstrolSlider(props){
                 };
             }
         }
-
-        getControlData(newData,typeName)
+        getControlData(typeName,newData)
     }
 
     function changeSwitchState(typeName,state){
@@ -52,7 +50,7 @@ export default function ConstrolSlider(props){
         if(typeName === "fill"){
             refreshInterval_usedCount(fillInterval_usedCount + 1);
             if(state === true){
-                getControlData({
+                getControlData(null,{
                         fill:{
                             ...controlData["fill"],
                             switchState:true,
@@ -65,8 +63,7 @@ export default function ConstrolSlider(props){
                         }
                 });
             }else{
-                console.log("关闭 fill")
-                getControlData({
+                getControlData(null,{
                     fill:{
                         ...controlData["fill"],
                         switchState:false,
@@ -76,7 +73,7 @@ export default function ConstrolSlider(props){
             }
         }else if(typeName === "border"){
             if(state === true){
-                getControlData({
+                getControlData(null,{
                     fill:{
                         ...controlData["fill"],
                         switchState:false,
@@ -90,7 +87,7 @@ export default function ConstrolSlider(props){
                 });
 
             }else{
-                getControlData({
+                getControlData(null,{
                     border:{
                         ...controlData["border"],
                         switchState:false,

@@ -66,7 +66,7 @@ export default function App(){
 
     //更新样式表
     const getControlData = React.useCallback(
-        (data,name)=>{
+        (name,data)=>{
             //用来判断表头样式和表格样式是否全等。如果不全等就让样式独立编辑。
             const headerIndependentStyle_condition = 
                 controlData.tbodyPadding.b_top !== controlData.theadPadding.h_top || 
@@ -113,7 +113,6 @@ export default function App(){
                 }
                 return {...syncData,...data}
             }
-           
             setControlData({
                 ...controlData,...syncControlData()
             })

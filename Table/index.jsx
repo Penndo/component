@@ -168,7 +168,9 @@ export default function Table(props) {
 
     function getValue(name,value){
         let tableAmount = controlData.tableAmount
-        getControlData("tableAmount",{...tableAmount,[name]:value})
+        getControlData(null,{
+            "tableAmount":{...tableAmount,[name]:value}
+        });
     }
 
     //隐藏右键
@@ -197,7 +199,6 @@ export default function Table(props) {
             }
             //先去更新了dynamicData,然后导致renderData 的更新，进而重新渲染页面。
             getValue("rows",insert.length);
-            console.log(cellSize)
             setDynamicData(insert);
             setVisable("none");
             //然后改变了 controlData 中的数值
@@ -429,7 +430,6 @@ export default function Table(props) {
             
             cellSize.width = newstWidthArr;
             cellSize.height = newstHeightArr;
-            console.log(cellSize.width)
             getCellSize(cellSize)
         }
     }
