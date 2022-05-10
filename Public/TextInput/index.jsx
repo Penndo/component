@@ -54,12 +54,13 @@ class TextInput extends React.Component {
         this.setState({
             showOptions:false
         })
-        if(this.props.getValue){
-            this.props.getValue(this.props.typeName, this.props.propertyName, e.target.value)
-        }
         
         if(this.props.changeTableAmount){
             this.props.changeTableAmount(e.target.value)
+        }
+
+        if(this.props.getValue){
+            this.props.getValue(this.props.typeName, this.props.propertyName, e.target.value)
         }
     }
 
@@ -86,14 +87,21 @@ class TextInput extends React.Component {
                     placeholder={placeholder}
                     readOnly = {readOnly}
                 />
-                {hasPreInstall ? 
+                {hasPreInstall 
+                    ? 
                     <div 
                         className={styles["preInstall"]}
                         style={{display:showOptions?"block":"none"}}>
                         <Options selectOption={this.selectOption} options={preInstallOptions}/>
-                    </div>  : null}
-                {labelDisplay === "block" ?
-                    <label style={{display:labelDisplay}}>{label}</label>:null
+                    </div>  
+                    : 
+                    null
+                }
+                {labelDisplay === "block" 
+                    ? 
+                    <label style={{display:labelDisplay}}>{label}</label>
+                    : 
+                    null
                 }
                 
             </div>
@@ -102,10 +110,3 @@ class TextInput extends React.Component {
 }
 
 export default TextInput;
-
-TextInput.defaultProps = {
-    label:"标签名",
-    labelDisplay:"block",
-    placeholder:"请输入",
-    defaultValue:""
-}

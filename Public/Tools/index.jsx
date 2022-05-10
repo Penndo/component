@@ -3,6 +3,7 @@ import {v4 as uuidv4} from "uuid"
 
 //裁切数据，仅保留表格数量的数据大小，若表格数量比已有数据大，那么就要新增表格数量
 function shearData(count,data,id,name,updateStatus){
+    //右键插入，已经生成了 rowID 和 key ,这里不需要处理了
     if(count <= data.length){
         return data.slice(0,count)
     }else{
@@ -32,20 +33,36 @@ function sync(preData,newData){
     }
 }
 
-//增加列后，重新计算列宽度。
-function recalculate_CellSize(cellArr,tableWidth){
+//计算数组值的总和
+function arr_sum(arr) {
+    return arr.reduce((acc,cur)=>acc + cur,0)
+}
 
-    //计算数组值的总和
-    function arr_sum(arr) {
-        return arr.reduce((acc,cur)=>acc + cur,0)
+//重新计算列宽度。
+function recalculate_CellSize(count,controlData,cellSize){
+    const tableWidth = controlData.tableWidth;
+    const cellWidthArr = cellSize.width;
+    const oldCellAmount = controlData.tableAmount.cols; //获取原有的数组长度
+    const width = Math.floor(tableWidth/oldCellAmount);
+    const changeAmount = count - oldCellAmount; //获取长度改变量，>0 是增加列，<0 是减少列。
+    console.log(count,oldCellAmount)
+
+    let newCellWidthArr=[];//定义新的宽度数组。
+
+    //如果是增加列
+    if(changeAmount > 0){
+        const increasedCellArr = new Array(changeAmount).fill(width);//要添加的数组
+        newCellWidthArr = cellWidthArr.concat(increasedCellArr);//添加了新增数组后的新数组。
+    }else{ //如果是减少列
+        newCellWidthArr = cellWidthArr.slice(0,count);//重新拷贝一份cols长度的数组
     }
 
-    const sum_NewCellSize = arr_sum(cellArr);//新数组所有值的和。用于比例的计算;
+    const sum_NewCellSize = arr_sum(newCellWidthArr);//新数组所有值的和。用于比例的计算;
     
     //计算比例
     const cellSizePercentage = [];//用来存放比例值
-    for(let i=0;i<cellArr.length;i++){
-        cellSizePercentage.push(cellArr[i]/sum_NewCellSize)
+    for(let i=0;i<newCellWidthArr.length;i++){
+        cellSizePercentage.push(newCellWidthArr[i]/sum_NewCellSize)
     };//通过循环将比例值放入 cellSizePercentage 中
     
     //更新宽度
