@@ -13,7 +13,7 @@ const defaultStoreName = "defaultStore";
 const defaultHistoryName = "historyStore";
 
 //从模板更新页面数据
-function refreshDataFromComponent(setControlData,setCellSize,setRenderHead,setRenderData) {
+function refreshDataFromComponent(setInformation,setDynamicHead,setDynamicData) {
     createIDB().then((db)=>{
         getAllValue(db,defaultHistoryName).then((result)=>{
             if(!result.length) return false;
@@ -22,10 +22,9 @@ function refreshDataFromComponent(setControlData,setCellSize,setRenderHead,setRe
             getValue(db,defaultStoreName,"title",indexValue).then((result)=>{
                 const data = result.information;
                 //更新 controlData 就可以驱动页面重新计算，进而得到最新的 renderData, renderHead
-                setControlData(data.controlData);
-                setRenderData(data.renderData);
-                setRenderHead(data.renderHead);
-                setCellSize(data.cellSize)
+                setInformation(data);
+                setDynamicHead(data.renderHead);
+                setDynamicData(data.renderData);
             });
         });
     })
@@ -33,39 +32,41 @@ function refreshDataFromComponent(setControlData,setCellSize,setRenderHead,setRe
 
 export default function App(){
 
-    const table_ref = useRef(null);
-    const [renderData, setRenderData] = useState(originData);
-    const [renderHead, setRenderHead] = useState(originHead);
+    const [information,setInformation] = useState({
+        renderHead:originHead,
+        renderData:originData,
+        controlData:originControlData,
+        cellSize:originCellSize
+    })
     const [dynamicHead, setDynamicHead] = useState(originHead);
     const [dynamicData, setDynamicData] = useState(originData);
-    const [controlData, setControlData] = useState(originControlData);
-    const [cellSize, setCellSize] = useState(originCellSize);
     const [headerIndependentStyle, setHeaderIndependentStyle] = useState(false);
 
-    const getCellSize = React.useCallback(
-        (data)=>{
-            setCellSize(data);
-        },[]
-    )
+    const {renderData,renderHead,controlData,cellSize} = information
+    const table_ref = useRef(null);
+
+    function getRenderData(data){
+        setInformation({...information,"renderData":data})
+    }
+
+    function getRenderHead(data) {
+        setInformation({...information,"renderHead":data})
+    }
+
+    function getCellSize(data) {
+        setInformation({...information,"cellSize":data})
+    }
 
     function syncBodyStyleToHeader() {
         setHeaderIndependentStyle(true)
     }
 
-    function set_dynamic_data(data) {
-        setDynamicData(data)
-    }
-
-    function set_dynamic_head(data) {
+    function getDynamicHead(data) {
         setDynamicHead(data)
     }
 
-    function getRenderData(data){
-        setRenderData(data)
-    }
-
-    function getRenderHead(data) {
-        setRenderHead(data)
+    function getDynamicData(data) {
+        setDynamicData(data)
     }
 
     function getControlData(name, data) {
@@ -78,16 +79,14 @@ export default function App(){
             controlData.textStyle.fontSize !== controlData.theadTextStyle.fontSize ||
             controlData.textStyle.fontWeight !== controlData.theadTextStyle.fontWeight;
 
-        let lastHeaderIndependentStyle = headerIndependentStyle;
-
         if(headerIndependentStyle_condition){
-            lastHeaderIndependentStyle = true;
+            setHeaderIndependentStyle(true)
         }
 
         //同步表格样式数据至表头
         function syncControlData() {
             let syncData = {}
-            if(!lastHeaderIndependentStyle){       
+            if(!headerIndependentStyle){       
                 switch (name) {
                     case "tbodyPadding":
                         const {b_top,b_bottom} = data.tbodyPadding
@@ -95,7 +94,7 @@ export default function App(){
                             theadPadding:{
                                 h_top:b_top,
                                 h_bottom:b_bottom
-                                }
+                            }
                         }
                         break;
                     case "fill":
@@ -122,8 +121,10 @@ export default function App(){
             return {...syncData,...data}
         }
 
-        setControlData({
+        setInformation({...information,"controlData":
+            {
             ...controlData,...syncControlData()
+            }
         })
     }
 
@@ -177,25 +178,48 @@ export default function App(){
         let mergedData = [];
         for(let i=0;i<readyRenderData.length;i++){
             let row = {};
-            // 根据列数来循环，以此确定将要往 row 这个空对象中添加多少个 key:value
             for(let j=0;j<readyRenderHead.length;j++){
-                //先将标题中的值定义为 “”，再用原有的数据去覆盖。
                 row[readyRenderHead[j]["colID"]] = "";
             }
-            //用原有数据去覆盖生成的新数据。
             Object.assign(row, readyRenderData[i]);
-            //将对象放入 mergedData 中
             mergedData.push(row);
         };
+
         if(count >= renderHead.length){
             setDynamicHead(mergedHead);
             setDynamicData(mergedData)
         }
 
-        getRenderHead(mergedHead);
-        getRenderData(mergedData);
+        //处理掉行数据中多余的属性内容
+        for(let i=0;i<mergedData.length;i++){
+            for(let property in mergedData[i]){
+                if(property !== "key" && property !== "rowID"){
+                    let leave = false;
+                    for(let j=0;j<mergedHead.length;j++){
+                        if(property === mergedHead[j].colID.toString()){
+                            leave = false;
+                            break;
+                        }else{
+                            leave = true;
+                        }
+                    }
+                    if(leave){
+                        delete mergedData[i][property];
+                    }
+                }
+            }
+        }
+
+        console.log(mergedData)
+
         let newCellSize = recalculate_CellSize(count,controlData,cellSize);
-        getCellSize({...cellSize,...newCellSize});
+
+        setInformation({
+            "renderHead":mergedHead,
+            "renderData":mergedData,
+            "controlData":{...controlData,tableAmount:{...controlData.tableAmount,cols:count}},
+            "cellSize":{...cellSize,...newCellSize}
+        })
     }
 
     function changeRowsCount(count,renderHead,renderData){
@@ -218,25 +242,34 @@ export default function App(){
         if(count >= renderData.length){
             setDynamicData(mergedData)
         }
-        getRenderData(mergedData);
+        setInformation({
+            ...information,
+            "renderData":mergedData,
+            "controlData":{...controlData,tableAmount:{...controlData.tableAmount,rows:count}}
+
+        })
     }
 
     //页面加载时，加载一次本地存储的数据
     React.useEffect(()=>{
-        refreshDataFromComponent(setControlData,setCellSize,setRenderHead,setRenderData);
+        refreshDataFromComponent(setInformation,setDynamicHead,setDynamicData);
     },[])
 
     //切换模板更新初始数据
     function switchTemplate(){
         setFillInterval_usedCount(1)
-        refreshDataFromComponent(setControlData,setCellSize,setRenderHead,setRenderData)
+        refreshDataFromComponent(setInformation,setDynamicHead,setDynamicData)
     }
 
     function backToInitialState(){
-        setCellSize(originCellSize);
-        setControlData(originControlData);
-        setRenderHead(originHead);
-        setRenderData(originData);
+        setInformation(
+            {
+                renderHead:originHead,
+                renderData:originData,
+                controlData:originControlData,
+                cellSize:originCellSize
+            }
+        )
     }
 
     return (
@@ -251,8 +284,8 @@ export default function App(){
                 getRowID={getRowID}
                 dynamicData={dynamicData}
                 dynamicHead={dynamicHead}
-                setDynamicHead={set_dynamic_head}
-                setDynamicData={set_dynamic_data}
+                getDynamicHead={getDynamicHead}
+                getDynamicData={getDynamicData}
                 controlData={controlData} 
                 getControlData={getControlData} 
                 renderData={renderData}

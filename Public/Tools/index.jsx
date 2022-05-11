@@ -45,7 +45,6 @@ function recalculate_CellSize(count,controlData,cellSize){
     const oldCellAmount = controlData.tableAmount.cols; //获取原有的数组长度
     const width = Math.floor(tableWidth/oldCellAmount);
     const changeAmount = count - oldCellAmount; //获取长度改变量，>0 是增加列，<0 是减少列。
-    console.log(count,oldCellAmount)
 
     let newCellWidthArr=[];//定义新的宽度数组。
 
