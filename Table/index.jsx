@@ -336,7 +336,6 @@ export default function Table(props) {
         }
         return fontWeight
     }
-    console.log(123)
     return (
         <div className={style.tableContainer}>
             {/* 这里创建右键菜单，默认隐藏 */}
