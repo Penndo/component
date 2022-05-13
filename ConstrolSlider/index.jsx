@@ -8,25 +8,15 @@ import ButtonGroup from "./ButtonGroup"
 import styles from "./index.module.less"
 import TableWidth from "./TableWidth"
 import TemplateSelecter from "./TemplateSelecter"
-import { createIDB, getAllValue } from "../Public/IDB"
-
-const defaultStoreName = "defaultStore";;
-const defaultHistoryName = "historyStore";
-
 
 export default function ConstrolSlider(props){
-    const {getControlData,changeTableAmout_rows,changeTableAmout_cols,renderData,renderHead,controlData,cellSize,syncBodyStyleToHeader,switchTemplate,backToInitialState,table_ref,fillInterval_usedCount,refreshInterval_usedCount} = props;
+    const {getControlData,changeTableAmout_rows,changeTableAmout_cols,renderData,renderHead,controlData,cellSize,syncBodyStyleToHeader,switchTemplate,backToInitialState,table_ref,fillInterval_usedCount,refreshInterval_usedCount,defaultStorageData,historyStorageData,updateData,lastPickedColor,getLastPickedColor} = props;
     const {tableWidth, tableAmount, tbodyPadding, theadPadding, theadFill, fill, border, textStyle, theadTextStyle} = controlData;
-
-    const [lastPickedColor,setLastPickedColor] = React.useState({
-        fill:fill.basicColor,
-        border:border.basicColor,
-    })
 
     function getValue(typeName,propertyName,value){
 
         if(value !== "" && typeName === "fill"){
-            setLastPickedColor({...lastPickedColor,[typeName]:value})
+            getLastPickedColor(value)
         }
         let newData = {}
         if(typeName === propertyName){
@@ -54,7 +44,7 @@ export default function ConstrolSlider(props){
                         fill:{
                             ...controlData["fill"],
                             switchState:true,
-                            intervalColor:lastPickedColor["fill"]
+                            intervalColor:lastPickedColor
                         },
                         border:{
                             ...controlData["border"],
@@ -97,35 +87,7 @@ export default function ConstrolSlider(props){
             }
         }
     }
-    
-    //indexedDB 数据库初始化。defaultStorageData 用来保存模板数据。historyStorageData 用来存放最后一次的选择。
-    const [defaultStorageData, setDefaultStorageData] = React.useState([]);
-    const [historyStorageData, setHistoryStorageData] = React.useState([{id:1,history:""}]);
-    
-    //获取模板数据并更新到页面,主要用来控制模板下拉框的数据显示
-    function updateData(){
-        createIDB().then((db)=>{
-            //获取模板数据
-            getAllValue(db,defaultStoreName).then((result)=>{
-                setDefaultStorageData(result)
-            });
-            //获取最近一次的选择数据
-            getAllValue(db,defaultHistoryName).then((result)=>{
-                setHistoryStorageData(result)
-            });
-        })
-    }
-
-    // props 更新后，更新data
-    React.useEffect(()=>{
-        updateData();
-        if(fillInterval_usedCount === 1 && fill.switchState === true){
-            setLastPickedColor({fill:fill.intervalColor === "" ? fill.basicColor : fill.intervalColor,border:fill.basicColor})
-        }else if(fillInterval_usedCount === 1 && fill.switchState === false){
-            setLastPickedColor({fill:fill.basicColor,border:fill.basicColor})
-        }
-    },[fillInterval_usedCount,fill.basicColor,fill.intervalColor,fill.switchState])
-    
+        
     //默认样式给到 tbodyStyle.通过下面 return 查看
     const [styleType, setStyleType] = React.useState("tbodyStyle");
 
@@ -149,8 +111,8 @@ export default function ConstrolSlider(props){
 
                 <div className={styles["tbodyStyle"]} style={{display: styleType === "tbodyStyle" ? "block" : "none"}}>
                     <CellPaddingSetting type="padding" typeName="tbodyPadding" area="b" data={tbodyPadding} getValue = {getValue} />
-                    <TableBg type="填充" fillInterval_usedCount={fillInterval_usedCount} toggleLabel="隔行换色" switchColor = {true} switchColorPicker={true} typeName="fill" data={fill} switchState={fill.switchState} lastPickedColor = {lastPickedColor.fill} changeSwitchState={changeSwitchState}  getValue={getValue}/>
-                    <TableBg type="边框" fillInterval_usedCount={fillInterval_usedCount} toggleLabel="列分割线" switchColor = {true} switchColorPicker={false} typeName="border" data={border} switchState={border.switchState} lastPickedColor = {lastPickedColor.border} changeSwitchState={changeSwitchState}  getValue={getValue} />
+                    <TableBg type="填充" fillInterval_usedCount={fillInterval_usedCount} toggleLabel="隔行换色" switchColor = {true} switchColorPicker={true} typeName="fill" data={fill} switchState={fill.switchState} changeSwitchState={changeSwitchState}  getValue={getValue}/>
+                    <TableBg type="边框" fillInterval_usedCount={fillInterval_usedCount} toggleLabel="列分割线" switchColor = {true} switchColorPicker={false} typeName="border" data={border} switchState={border.switchState} changeSwitchState={changeSwitchState}  getValue={getValue} />
                     <TextStyleSetting type="文本样式" typeName="textStyle" data={textStyle} getValue = {getValue}/>
                 </div>
 
