@@ -23,21 +23,69 @@ export default function App(){
         dynamicData:originData,
         dynamicHead:originHead
     })
+
     const {controlData,renderData,renderHead,cellSize,dynamicData,dynamicHead} = information
-    // const [renderData, setRenderData] = useState(originData);
-    // const [renderHead, setRenderHead] = useState(originHead);
-    // const [dynamicHead, setDynamicHead] = useState(originHead);
-    // const [dynamicData, setDynamicData] = useState(originData);
-    // const [controlData, setControlData] = useState(originControlData);
-    // const [cellSize, setCellSize] = useState(originCellSize);
     const [headerIndependentStyle, setHeaderIndependentStyle] = useState(false);
     const [lastPickedColor,setLastPickedColor] = useState(controlData.fill.basicColor);
-    const [defaultStorageData, setDefaultStorageData] = React.useState([]);
-    const [historyStorageData, setHistoryStorageData] = React.useState([{id:1,history:""}]);
+    const [storageData,setStorageData] = useState({
+        defaultStorageData:[],
+        historyStorageData:[{id:1,history:""}]
+    })
+    const {defaultStorageData,historyStorageData} = storageData
+    const [fillInterval_usedCount, setFillInterval_usedCount] = React.useState(1);//隔行换色的开启次数，作为其key，每重新开启一次，重新创建一个新的组件
+    const [colID, setColID] = useState(maxID(dynamicHead,"colID"))
+    const [rowID, setRowID] = useState(maxID(dynamicData,"rowID"))
 
+    function getCellSize(data) {
+        setInformation({...information,cellSize:data})
+    }
+
+    function syncBodyStyleToHeader() {
+        setHeaderIndependentStyle(true)
+    }
+
+    function getDynamicData(data) {
+        setInformation({...information,dynamicData:data})
+    }
+
+    function getDynamicHead(data) {
+        setInformation({...information,dynamicHead:data})
+    }
+
+    function getRenderData(data){
+        setInformation({...information,renderData:data})
+    }
+
+    function getRenderHead(data) {
+        setInformation({...information,renderHead:data})
+    }
+
+    function getLastPickedColor(value) {
+        setLastPickedColor(value)
+    }
+
+    function refreshInterval_usedCount(value){
+        setFillInterval_usedCount(value)
+    }
+
+    function getColID(colID) {
+        setColID(colID)
+    }
+
+    function getRowID(rowID) {
+        setRowID(rowID)
+    }
+
+    function maxID(data,name){
+        let IDArr = [];
+        for(let i=0;i<data.length;i++){
+            IDArr.push(data[i][name])
+        };
+        return Math.max(...IDArr)
+    }
 
     //从模板更新页面数据
-    function refreshDataFromComponent(fillInterval_usedCount){
+    function refreshDataFromComponent(){
         createIDB().then((db)=>{
             getAllValue(db,defaultHistoryName).then((result)=>{
                 if(!result.length) return false;
@@ -54,55 +102,16 @@ export default function App(){
                         dynamicData:data.renderData,
                         dynamicHead:data.renderHead
                     })
-                    // setControlData(data.controlData);
-                    // setRenderData(data.renderData);
-                    // setRenderHead(data.renderHead);
-                    // setCellSize(data.cellSize);
-                    // setDynamicHead(data.renderHead);
-                    // setDynamicData(data.renderData);
-                    
+                   
                     const {basicColor,intervalColor,switchState} = data.controlData.fill
-
-                    if(fillInterval_usedCount === 1 && switchState === true){
+                    if(switchState === true){
                         setLastPickedColor(intervalColor === "" ? basicColor : intervalColor)
-                    }else if(fillInterval_usedCount === 1 && switchState === false){
+                    }else if(switchState === false){
                         setLastPickedColor(basicColor)
                     }
                 });
             });
         })
-    }
-
-    function getCellSize(data) {
-        setInformation({...information,cellSize:data})
-    }
-
-    function syncBodyStyleToHeader() {
-        setHeaderIndependentStyle(true)
-    }
-
-    function getDynamicData(data) {
-        setInformation({...information,dynamicData:data})
-        // setDynamicData(data)
-    }
-
-    function getDynamicHead(data) {
-        setInformation({...information,dynamicHead:data})
-        // setDynamicHead(data)
-    }
-
-    function getRenderData(data){
-        setInformation({...information,renderData:data})
-        // setRenderData(data)
-    }
-
-    function getRenderHead(data) {
-        setInformation({...information,renderHead:data})
-        // setRenderHead(data)
-    }
-
-    function getLastPickedColor(value) {
-        setLastPickedColor(value)
     }
 
     function getControlData(name, data) {
@@ -158,55 +167,46 @@ export default function App(){
             };
             return {...syncData,...data}
         }
+
         setInformation({
             ...information,
             controlData:{
                 ...controlData,...syncControlData()
             }
         })
-        console.log(data)
-        // setControlData({
-        //     ...controlData,...syncControlData()
-        // })
     }
 
     function updateData(){
-        console.log("updataData")
         createIDB().then((db)=>{
             //获取模板数据
-            getAllValue(db,defaultStoreName).then((result)=>{
-                setDefaultStorageData(result)
-            });
-            //获取最近一次的选择数据
-            getAllValue(db,defaultHistoryName).then((result)=>{
-                setHistoryStorageData(result)
-            });
+            const defaultStorageData_result = new Promise(
+                (resolve,reject) => {
+                    getAllValue(db,defaultStoreName).then((result)=>{
+                        resolve(result)
+                    });
+                }
+            );
+            const historyStorageData_result = new Promise(
+                (resolve,reject) => {
+                    getAllValue(db,defaultHistoryName).then((result)=>{
+                        resolve(result)
+                    });
+                }
+            )
+            Promise.all([defaultStorageData_result,historyStorageData_result]).then((values)=>{
+                setStorageData({
+                    defaultStorageData:values[0],
+                    historyStorageData:values[1]
+                })
+            })
+            // getAllValue(db,defaultStoreName).then((result)=>{
+            //     setDefaultStorageData(result)
+            // });
+            // //获取最近一次的选择数据
+            // getAllValue(db,defaultHistoryName).then((result)=>{
+            //     setHistoryStorageData(result)
+            // });
         })
-    }
-
-    //隔行换色的开启次数，作为其key，每重新开启一次，重新创建一个新的组件
-    const [fillInterval_usedCount, setFillInterval_usedCount] = React.useState(1);
-    function refreshInterval_usedCount(value){
-        setFillInterval_usedCount(value)
-    }
-
-    const [colID, setColID] = useState(maxID(dynamicHead,"colID"))
-    const [rowID, setRowID] = useState(maxID(dynamicData,"rowID"))
-
-    function maxID(data,name){
-        let IDArr = [];
-        for(let i=0;i<data.length;i++){
-            IDArr.push(data[i][name])
-        };
-        return Math.max(...IDArr)
-    }
-
-    function getColID(colID) {
-        setColID(colID)
-    }
-
-    function getRowID(rowID) {
-        setRowID(rowID)
     }
 
     function changeTableAmout_cols(count) {
@@ -267,7 +267,6 @@ export default function App(){
 
         let newCellSize = recalculate_CellSize(count,controlData,cellSize);
         getCellSize({...cellSize,...newCellSize});
-        console.log(dynamicData)
         setInformation({
             renderHead:mergedHead,
             renderData:mergedData.slice(0,controlData.tableAmount.rows),
@@ -296,7 +295,6 @@ export default function App(){
             mergedData.push(row);
         };
 
-        console.log(mergedData)
         setInformation({
             ...information,
             dynamicData:count >= renderData.length ? mergedData : information.dynamicData,
@@ -305,22 +303,16 @@ export default function App(){
         })
     }
 
-    //页面加载时，加载一次本地存储的数据
-    React.useEffect(()=>{
-        console.log("agjal")
-        updateData();
-        refreshDataFromComponent(fillInterval_usedCount);
-    },[fillInterval_usedCount])
-
     //切换模板更新初始数据
     function switchTemplate(){
         setFillInterval_usedCount(1)
-        refreshDataFromComponent(fillInterval_usedCount)
+        refreshDataFromComponent()
     }
 
     function backToInitialState(){
         setInformation(
             {
+                newName:"newWorld",
                 controlData:originControlData,
                 renderData:originData,
                 renderHead:originHead,
@@ -329,11 +321,13 @@ export default function App(){
                 dynamicHead:originHead
             }
         )
-        // setCellSize(originCellSize);
-        // setControlData(originControlData);
-        // setRenderHead(originHead);
-        // setRenderData(originData);
     }
+
+    //页面加载时，加载一次本地存储的数据
+    React.useEffect(()=>{
+        updateData();
+        refreshDataFromComponent();
+    },[])
 
     return (
         <div className={styles["container"]}>
@@ -350,7 +344,6 @@ export default function App(){
                 getDynamicHead={getDynamicHead}
                 getDynamicData={getDynamicData}
                 controlData={controlData} 
-                getControlData={getControlData} 
                 renderData={renderData}
                 renderHead={renderHead}
                 getRenderData={getRenderData} 

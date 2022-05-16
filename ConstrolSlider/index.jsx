@@ -100,7 +100,6 @@ export default function ConstrolSlider(props){
 
     return (
         <div className={styles["constrolSlider"]}>
-            {console.log(123)}
             <div className={styles["configureArea"]}>
 
                 <TemplateSelecter type="选择模板" defaultStorageData={defaultStorageData} historyStorageData={historyStorageData} switchTemplate={switchTemplate} backToInitialState={backToInitialState} updateData={updateData} refreshInterval_usedCount = {refreshInterval_usedCount}/>

@@ -24,7 +24,7 @@ function eventPosition(e) {
 
 export default function Table(props) {
 
-    const {controlData,cellSize,colID,rowID,getColID,getRowID,getControlData,renderHead,renderData, getCellSize, getRenderData, getRenderHead,setDynamicHead,setDynamicData,table_ref,changeColsCount,changeRowsCount} = props;
+    const {controlData,cellSize,colID,rowID,getColID,getRowID,renderHead,renderData, getCellSize, getRenderData, getRenderHead,getDynamicHead,getDynamicData,table_ref,changeColsCount,changeRowsCount} = props;
     const {b_top,b_right,b_bottom,b_left} = controlData.tbodyPadding;
     const {h_top,h_bottom} = controlData.theadPadding;
     const tableWidth = controlData.tableWidth;
@@ -41,7 +41,7 @@ export default function Table(props) {
         let insert = renderData.slice();
         insert[trIndex][renderHead[tdIndex]["colID"]] = e.target.value;
         getRenderData(insert);
-        setDynamicData(insert);
+        getDynamicData(insert);
 
     }
 
@@ -50,7 +50,7 @@ export default function Table(props) {
         let insertHead = renderHead.slice();
         insertHead[tdIndex]["title"] = e.target.value;
         getRenderHead(insertHead);
-        setDynamicHead(insertHead)
+        getDynamicHead(insertHead)
     }
     
     //自定义右键菜单
@@ -70,13 +70,6 @@ export default function Table(props) {
         setTrIndex(trIndex)
         //为 document 添加一个全局点击事件，用来隐藏右键菜单
         document.addEventListener("click",handleDocument)
-    }
-
-    function getCellAmount(propertyName,value){
-        let tableAmount = controlData.tableAmount
-        getControlData(null,{
-            "tableAmount":{...tableAmount,[propertyName]:value}
-        });
     }
 
     //隐藏右键
@@ -104,7 +97,6 @@ export default function Table(props) {
                     break;
             }
             changeRowsCount(insert.length,renderHead,insert)
-            getCellAmount("rows",insert.length);
             setRightPanelDisplay("none");
             getRowID(rowID + 1)
         }
@@ -128,7 +120,6 @@ export default function Table(props) {
                     break;
             }
             changeColsCount(insert.length,insert,renderData);
-            getCellAmount("cols",insert.length);
             setRightPanelDisplay("none");
             getColID(colID + 1)
         }
@@ -147,7 +138,6 @@ export default function Table(props) {
             insert.splice(trIndex + 1, 0, merged);
             changeRowsCount(insert.length,renderHead,insert)
             setRightPanelDisplay("none");
-            getCellAmount("rows",insert.length);
             getRowID(rowID + 1)
         }
     }
@@ -167,7 +157,6 @@ export default function Table(props) {
 
             changeColsCount(insert_Head.length,insert_Head,insert_Data)
             setRightPanelDisplay("none");
-            getCellAmount("cols",insert_Head.length);
             getColID(colID + 1)
         }
     }
@@ -409,7 +398,7 @@ export default function Table(props) {
                                         <td
                                             style={{
                                                 //隔行换色开启，且行数为奇数时，填充intervalColor, 否则填充 basicColor
-                                                backgroundColor:controlData.fill.intervalColor !== "" && rowIndex%2 === 1 ? controlData.fill.intervalColor : controlData.fill.basicColor,
+                                                backgroundColor:controlData.fill.intervalColor !== "" && rowIndex%2 === 0 ? controlData.fill.intervalColor : controlData.fill.basicColor,
                                                 borderRight:controlData.border.intervalColor !== "" && cellIndex !== renderHead.length-1 ? `1px solid ${controlData.border.intervalColor}`: "none",
                                                 borderBottom:`1px solid ${controlData.border.basicColor}`
                                             }}

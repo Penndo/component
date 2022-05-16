@@ -16,19 +16,6 @@ class ButtonGroup extends React.Component {
         })
     }
 
-    // //重新获取表格的行高
-    // newCellSize = (table_ref,cellSize)=>{
-    //     const tableRows = table_ref.current.rows;
-    //     let newCellSize = {};
-    //     let newstHeightArr = [];
-    //     for(let i=0;i<tableRows.length;i++){
-    //         newstHeightArr.push(tableRows[i].offsetHeight)
-    //     };
-    //     newCellSize.width = cellSize.width;
-    //     newCellSize.height = newstHeightArr;
-    //     return newCellSize;
-    // }
-
     //点击确定的时候传递数据
     transData = (renderHead,renderData,controlData,cellSize) => {
         return ()=>{
