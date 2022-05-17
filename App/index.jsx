@@ -92,7 +92,7 @@ export default function App(){
     }
 
     function getRenderHead(data) {
-        dispatch({type:"renderData",value:data})
+        dispatch({type:"renderHead",value:data})
     }
 
     function syncBodyStyleToHeader() {
