@@ -1,7 +1,7 @@
 import * as React from "react";
 import {useRef, useState } from "react";
 
-import {createIDB, getAllValue,getValue} from "../Public/IDB";
+import {createIDB, getAllValue} from "../Public/IDB";
 import { shearData,recalculate_CellSize } from "../Public/Tools";
 import Table from "../Table";
 import ConstrolSlider from "../ConstrolSlider";
@@ -13,51 +13,90 @@ const defaultStoreName = "defaultStore";
 const defaultHistoryName = "historyStore";
 
 export default function App(){
-
-    const table_ref = useRef(null);
-    const [information,setInformation] = useState({
+    const initialInformation = {
         controlData:originControlData,
         renderData:originData,
         renderHead:originHead,
         cellSize:originCellSize,
         dynamicData:originData,
-        dynamicHead:originHead
-    })
-
-    const {controlData,renderData,renderHead,cellSize,dynamicData,dynamicHead} = information
-    const [headerIndependentStyle, setHeaderIndependentStyle] = useState(false);
-    const [lastPickedColor,setLastPickedColor] = useState(controlData.fill.basicColor);
-    const [storageData,setStorageData] = useState({
+        dynamicHead:originHead,
         defaultStorageData:[],
         historyStorageData:[{id:1,history:""}]
-    })
-    const {defaultStorageData,historyStorageData} = storageData
+    }
+
+    function reducer(state, action) {
+        switch (action.type) {
+            case "controlData":
+                return {
+                    ...state,
+                    controlData:action.value
+                }
+            case "renderData":
+                return {
+                    ...state,
+                    renderData:action.value
+                }
+            case "renderHead":
+                return {
+                    ...state,
+                    renderHead:action.value
+                }
+            case "cellSize":
+                return {
+                    ...state,
+                    cellSize:action.value
+                }
+            case "dynamicHead":
+                return {
+                    ...state,
+                    dynamicHead:action.value
+                }
+            case "dynamicData":
+                return {
+                    ...state,
+                    dynamicData:action.value
+                }
+            case "all":
+                return {
+                    ...action.value
+                }
+            default:
+                return state
+        }
+    }
+
+    const table_ref = useRef(null);
+
+    const [information, dispatch] = React.useReducer(reducer, initialInformation)
+    const {controlData,renderData,renderHead,cellSize,dynamicData,dynamicHead,defaultStorageData,historyStorageData} = information
+    const [headerIndependentStyle, setHeaderIndependentStyle] = useState(false);
+    const [lastPickedColor,setLastPickedColor] = useState(controlData.fill.basicColor);
     const [fillInterval_usedCount, setFillInterval_usedCount] = React.useState(1);//隔行换色的开启次数，作为其key，每重新开启一次，重新创建一个新的组件
     const [colID, setColID] = useState(maxID(dynamicHead,"colID"))
     const [rowID, setRowID] = useState(maxID(dynamicData,"rowID"))
 
     function getCellSize(data) {
-        setInformation({...information,cellSize:data})
+        dispatch({type:"cellSize",value:data})
+    }
+
+    function getDynamicData(data) {
+        dispatch({type:"dynamicData",value:data})
+    }
+
+    function getDynamicHead(data) {
+        dispatch({type:"dynamicHead",value:data})
+    }
+
+    function getRenderData(data){
+        dispatch({type:"renderData",value:data})
+    }
+
+    function getRenderHead(data) {
+        dispatch({type:"renderData",value:data})
     }
 
     function syncBodyStyleToHeader() {
         setHeaderIndependentStyle(true)
-    }
-
-    function getDynamicData(data) {
-        setInformation({...information,dynamicData:data})
-    }
-
-    function getDynamicHead(data) {
-        setInformation({...information,dynamicHead:data})
-    }
-
-    function getRenderData(data){
-        setInformation({...information,renderData:data})
-    }
-
-    function getRenderHead(data) {
-        setInformation({...information,renderHead:data})
     }
 
     function getLastPickedColor(value) {
@@ -87,30 +126,42 @@ export default function App(){
     //从模板更新页面数据
     function refreshDataFromComponent(){
         createIDB().then((db)=>{
-            getAllValue(db,defaultHistoryName).then((result)=>{
-                if(!result.length) return false;
-                const indexValue = result[0].history;
+            const defaultStorageData_result = Promise.resolve(getAllValue(db,defaultStoreName));
+            const historyStorageData_result = Promise.resolve(getAllValue(db,defaultHistoryName));
+            Promise.all([defaultStorageData_result,historyStorageData_result]).then((values)=>{
                 
-                getValue(db,defaultStoreName,"title",indexValue).then((result)=>{
-                    const data = result.information;
-                    //更新 controlData 就可以驱动页面重新计算，进而得到最新的 renderData, renderHead
-                    setInformation({
-                        controlData:data.controlData,
-                        renderData:data.renderData,
-                        renderHead:data.renderHead,
-                        cellSize:data.cellSize,
-                        dynamicData:data.renderData,
-                        dynamicHead:data.renderHead
-                    })
-                   
-                    const {basicColor,intervalColor,switchState} = data.controlData.fill
-                    if(switchState === true){
-                        setLastPickedColor(intervalColor === "" ? basicColor : intervalColor)
-                    }else if(switchState === false){
-                        setLastPickedColor(basicColor)
+                const informationList = values[0];
+                const selectes = values[1];
+                if(!informationList.length) return false;
+                const selectedName = selectes[0].history;
+                let data = null;
+                
+                for(let i=0; i<informationList.length; i++){
+                    if(informationList[i].title === selectedName){
+                        data = informationList[i].information;
+                        break;
                     }
-                });
-            });
+                }
+
+                dispatch({type:"all",value:{
+                    controlData:data.controlData,
+                    renderData:data.renderData,
+                    renderHead:data.renderHead,
+                    cellSize:data.cellSize,
+                    dynamicData:data.renderData,
+                    dynamicHead:data.renderHead,
+                    defaultStorageData:informationList,
+                    historyStorageData:selectes
+                }})
+                
+                const {basicColor,intervalColor,switchState} = data.controlData.fill
+                if(switchState === true){
+                    setLastPickedColor(intervalColor === "" ? basicColor : intervalColor)
+                }else if(switchState === false){
+                    setLastPickedColor(basicColor)
+                }
+
+            })
         })
     }
 
@@ -167,46 +218,9 @@ export default function App(){
             };
             return {...syncData,...data}
         }
-
-        setInformation({
-            ...information,
-            controlData:{
-                ...controlData,...syncControlData()
-            }
-        })
-    }
-
-    function updateData(){
-        createIDB().then((db)=>{
-            //获取模板数据
-            const defaultStorageData_result = new Promise(
-                (resolve,reject) => {
-                    getAllValue(db,defaultStoreName).then((result)=>{
-                        resolve(result)
-                    });
-                }
-            );
-            const historyStorageData_result = new Promise(
-                (resolve,reject) => {
-                    getAllValue(db,defaultHistoryName).then((result)=>{
-                        resolve(result)
-                    });
-                }
-            )
-            Promise.all([defaultStorageData_result,historyStorageData_result]).then((values)=>{
-                setStorageData({
-                    defaultStorageData:values[0],
-                    historyStorageData:values[1]
-                })
-            })
-            // getAllValue(db,defaultStoreName).then((result)=>{
-            //     setDefaultStorageData(result)
-            // });
-            // //获取最近一次的选择数据
-            // getAllValue(db,defaultHistoryName).then((result)=>{
-            //     setHistoryStorageData(result)
-            // });
-        })
+        dispatch({type:"controlData",value:{
+            ...controlData,...syncControlData()
+        }})
     }
 
     function changeTableAmout_cols(count) {
@@ -266,15 +280,15 @@ export default function App(){
         }
 
         let newCellSize = recalculate_CellSize(count,controlData,cellSize);
-        getCellSize({...cellSize,...newCellSize});
-        setInformation({
+        dispatch({type:"all",value:{
+            ...information,
             renderHead:mergedHead,
             renderData:mergedData.slice(0,controlData.tableAmount.rows),
             dynamicData:count >= renderHead.length ? mergedData :information.dynamicData,
             dynamicHead:count >= renderHead.length ? mergedHead :information.dynamicHead,
             controlData:{...controlData,tableAmount:{...controlData.tableAmount,cols:count}},
             cellSize:{...cellSize,...newCellSize}
-        })
+        }})
     }
 
     function changeRowsCount(count,renderHead,renderData){
@@ -295,12 +309,12 @@ export default function App(){
             mergedData.push(row);
         };
 
-        setInformation({
+        dispatch({type:"all",value:{
             ...information,
             dynamicData:count >= renderData.length ? mergedData : information.dynamicData,
             renderData:mergedData,
             controlData:{...controlData,tableAmount:{...controlData.tableAmount,rows:count}}
-        })
+        }})
     }
 
     //切换模板更新初始数据
@@ -310,22 +324,26 @@ export default function App(){
     }
 
     function backToInitialState(){
-        setInformation(
-            {
-                newName:"newWorld",
-                controlData:originControlData,
-                renderData:originData,
-                renderHead:originHead,
-                cellSize:originCellSize,
-                dynamicData:originData,
-                dynamicHead:originHead
-            }
-        )
+        createIDB().then((db)=>{
+            const defaultStorageData_result = Promise.resolve(getAllValue(db,defaultStoreName));
+            const historyStorageData_result = Promise.resolve(getAllValue(db,defaultHistoryName));
+            Promise.all([defaultStorageData_result,historyStorageData_result]).then((values)=>{
+                dispatch({type:"all",value:{
+                    controlData:originControlData,
+                    renderData:originData,
+                    renderHead:originHead,
+                    cellSize:originCellSize,
+                    dynamicData:originData,
+                    dynamicHead:originHead,
+                    defaultStorageData:values[0],
+                    historyStorageData:values[1]
+                }})
+            })
+        })
     }
 
     //页面加载时，加载一次本地存储的数据
     React.useEffect(()=>{
-        updateData();
         refreshDataFromComponent();
     },[])
 
@@ -357,7 +375,7 @@ export default function App(){
                 getLastPickedColor = {getLastPickedColor}
                 defaultStorageData={defaultStorageData}
                 historyStorageData={historyStorageData}
-                updateData={updateData}
+                updateData={refreshDataFromComponent}
                 fillInterval_usedCount = {fillInterval_usedCount}
                 refreshInterval_usedCount = {refreshInterval_usedCount}
                 table_ref = {table_ref}

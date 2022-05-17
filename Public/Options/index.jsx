@@ -12,13 +12,11 @@ class Options extends React.Component{
 
     handleClick = (e)=>{
         const value = e.currentTarget.innerHTML;
-        console.log(value)
         this.props.selectOption(value)
     }
 
     deleteData = (keyValue,updateData)=>{
         return ()=>{
-            console.log(keyValue)
             createIDB().then((db)=>{
                 //从默认库中删除数据；
                 deleteItem(db,defaultStoreName,keyValue);
@@ -28,11 +26,11 @@ class Options extends React.Component{
                         const keyValue = result[result.length-1].title;
                         update(db,historyStoreName,{id:1,history:keyValue});
                         this.props.selectOption(keyValue);
+                        updateData();
                     }else{
                         deleteItem(db,historyStoreName,1);
                         this.props.backToInitialState();
                     }
-                    updateData();
                 });
                 
             })
@@ -65,7 +63,6 @@ class Options extends React.Component{
                                         </div>
                                     : null
                                 }
-
                             </li>
                         ) 
                     })

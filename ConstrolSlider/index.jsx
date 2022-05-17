@@ -101,7 +101,7 @@ export default function ConstrolSlider(props){
     return (
         <div className={styles["constrolSlider"]}>
             <div className={styles["configureArea"]}>
-
+        {console.log("constrolSlider")}
                 <TemplateSelecter type="选择模板" defaultStorageData={defaultStorageData} historyStorageData={historyStorageData} switchTemplate={switchTemplate} backToInitialState={backToInitialState} updateData={updateData} refreshInterval_usedCount = {refreshInterval_usedCount}/>
                 <TableWidth type="表格宽度" typeName = "tableWidth" getValue = {getValue}  data = {tableWidth}/>
                 <CellAmount type="表格数量" typeName = "tableAmount" data={tableAmount} changeTableAmout_rows={changeTableAmout_rows} changeTableAmout_cols={changeTableAmout_cols}/>
