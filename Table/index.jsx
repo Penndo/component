@@ -29,7 +29,7 @@ export default function Table(props) {
     const {h_top,h_bottom} = controlData.theadPadding;
     const tableWidth = controlData.tableWidth;
     const reservedWidth = (b_left*1 + b_right*1) + "px";
-
+    
     const [rightPanelDisplay, setRightPanelDisplay] = useState("none");
     const [tdIndex, setTdIndex] = useState(null)
     const [trIndex, setTrIndex] = useState(null)
@@ -42,7 +42,6 @@ export default function Table(props) {
         insert[trIndex][renderHead[tdIndex]["colID"]] = e.target.value;
         getRenderData(insert);
         getDynamicData(insert);
-
     }
 
     function changeTheadValue(e){
@@ -327,7 +326,7 @@ export default function Table(props) {
     }
     return (
         <div className={style.tableContainer}>
-            {/* 这里创建右键菜单，默认隐藏 */}
+            {console.log("Table")}
             <div className={style.rightPanel} ref={rightPanel} >
                 <TableEdit 
                     display={rightPanelDisplay}
