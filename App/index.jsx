@@ -161,6 +161,8 @@ export default function App(){
                     setLastPickedColor(basicColor)
                 }
 
+                setHeaderIndependentStyle(false)
+
             })
         })
     }
@@ -292,14 +294,10 @@ export default function App(){
         let mergedData = [];
         for(let i=0;i<readyRenderData.length;i++){
             let row = {};
-            // 根据列数来循环，以此确定将要往 row 这个空对象中添加多少个 key:value
             for(let j=0;j<readyRenderHead.length;j++){
-                //先将标题中的值定义为 “”，再用原有的数据去覆盖。
                 row[readyRenderHead[j]["colID"]] = "";
             }
-            //用原有数据去覆盖生成的新数据。
             Object.assign(row, readyRenderData[i]);
-            //将对象放入 mergedData 中
             mergedData.push(row);
         };
 
