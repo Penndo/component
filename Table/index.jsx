@@ -7,18 +7,16 @@ import style from "./index.module.less"
 
 //获取当前事件的位置
 function eventPosition(e) {
-    //获取点击的td
+
     let currentTd = e.target.tagName === "TD" ? e.target : e.target.parentNode;
-    //获取点击的tr
-    let currentTr = e.target.tagName === "TD" ? e.target.parentNode : e.target.parentNode.parentNode;
-    //获取所有的tds
+    let currentTr = currentTd.parentNode;
+
     let tds = currentTr.childNodes
-    //获取所有的trs
     let trs = currentTr.parentNode.childNodes
-    //获取当前 td 所处的位置.先将 tds 转换为数组，再用 indexOf 方法获取当前 td 的位置
+
     let tdIndex = Array.from(tds).indexOf(currentTd);
-    //获取当前 tr 所处的位置
     let trIndex = Array.from(trs).indexOf(currentTr);
+    
     return {"tdIndex":tdIndex,"trIndex":trIndex}
 }
 
@@ -34,6 +32,39 @@ export default function Table(props) {
     const [tdIndex, setTdIndex] = useState(null)
     const [trIndex, setTrIndex] = useState(null)
     const rightPanel = useRef(null);
+
+    function pressEnter(e){
+        if(e.keyCode === 13){
+            const {trIndex,tdIndex} = eventPosition(e);
+
+            let table = table_ref.current.childNodes;
+            let thead = Array.from(table).find((element) => element.tagName === "THEAD");
+            let tbody = Array.from(table).find((element) => element.tagName === "TBODY");
+
+            let maxRows = renderData.length
+            let maxCols = renderHead.length
+
+            switch (e.target.parentNode.tagName) {
+                //不同位置的跳跃情况
+                case "TH":
+                    tbody.rows[0].childNodes[tdIndex].firstElementChild.focus();
+                    break;
+                case "TD":
+                    if(trIndex === maxRows - 1 && tdIndex === maxCols - 1){
+                        thead.rows[0].childNodes[0].firstElementChild.focus();
+                    }else if(trIndex === maxRows - 1){
+                        thead.rows[0].childNodes[tdIndex+1].firstElementChild.focus();
+                    }else{
+                        tbody.rows[trIndex+1].childNodes[tdIndex].firstElementChild.focus();
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }else{
+            return;
+        }
+    }
     
     //table 输入
     function changeTbodyValue(e){
@@ -326,7 +357,6 @@ export default function Table(props) {
     }
     return (
         <div className={style.tableContainer}>
-            {console.log("Table")}
             <div className={style.rightPanel} ref={rightPanel} >
                 <TableEdit 
                     display={rightPanelDisplay}
@@ -371,6 +401,7 @@ export default function Table(props) {
                                 <input 
                                     type="text" 
                                     value={cell["title"]} 
+                                    onKeyDown={pressEnter}
                                     onChange={changeTheadValue}
                                     style={{
                                         width:`calc(100% - ${reservedWidth})`,
@@ -405,6 +436,7 @@ export default function Table(props) {
                                             key={perObject["key"]+cell["key"]}
                                         >
                                             <input type="text" 
+                                                onKeyDown={pressEnter}
                                                 value={perObject[cell["colID"]]} 
                                                 onChange={changeTbodyValue}
                                                 style={{
