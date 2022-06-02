@@ -46,7 +46,6 @@ class ColorPicker extends React.Component {
         }else if(this.state.isVisable === "block"){
             this.setState({isVisable:"none"})
             document.removeEventListener("click",this.HiddenPopover)
-            // console.log("不是全局隐藏")
         }
 
     }

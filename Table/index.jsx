@@ -3,12 +3,12 @@ import { useRef, useState } from "react"
 import { v4 as uuidv4 } from "uuid"
 import TableEdit from "./TableEdit"
 
-import style from "./index.module.less"
+import styles from "./index.module.less"
 
 //获取当前事件的位置
 function eventPosition(e) {
 
-    let currentTd = e.target.tagName === "TD" ? e.target : e.target.parentNode;
+    let currentTd = e.target.tagName === "TD" || e.target.tagName === "TH" ? e.target : e.target.parentNode;
     let currentTr = currentTd.parentNode;
 
     let tds = currentTr.childNodes
@@ -32,38 +32,164 @@ export default function Table(props) {
     const [tdIndex, setTdIndex] = useState(null)
     const [trIndex, setTrIndex] = useState(null)
     const rightPanel = useRef(null);
+    const cellMarker = useRef(null);
 
-    function pressEnter(e){
-        if(e.keyCode === 13){
-            const {trIndex,tdIndex} = eventPosition(e);
+    function keyDown(e) {
+        console.log(e.keyCode)
+        const {trIndex,tdIndex} = eventPosition(e);
 
-            let table = table_ref.current.childNodes;
-            let thead = Array.from(table).find((element) => element.tagName === "THEAD");
-            let tbody = Array.from(table).find((element) => element.tagName === "TBODY");
+        let table = table_ref.current.childNodes;
+        let thead = Array.from(table).find((element) => element.tagName === "THEAD");
+        let tbody = Array.from(table).find((element) => element.tagName === "TBODY");
 
-            let maxRows = renderData.length
-            let maxCols = renderHead.length
+        let maxRows = renderData.length
+        let maxCols = renderHead.length
 
-            switch (e.target.parentNode.tagName) {
-                //不同位置的跳跃情况
-                case "TH":
-                    tbody.rows[0].childNodes[tdIndex].firstElementChild.focus();
-                    break;
-                case "TD":
-                    if(trIndex === maxRows - 1 && tdIndex === maxCols - 1){
-                        thead.rows[0].childNodes[0].firstElementChild.focus();
-                    }else if(trIndex === maxRows - 1){
-                        thead.rows[0].childNodes[tdIndex+1].firstElementChild.focus();
-                    }else{
-                        tbody.rows[trIndex+1].childNodes[tdIndex].firstElementChild.focus();
-                    }
-                    break;
-                default:
-                    break;
+        //目标对象是 INPUT
+        if(e.target.tagName === "INPUT"){
+            if(e.keyCode === 13){
+                let cell;
+
+                switch (e.target.parentNode.tagName) {
+                    //不同位置的跳跃情况
+                    case "TH":
+                        cell = tbody.rows[0].childNodes[tdIndex];
+                        break;
+                    case "TD":
+                        if(trIndex === maxRows - 1 && tdIndex === maxCols - 1){
+                            cell = thead.rows[0].childNodes[0];
+                        }else if(trIndex === maxRows - 1){
+                            cell = thead.rows[0].childNodes[tdIndex+1];
+                        }else{
+                            cell = tbody.rows[trIndex+1].childNodes[tdIndex];
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                cell.focus();
             }
-        }else{
+        //点击对象是 TD 或者 TH
+        }else if(e.target.tagName === "TD" || e.target.tagName === "TH"){
+
+            if(e.keyCode === 9 || e.keyCode === 37 || e.keyCode === 38 || e.keyCode === 39 || e.keyCode === 40){
+                //阻止 tab 的自动聚焦到下一个聚焦点。但是 input 中没有执行此操作，所以 input 点击 tab 可以顺利跳到下一个聚焦点。
+                e.preventDefault();
+                let cell;
+                switch (e.target.tagName) {
+                    //不同位置的跳跃情况
+                    case "TH":
+                        if(e.keyCode === 9){
+                            if(tdIndex === maxCols -1){
+                                cell = tbody.rows[0].childNodes[0]
+                            }else{
+                                cell = thead.rows[0].childNodes[tdIndex+1];
+                            }
+                        }else if(e.keyCode === 37 && tdIndex !== 0){
+                            cell = thead.rows[0].childNodes[tdIndex-1];
+                        }else if(e.keyCode === 39 && tdIndex !== maxCols - 1){
+                            cell = thead.rows[0].childNodes[tdIndex+1];
+                        }else if(e.keyCode === 40){
+                            cell = tbody.rows[0].childNodes[tdIndex]
+                        }else{
+                            return;
+                        }
+                        break;
+                    case "TD":
+                        if(e.keyCode === 9){
+                            if(trIndex === maxRows - 1 && tdIndex === maxCols - 1){
+                                cell = thead.rows[0].childNodes[0];
+                            }else if(tdIndex === maxCols - 1){
+                                cell = tbody.rows[trIndex + 1].childNodes[0];
+                            }else{
+                                cell = tbody.rows[trIndex].childNodes[tdIndex+1];
+                            }
+                        }else if(e.keyCode === 37 && tdIndex !== 0){
+                            cell = tbody.rows[trIndex].childNodes[tdIndex-1];
+                        }else if(e.keyCode === 38){
+                            cell = trIndex===0 ? thead.rows[0].childNodes[tdIndex] : tbody.rows[trIndex - 1].childNodes[tdIndex]
+                        }else if(e.keyCode === 39 && tdIndex !== maxCols - 1){
+                            cell = tbody.rows[trIndex].childNodes[tdIndex + 1];
+                        }else if(e.keyCode === 40 && trIndex !== maxRows - 1){
+                            cell = tbody.rows[trIndex + 1].childNodes[tdIndex];
+                        }else {
+                            return;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                cell.focus();
+            }else if(e.keyCode !== 91 && 
+                    e.keyCode !== 93 && 
+                    e.keyCode !== 17 && 
+                    e.keyCode !== 18 && 
+                    e.keyCode !== 16 && 
+                    e.keyCode !== 20 && 
+                    e.keyCode !== 27 && 
+                    e.keyCode !== 37 && 
+                    e.keyCode !== 38 && 
+                    e.keyCode !== 39 && 
+                    e.keyCode !== 40
+                ){
+                    e.target.childNodes[0].disabled = false;
+                    e.target.childNodes[0].focus();
+                    e.target.childNodes[0].select();
+                }
+        }else {
             return;
         }
+    }
+
+    function focus_cell(e) {
+        const cell = e.currentTarget;
+        cellMarker.current.style.left = cell.offsetLeft - 2  + "px";
+        cellMarker.current.style.top = cell.offsetTop - 2 + "px";
+        cellMarker.current.style.width = cell.offsetWidth + 4 + "px";
+        cellMarker.current.style.height = cell.offsetHeight + 4 + "px";
+    }
+
+    const [dragSelectCells,setDragSelectCells] = useState(false)
+    const [firstRect, setFirstRect] = useState(null)
+
+    function selectCells_first(e){
+        let rect = e.currentTarget.getBoundingClientRect();
+        cellMarker.current.style.left = e.currentTarget.offsetLeft - 2  + "px";
+        cellMarker.current.style.top = e.currentTarget.offsetTop - 2 + "px";
+        cellMarker.current.style.width = rect.width + 4 + "px";
+        cellMarker.current.style.height = rect.height + 4 + "px";
+        console.log(e.currentTarget.offsetLeft)
+        setDragSelectCells(true)
+        setFirstRect(rect)
+    }
+
+    function selectCells_others(e) {
+
+        if(dragSelectCells){
+            const rect = e.currentTarget.getBoundingClientRect();
+            let width,height,originX,originY;
+
+            originX = firstRect.x >= rect.x ? rect.x : firstRect.x;
+            originY = firstRect.y >= rect.y ? rect.y : firstRect.y;
+            width = firstRect.x >= rect.x ? Math.abs(firstRect.x - rect.x) + firstRect.width : Math.abs(firstRect.x - rect.x) + rect.width;
+            height = firstRect.y >= rect.y ? Math.abs(firstRect.y - rect.y) + firstRect.height : Math.abs(firstRect.y - rect.y) + rect.height;
+
+            cellMarker.current.style.left = originX - 2  + "px";
+            cellMarker.current.style.top = originY - 2 + "px";
+            cellMarker.current.style.width = width + 4 + "px";
+            cellMarker.current.style.height = height + 4 + "px";
+        }
+        
+    }
+
+    function blur_inputBox(e) {
+        e.currentTarget.disabled = true
+    }
+
+    function activateInputBox(e) {
+        e.currentTarget.childNodes[0].disabled = false;
+        e.currentTarget.childNodes[0].focus();
+        
     }
     
     //table 输入
@@ -273,7 +399,6 @@ export default function Table(props) {
         }
     }
     
-
     //鼠标移动的时候
     function onMouseMove(event){
         let current, tHeadItems, tHeadArr, currentIndex
@@ -356,109 +481,173 @@ export default function Table(props) {
         return fontWeight
     }
     return (
-        <div className={style.tableContainer}>
-            <div className={style.rightPanel} ref={rightPanel} >
-                <TableEdit 
-                    display={rightPanelDisplay}
-                    addRowOnTop={changeRow("front")} 
-                    addRowOnBottom={changeRow("after")}
-                    addColLeft={changeCol("front")}
-                    addColRight={changeCol("after")}
-                    removeCurrentRow={changeRow("remove")}
-                    removeCurrentCol={changeCol("remove")}
-                    duplicateRow = {duplicateRow()}
-                    duplicateCol = {duplicateCol()}
-                    clearRow = {clearRow()}
-                    clearCol = {clearCol()}
-                />
-            </div>
+        <div>
+            {/* <ul className={styles.colID}>
+                {renderHead.map((cell,index)=>{
+                    return (
+                        <li 
+                            key = {cell["key"] + "li"}
+                            style = {{
+                                width:cellSize.width.length ? cellSize.width[index] : defaultCellWidth,
+                            }}
+                        >
+                            A
+                        </li>
+                    )
+                })}
+            </ul> */}
 
-            <table
-                ref = {table_ref}
-                onMouseDown = {onMouseDown}
-                onMouseMove = {onMouseMove}
-                onMouseUp={onMouseUp}
-                style={{
-                    width:tableWidth*1 + 1 + "px"
-                }}>
-                <colgroup>
-                    {renderHead.map(()=>{
-                        return (<col key={uuidv4()}></col>) 
-                    })}
-                </colgroup>
-                <thead>
-                    <tr>
-                        {renderHead.map((cell,index) => {
-                            return <th 
-                                key={cell["key"]}
-                                style={{
-                                    width:cellSize.width.length ? cellSize.width[index] : defaultCellWidth,
-                                    backgroundColor:controlData.theadFill.basicColor,
-                                    borderRight:controlData.border.intervalColor !== "" && index !== renderHead.length-1 ? `1px solid ${controlData.border.intervalColor}`: "none",
-                                    borderBottom:`1px solid ${controlData.border.basicColor}`
-                                }}
-                            >
-                                <input 
-                                    type="text" 
-                                    value={cell["title"]} 
-                                    onKeyDown={pressEnter}
-                                    onChange={changeTheadValue}
-                                    style={{
-                                        width:`calc(100% - ${reservedWidth})`,
-                                        color:controlData.theadTextStyle.basicColor,
-                                        fontSize:controlData.theadTextStyle.fontSize+ "px",
-                                        fontWeight:fontWeight(controlData.theadTextStyle.fontWeight),
-                                        marginTop:h_top + "px",
-                                        marginRight:b_right + "px",
-                                        marginBottom:h_bottom + "px" ,
-                                        marginLeft:b_left + "px",
-                                        padding:0
-                                    }}
-                                />
-                            </th>
+            <div className={styles.tableContainer}>
+                <div className={styles.rightPanel} ref={rightPanel} >
+                    <TableEdit 
+                        display={rightPanelDisplay}
+                        addRowOnTop={changeRow("front")} 
+                        addRowOnBottom={changeRow("after")}
+                        addColLeft={changeCol("front")}
+                        addColRight={changeCol("after")}
+                        removeCurrentRow={changeRow("remove")}
+                        removeCurrentCol={changeCol("remove")}
+                        duplicateRow = {duplicateRow()}
+                        duplicateCol = {duplicateCol()}
+                        clearRow = {clearRow()}
+                        clearCol = {clearCol()}
+                    />
+                </div>
+                <div 
+                    className={styles.mark} 
+                    ref = {cellMarker}
+                    style={{
+                        pointerEvents:"none",
+                        border:"1px solid #2B7EFF"
+                    }}
+                    onKeyDown={(e)=>{
+                        console.log(e)
+                    }}
+                >
+
+                </div>
+                <table
+                    ref = {table_ref}
+                    onMouseDown = {onMouseDown}
+                    onMouseMove = {onMouseMove}
+                    onMouseUp={onMouseUp}
+                    style={{
+                        width:tableWidth*1 + 1 + "px"
+                    }}>
+                    <colgroup>
+                        {renderHead.map(()=>{
+                            return (<col key={uuidv4()}></col>) 
                         })}
-                    </tr>
-                </thead>
-                <tbody>
-                    {renderData.map((perObject,rowIndex) => {
-                        return (
-                            <tr key={perObject["key"]}>
-                                {renderHead.map((cell,cellIndex) => {
-                                    return (
-                                        <td
-                                            style={{
-                                                //隔行换色开启，且行数为奇数时，填充intervalColor, 否则填充 basicColor
-                                                backgroundColor:controlData.fill.intervalColor !== "" && rowIndex%2 === 0 ? controlData.fill.intervalColor : controlData.fill.basicColor,
-                                                borderRight:controlData.border.intervalColor !== "" && cellIndex !== renderHead.length-1 ? `1px solid ${controlData.border.intervalColor}`: "none",
-                                                borderBottom:`1px solid ${controlData.border.basicColor}`
-                                            }}
-                                            onContextMenu={forRight}
-                                            key={perObject["key"]+cell["key"]}
-                                        >
-                                            <input type="text" 
-                                                onKeyDown={pressEnter}
-                                                value={perObject[cell["colID"]]} 
-                                                onChange={changeTbodyValue}
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            {renderHead.map((cell,index) => {
+                                return <th 
+                                    tabIndex={0}
+                                    onKeyDown = {(e)=>keyDown(e)}
+                                    onMouseEnter={selectCells_others}
+                                    onMouseDown={selectCells_first}
+                                    onFocus = {focus_cell}
+                                    onMouseUp={
+                                        ()=>{
+                                            setDragSelectCells(false)
+                                        } 
+                                    }
+                                    onClick = {(e)=>{
+                                        const {trIndex, tdIndex} = eventPosition(e);
+                                        console.log(trIndex,tdIndex)
+                                    }}
+                                    onDoubleClick = {activateInputBox}
+                                    key={cell["key"]}
+                                    style={{
+                                        outline:"none",
+                                        width:cellSize.width.length ? cellSize.width[index] : defaultCellWidth,
+                                        backgroundColor:controlData.theadFill.basicColor,
+                                        borderRight:controlData.border.intervalColor !== "" && index !== renderHead.length-1 ? `1px solid ${controlData.border.intervalColor}`: "none",
+                                        borderBottom:`1px solid ${controlData.border.basicColor}`
+                                    }}
+                                >
+                                    <input 
+                                        disabled = {true}
+                                        type="text" 
+                                        value={cell["title"]} 
+                                        onKeyDown={(e)=>keyDown(e)}
+                                        onChange={changeTheadValue}
+                                        onBlur = {blur_inputBox}
+                                        style={{
+                                            width:`calc(100% - ${reservedWidth})`,
+                                            color:controlData.theadTextStyle.basicColor,
+                                            fontSize:controlData.theadTextStyle.fontSize+ "px",
+                                            fontWeight:fontWeight(controlData.theadTextStyle.fontWeight),
+                                            marginTop:h_top + "px",
+                                            marginRight:b_right + "px",
+                                            marginBottom:h_bottom + "px" ,
+                                            marginLeft:b_left + "px",
+                                            padding:0
+                                        }}
+                                    />
+                                </th>
+                            })}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {renderData.map((perObject,rowIndex) => {
+                            return (
+                                <tr key={perObject["key"]}>
+                                    {renderHead.map((cell,cellIndex) => {
+                                        return (
+                                            <td
+                                                tabIndex={0}
+                                                onKeyDown = {(e)=>keyDown(e)}
+                                                // onKeyDown = {(e)=>{console.log(e.keyCode)}}
+                                                onFocus={focus_cell}
+                                                onMouseEnter={selectCells_others}
+                                                onMouseDown={selectCells_first}
+                                                onMouseUp={
+                                                    ()=>{
+                                                        setDragSelectCells(false)
+                                                    }
+                                                    
+                                                }
+                                                onDoubleClick = {activateInputBox}
                                                 style={{
-                                                    width:`calc(100% - ${reservedWidth})`,
-                                                    color:controlData.textStyle.basicColor,
-                                                    fontSize:controlData.textStyle.fontSize+"px",
-                                                    fontWeight:fontWeight(controlData.textStyle.fontWeight),
-                                                    marginTop:b_top+"px",
-                                                    marginRight:b_right+"px",
-                                                    marginBottom:b_bottom+"px",
-                                                    marginLeft:b_left+"px",
-                                                    padding:0
+                                                    //隔行换色开启，且行数为奇数时，填充intervalColor, 否则填充 basicColor
+                                                    outline:"none",
+                                                    backgroundColor:controlData.fill.intervalColor !== "" && rowIndex%2 === 0 ? controlData.fill.intervalColor : controlData.fill.basicColor,
+                                                    borderRight:controlData.border.intervalColor !== "" && cellIndex !== renderHead.length-1 ? `1px solid ${controlData.border.intervalColor}`: "none",
+                                                    borderBottom:`1px solid ${controlData.border.basicColor}`
                                                 }}
-                                            />
-                                        </td>
-                                    )
-                                })}
-                            </tr>
-                        )
-                    })}
-                </tbody>
-            </table>
+                                                onContextMenu={forRight}
+                                                key={perObject["key"]+cell["key"]}
+                                            >
+                                                <input type="text" 
+                                                    disabled = {true}
+                                                    onBlur = {blur_inputBox}
+                                                    // onMouseDown={preventDefault}
+                                                    onKeyDown={(e)=>keyDown(e)}
+                                                    value={perObject[cell["colID"]]} 
+                                                    onChange={changeTbodyValue}
+                                                    style={{
+                                                        width:`calc(100% - ${reservedWidth})`,
+                                                        color:controlData.textStyle.basicColor,
+                                                        fontSize:controlData.textStyle.fontSize+"px",
+                                                        fontWeight:fontWeight(controlData.textStyle.fontWeight),
+                                                        marginTop:b_top+"px",
+                                                        marginRight:b_right+"px",
+                                                        marginBottom:b_bottom+"px",
+                                                        marginLeft:b_left+"px",
+                                                        padding:0
+                                                    }}
+                                                />
+                                            </td>
+                                        )
+                                    })}
+                                </tr>
+                            )
+                        })}
+                    </tbody>
+                </table>
+            </div>
         </div>
     )
 }

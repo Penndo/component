@@ -47,7 +47,7 @@ class Options extends React.Component{
     render(){
         const {options,canDelete,updateData,defaultSelection} = this.props;
         return(
-            <ul>
+            <ul className={styles.ul}>
                 {
                     options.map((item)=>{
                         return (

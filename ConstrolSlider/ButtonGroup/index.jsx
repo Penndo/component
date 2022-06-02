@@ -10,7 +10,6 @@ class ButtonGroup extends React.Component {
     }
 
     createTemplate = ()=>{
-        console.log("按钮被点击了")
         this.setState({
             createTemplate:!this.state.createTemplate
         })

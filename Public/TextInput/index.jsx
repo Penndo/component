@@ -65,7 +65,6 @@ class TextInput extends React.Component {
     }
 
     selectOption = (value)=>{
-        console.log(value)
         this.setState({
             defaultValue:value
         })
