@@ -14,32 +14,28 @@
     position: absolute;
 }
 
-.empty {
-    margin: 24px;
-    border: 1px solid green;
-    height: 24px;
-    width: 24px;
-}
-
 .colID {
-    margin: 24px 0;
-    li {
-        list-style: none;
-        display: inline-block;
-        border: 1px solid #ff0000;
-        fill: aqua;
-        height: 24px;
-        width: 24px;
 
-    }
-}
-.rowID {
-    margin: 0 24px;
+    margin: 24px 0;
+    width:-moz-fit-content;
+    width:-webkit-fit-content;
+    width:fit-content;
+    height: 24px;
+    background-color: aliceblue;
+
+    border-radius: 8px;
+
+    font-size: 12px;
+    line-height: 24px;
+    text-align: center;
     li {
         list-style: none;
-        border: 1px solid #0000ff;
+        border-right: 1px solid #dadada;
+        display: inline-block;
         height: 24px;
-        width: 24px;
+    }
+    li:last-child {
+        border-right: none;
     }
 }
 

@@ -58,6 +58,11 @@ class TextInput extends React.Component {
         if(this.props.changeTableAmount){
             this.props.changeTableAmount(e.target.value)
         }
+        if(this.props.resizeCellMarker){
+
+            let dif = e.target.value - this.props.defaultValue;
+            this.props.resizeCellMarker(dif,this.props.typeName)
+        }
 
         if(this.props.getValue){
             this.props.getValue(this.props.typeName, this.props.propertyName, e.target.value)

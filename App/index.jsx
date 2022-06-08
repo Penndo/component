@@ -75,6 +75,25 @@ export default function App(){
     const [colID, setColID] = useState(maxID(dynamicHead,"colID"))
     const [rowID, setRowID] = useState(maxID(dynamicData,"rowID"))
 
+    const [tdIndex, setTdIndex] = useState(null)
+    const [trIndex, setTrIndex] = useState(null)
+    const [lastSelectedTdIndex, setLastSelectedTdIndex] = useState(null)
+    const [lastSelectedTrIndex, setLastSelectedTrIndex] = useState(null)
+
+    const [cellMarker_first, setCellMarker_first] = useState({
+        offsetLeft:0,
+        offsetTop:0,
+        offsetWidth:0,
+        offsetHeight:0
+    })
+
+    const [cellMarker_all, setCellMarker_all] = useState({
+        offsetLeft:0,
+        offsetTop:0,
+        offsetWidth:0,
+        offsetHeight:0
+    })
+
     function getCellSize(data) {
         dispatch({type:"cellSize",value:data})
     }
@@ -115,12 +134,76 @@ export default function App(){
         setRowID(rowID)
     }
 
+    function getTrIndex(trIndex) {
+        setTrIndex(trIndex)
+    }
+
+    function getTdIndex(tdIndex) {
+        setTdIndex(tdIndex)
+    }
+
+    function getLastSelectedTdIndex(tdIndex) {
+        setLastSelectedTdIndex(tdIndex)
+    }
+
+    function getLastSelectedTrIndex(trIndex) {
+        setLastSelectedTrIndex(trIndex)
+    }
+
+    function getCellMarker_first(obj) {
+        setCellMarker_first(obj)
+    }
+
+    function getCellMarker_all(obj) {
+        setCellMarker_all(obj)
+    }
+
     function maxID(data,name){
         let IDArr = [];
         for(let i=0;i<data.length;i++){
             IDArr.push(data[i][name])
         };
         return Math.max(...IDArr)
+    }
+
+    function resizeCellMarker(dif,typeName) {
+        if(trIndex === 0 || lastSelectedTrIndex === 0){//焦点包含表头
+            if(headerIndependentStyle && typeName === "theadPadding"){
+                setCellMarker_all({
+                    ...cellMarker_all,
+                    offsetHeight:cellMarker_all.offsetHeight + dif
+                })
+            }else if(headerIndependentStyle && typeName === "tbodyPadding"){
+                setCellMarker_all({
+                    ...cellMarker_all,
+                    offsetHeight:cellMarker_all.offsetHeight + dif * Math.abs(lastSelectedTrIndex - trIndex)
+                })
+            }else{
+                setCellMarker_all({
+                    ...cellMarker_all,
+                    offsetHeight:cellMarker_all.offsetHeight + dif * (Math.abs(lastSelectedTrIndex - trIndex)+1)
+                })
+            }
+        }else{
+            if(headerIndependentStyle && typeName === "theadPadding"){
+                setCellMarker_all({
+                    ...cellMarker_all,
+                    offsetTop:cellMarker_all.offsetTop + dif
+                })
+            }else if(headerIndependentStyle && typeName === "tbodyPadding"){
+                setCellMarker_all({
+                    ...cellMarker_all,
+                    offsetTop:cellMarker_all.offsetTop + dif * (Math.min(lastSelectedTrIndex, trIndex) - 1),
+                    offsetHeight:cellMarker_all.offsetHeight + dif * (Math.abs(lastSelectedTrIndex - trIndex) + 1)
+                })
+            }else{
+                setCellMarker_all({
+                    ...cellMarker_all,
+                    offsetTop:cellMarker_all.offsetTop + dif * Math.min(lastSelectedTrIndex, trIndex),
+                    offsetHeight:cellMarker_all.offsetHeight + dif * (Math.abs(lastSelectedTrIndex - trIndex) + 1)
+                })
+            }
+        }
     }
 
     //从模板更新页面数据
@@ -342,6 +425,18 @@ export default function App(){
     return (
         <div className={styles["container"]}>
             <Table 
+                trIndex = {trIndex}
+                tdIndex = {tdIndex}
+                lastSelectedTdIndex = {lastSelectedTdIndex}
+                cellMarker_first = {cellMarker_first}
+                cellMarker_all = {cellMarker_all}
+                getTrIndex = {getTrIndex}
+                getTdIndex = {getTdIndex}
+                getLastSelectedTrIndex = {getLastSelectedTrIndex}
+                getLastSelectedTdIndex = {getLastSelectedTdIndex}
+                getCellMarker_first = {getCellMarker_first}
+                getCellMarker_all = {getCellMarker_all}
+
                 changeColsCount = {changeColsCount}
                 changeRowsCount = {changeRowsCount}
                 table_ref = {table_ref}
@@ -363,6 +458,7 @@ export default function App(){
             />
 
             <ConstrolSlider 
+                resizeCellMarker = {resizeCellMarker}
                 lastPickedColor={lastPickedColor}
                 getLastPickedColor = {getLastPickedColor}
                 defaultStorageData={defaultStorageData}

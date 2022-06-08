@@ -5,34 +5,46 @@ import TableEdit from "./TableEdit"
 
 import styles from "./index.module.less"
 
-//获取当前事件的位置
-function eventPosition(e) {
-
-    let currentTd = e.target.tagName === "TD" || e.target.tagName === "TH" ? e.target : e.target.parentNode;
-    let currentTr = currentTd.parentNode;
-
-    let tds = currentTr.childNodes
-    let trs = currentTr.parentNode.childNodes
-
-    let tdIndex = Array.from(tds).indexOf(currentTd);
-    let trIndex = Array.from(trs).indexOf(currentTr);
-    
-    return {"tdIndex":tdIndex,"trIndex":trIndex}
+function getOffsetSize(e) {
+    const element = e.currentTarget;
+    return {
+        offsetTop:element.offsetTop,
+        offsetLeft:element.offsetLeft,
+        offsetWidth:element.offsetWidth,
+        offsetHeight:element.offsetHeight
+    }
 }
 
 export default function Table(props) {
 
-    const {controlData,cellSize,colID,rowID,getColID,getRowID,renderHead,renderData, getCellSize, getRenderData, getRenderHead,getDynamicHead,getDynamicData,table_ref,changeColsCount,changeRowsCount} = props;
+    const {controlData,cellSize,colID,rowID,getColID,getRowID,renderHead,renderData, getCellSize, getRenderData, getRenderHead,getDynamicHead,getDynamicData,table_ref,changeColsCount,changeRowsCount,
+        trIndex,tdIndex,lastSelectedTdIndex,cellMarker_first,cellMarker_all,getTrIndex,getTdIndex,getLastSelectedTrIndex,getLastSelectedTdIndex,getCellMarker_first,getCellMarker_all
+    } = props;
     const {b_top,b_right,b_bottom,b_left} = controlData.tbodyPadding;
     const {h_top,h_bottom} = controlData.theadPadding;
     const tableWidth = controlData.tableWidth;
     const reservedWidth = (b_left*1 + b_right*1) + "px";
     
     const [rightPanelDisplay, setRightPanelDisplay] = useState("none");
-    const [tdIndex, setTdIndex] = useState(null)
-    const [trIndex, setTrIndex] = useState(null)
+
     const rightPanel = useRef(null);
     const cellMarker = useRef(null);
+
+    //获取当前事件的位置
+    function eventPosition(e) {
+
+        let currentTd = e.target.tagName === "TD" || e.target.tagName === "TH" ? e.target : e.target.parentNode;
+        let currentTr = currentTd.parentNode;
+
+        let tds = currentTr.childNodes
+        // let trs = currentTr.parentNode.childNodes
+        let trs = table_ref.current.rows;
+
+        let tdIndex = Array.from(tds).indexOf(currentTd);
+        let trIndex = Array.from(trs).indexOf(currentTr);
+        
+        return {"tdIndex":tdIndex,"trIndex":trIndex}
+    }
 
     function keyDown(e) {
         console.log(e.keyCode)
@@ -56,12 +68,12 @@ export default function Table(props) {
                         cell = tbody.rows[0].childNodes[tdIndex];
                         break;
                     case "TD":
-                        if(trIndex === maxRows - 1 && tdIndex === maxCols - 1){
+                        if(trIndex === maxRows && tdIndex === maxCols - 1){
                             cell = thead.rows[0].childNodes[0];
-                        }else if(trIndex === maxRows - 1){
+                        }else if(trIndex === maxRows){
                             cell = thead.rows[0].childNodes[tdIndex+1];
                         }else{
-                            cell = tbody.rows[trIndex+1].childNodes[tdIndex];
+                            cell = tbody.rows[trIndex].childNodes[tdIndex];
                         }
                         break;
                     default:
@@ -97,21 +109,21 @@ export default function Table(props) {
                         break;
                     case "TD":
                         if(e.keyCode === 9){
-                            if(trIndex === maxRows - 1 && tdIndex === maxCols - 1){
+                            if(trIndex === maxRows && tdIndex === maxCols - 1){
                                 cell = thead.rows[0].childNodes[0];
                             }else if(tdIndex === maxCols - 1){
-                                cell = tbody.rows[trIndex + 1].childNodes[0];
+                                cell = tbody.rows[trIndex].childNodes[0];
                             }else{
-                                cell = tbody.rows[trIndex].childNodes[tdIndex+1];
+                                cell = tbody.rows[trIndex-1].childNodes[tdIndex+1];
                             }
                         }else if(e.keyCode === 37 && tdIndex !== 0){
-                            cell = tbody.rows[trIndex].childNodes[tdIndex-1];
+                            cell = tbody.rows[trIndex - 1].childNodes[tdIndex-1];
                         }else if(e.keyCode === 38){
-                            cell = trIndex===0 ? thead.rows[0].childNodes[tdIndex] : tbody.rows[trIndex - 1].childNodes[tdIndex]
+                            cell = trIndex===1 ? thead.rows[0].childNodes[tdIndex] : tbody.rows[trIndex-2].childNodes[tdIndex]
                         }else if(e.keyCode === 39 && tdIndex !== maxCols - 1){
-                            cell = tbody.rows[trIndex].childNodes[tdIndex + 1];
-                        }else if(e.keyCode === 40 && trIndex !== maxRows - 1){
-                            cell = tbody.rows[trIndex + 1].childNodes[tdIndex];
+                            cell = tbody.rows[trIndex - 1].childNodes[tdIndex + 1];
+                        }else if(e.keyCode === 40 && trIndex !== maxRows){
+                            cell = tbody.rows[trIndex].childNodes[tdIndex];
                         }else {
                             return;
                         }
@@ -143,43 +155,60 @@ export default function Table(props) {
 
     function focus_cell(e) {
         const cell = e.currentTarget;
-        cellMarker.current.style.left = cell.offsetLeft - 2  + "px";
-        cellMarker.current.style.top = cell.offsetTop - 2 + "px";
-        cellMarker.current.style.width = cell.offsetWidth + 4 + "px";
-        cellMarker.current.style.height = cell.offsetHeight + 4 + "px";
+        getCellMarker_all({
+            offsetLeft:cell.offsetLeft,
+            offsetTop:cell.offsetTop,
+            offsetWidth:cell.offsetWidth,
+            offsetHeight:cell.offsetHeight
+        })
     }
 
     const [dragSelectCells,setDragSelectCells] = useState(false)
-    const [firstRect, setFirstRect] = useState(null)
 
     function selectCells_first(e){
-        let rect = e.currentTarget.getBoundingClientRect();
-        cellMarker.current.style.left = e.currentTarget.offsetLeft - 2  + "px";
-        cellMarker.current.style.top = e.currentTarget.offsetTop - 2 + "px";
-        cellMarker.current.style.width = rect.width + 4 + "px";
-        cellMarker.current.style.height = rect.height + 4 + "px";
-        console.log(e.currentTarget.offsetLeft)
-        setDragSelectCells(true)
-        setFirstRect(rect)
+        const {trIndex,tdIndex} = eventPosition(e);
+        const {offsetTop,offsetLeft,offsetWidth,offsetHeight} = getOffsetSize(e);
+        setDragSelectCells(true);
+        getCellMarker_first({            
+            offsetTop:offsetTop,
+            offsetLeft:offsetLeft,
+            offsetWidth:offsetWidth,
+            offsetHeight:offsetHeight
+        });
+        getCellMarker_all({            
+            offsetTop:offsetTop,
+            offsetLeft:offsetLeft,
+            offsetWidth:offsetWidth,
+            offsetHeight:offsetHeight
+        });
+        getTdIndex(tdIndex);
+        getTrIndex(trIndex);
+        getLastSelectedTdIndex(tdIndex);
+        getLastSelectedTrIndex(trIndex);
     }
 
-    function selectCells_others(e) {
+    function selectCells_another(e) {
+        const {trIndex,tdIndex} = eventPosition(e);
+        const {offsetTop,offsetLeft,offsetWidth,offsetHeight} = getOffsetSize(e)
 
         if(dragSelectCells){
-            const rect = e.currentTarget.getBoundingClientRect();
             let width,height,originX,originY;
 
-            originX = firstRect.x >= rect.x ? rect.x : firstRect.x;
-            originY = firstRect.y >= rect.y ? rect.y : firstRect.y;
-            width = firstRect.x >= rect.x ? Math.abs(firstRect.x - rect.x) + firstRect.width : Math.abs(firstRect.x - rect.x) + rect.width;
-            height = firstRect.y >= rect.y ? Math.abs(firstRect.y - rect.y) + firstRect.height : Math.abs(firstRect.y - rect.y) + rect.height;
+            originX = cellMarker_first.offsetLeft >= offsetLeft ? offsetLeft : cellMarker_first.offsetLeft;
+            originY = cellMarker_first.offsetTop >= offsetTop ? offsetTop : cellMarker_first.offsetTop;
+            width = cellMarker_first.offsetLeft >= offsetLeft ? Math.abs(cellMarker_first.offsetLeft - offsetLeft) + cellMarker_first.offsetWidth : Math.abs(cellMarker_first.offsetLeft - offsetLeft) + offsetWidth;
+            height = cellMarker_first.offsetTop >= offsetTop ? Math.abs(cellMarker_first.offsetTop - offsetTop) + cellMarker_first.offsetHeight : Math.abs(cellMarker_first.offsetTop - offsetTop) + offsetHeight;
 
-            cellMarker.current.style.left = originX - 2  + "px";
-            cellMarker.current.style.top = originY - 2 + "px";
-            cellMarker.current.style.width = width + 4 + "px";
-            cellMarker.current.style.height = height + 4 + "px";
+            getCellMarker_all({            
+                offsetTop:originY,
+                offsetLeft:originX,
+                offsetWidth:width,
+                offsetHeight:height
+            });
+
+            getLastSelectedTrIndex(trIndex);
+            getLastSelectedTdIndex(tdIndex);
         }
-        
     }
 
     function blur_inputBox(e) {
@@ -196,7 +225,7 @@ export default function Table(props) {
     function changeTbodyValue(e){
         const {trIndex,tdIndex} = eventPosition(e);
         let insert = renderData.slice();
-        insert[trIndex][renderHead[tdIndex]["colID"]] = e.target.value;
+        insert[trIndex-1][renderHead[tdIndex]["colID"]] = e.target.value;
         getRenderData(insert);
         getDynamicData(insert);
     }
@@ -222,8 +251,8 @@ export default function Table(props) {
         rightPanel.current.style.left = clickX + "px"
         rightPanel.current.style.top = clickY + "px"
         //更新当前事件的位置
-        setTdIndex(tdIndex)
-        setTrIndex(trIndex)
+        getTdIndex(tdIndex)
+        getTrIndex(trIndex)
         //为 document 添加一个全局点击事件，用来隐藏右键菜单
         document.addEventListener("click",handleDocument)
     }
@@ -241,10 +270,10 @@ export default function Table(props) {
             let insert = renderData.slice()
             switch (how) {
                 case "after":
-                    insert.splice(trIndex + 1, 0, {key:uuidv4(),rowID:rowID+1});
+                    insert.splice(trIndex, 0, {key:uuidv4(),rowID:rowID+1});
                     break;
                 case "front":
-                    insert.splice(trIndex, 0, {key:uuidv4(),rowID:rowID+1});
+                    insert.splice(trIndex-1, 0, {key:uuidv4(),rowID:rowID+1});
                     break;
                 case "remove":
                     insert.splice(trIndex, 1)
@@ -364,33 +393,33 @@ export default function Table(props) {
 
     //鼠标按下的时候
     function onMouseDown(event){
-        if(event.target.tagName === "TH"){
+        if(event.target.tagName === "LI"){
             //获取鼠标按下获取到的那个元素
-            let mouseDownCurrent = event.target;
+            let current = event.target;
             //获取 thead 中的所有子元素
-            let mouseDowntheadItems = mouseDownCurrent.parentNode.cells;
+            let lists = current.parentNode.childNodes;
             //将获取的 thead 中的所有子元素放入数组
-            let mouseDowntheadArr = Array.from(mouseDowntheadItems);
+            let listsArr = Array.from(lists);
             //获取当前单元格的序号
-            let mouseDownCurrentIndex = mouseDowntheadArr.indexOf(mouseDownCurrent)
+            let mouseDownCurrentIndex = listsArr.indexOf(current)
 
             //如果不是最后一个单元格，且鼠标位置在单元格右侧侧 8 像素范围内
-            if(mouseDownCurrentIndex !== mouseDowntheadArr.length-1 && event.nativeEvent.offsetX > mouseDownCurrent.offsetWidth - 8){
+            if(mouseDownCurrentIndex !== listsArr.length-1 && event.nativeEvent.offsetX > current.offsetWidth - 8){
                 
                 //鼠标手势变为拖动手势
-                mouseDownCurrent.style.cursor = "col-resize";
+                current.style.cursor = "col-resize";
                 
                 //记录之前的单元格宽度
                 let oldCellWidthArr = [];
-                for(let i=0;i<mouseDowntheadArr.length;i++){
-                    oldCellWidthArr.push(mouseDowntheadArr[i].offsetWidth)
+                for(let i=0;i<listsArr.length;i++){
+                    oldCellWidthArr.push(listsArr[i].offsetWidth)
                 }
                 
                 //更新状态
                 setDraggableCells({
-                    variableCellWidthArr:mouseDowntheadArr,
+                    variableCellWidthArr:listsArr,
                     oldCellWidthArr:oldCellWidthArr,
-                    currentCellWidth:mouseDownCurrent.offsetWidth,
+                    currentCellWidth:current.offsetWidth,
                     draggable:true,
                     mousePositon:event.clientX,
                     indexOfCurrentCell:mouseDownCurrentIndex,
@@ -401,15 +430,15 @@ export default function Table(props) {
     
     //鼠标移动的时候
     function onMouseMove(event){
-        let current, tHeadItems, tHeadArr, currentIndex
-        if(event.target.tagName === "TH"){
+        let current, lists, listsArr, currentIndex
+        if(event.target.tagName === "LI"){
             current = event.target
-            tHeadItems = current.parentNode.cells;
-            tHeadArr = Array.from(tHeadItems)
-            currentIndex = tHeadArr.indexOf(current);
+            lists = current.parentNode.childNodes;
+            listsArr = Array.from(lists)
+            currentIndex = listsArr.indexOf(current);
             
             //同样的要去检测鼠标位置以及他的事件对象
-            if(currentIndex !== tHeadArr.length-1 && event.nativeEvent.offsetX > current.offsetWidth - 8){
+            if(currentIndex !== listsArr.length-1 && event.nativeEvent.offsetX > current.offsetWidth - 8){
                 current.style.cursor = "col-resize";
             }else{
                 current.style.cursor = "default";
@@ -438,14 +467,15 @@ export default function Table(props) {
                 }else{
                     draggableCells.variableCellWidthArr[i].style.width = draggableCells.oldCellWidthArr[i] - cellDeltaX + "px"
                 }
-            }
-           
+            }    
+            
         }
     }
     
     //这里导致 width.length 为 0
     function onMouseUp(event){
-        if(event.target.tagName === "TH"){
+        console.log(event.target.offsetWidth,event.target.offsetHeight)
+        if(event.target.tagName === "LI"){
             setDraggableCells({...draggableCells,draggable:false});
             event.target.style.cursor = "default";
             let newstWidthArr = [];
@@ -459,7 +489,30 @@ export default function Table(props) {
             
             cellSize.width = newstWidthArr;
             cellSize.height = newstHeightArr;
-            getCellSize(cellSize)
+            getCellSize(cellSize);
+
+            if(tdIndex === null && lastSelectedTdIndex === null) return;
+
+            let first = Array.from(event.target.parentNode.childNodes)[tdIndex]
+            let last = Array.from(event.target.parentNode.childNodes)[lastSelectedTdIndex]
+            if(tdIndex === lastSelectedTdIndex){
+                getCellMarker_all({
+                    ...cellMarker_all,
+                    offsetLeft:first.offsetLeft,
+                    offsetWidth:first.offsetWidth
+                })
+            }else{
+                let width,originX
+
+                originX = first.offsetLeft >= last.offsetLeft ? last.offsetLeft : first.offsetLeft;
+                width = Math.abs(first.offsetLeft - last.offsetLeft) + (first.offsetLeft >= last.offsetLeft ? first.offsetWidth :  last.offsetWidth);
+    
+                getCellMarker_all({      
+                    ...cellMarker_all,      
+                    offsetLeft:originX,
+                    offsetWidth:width,
+                });
+            }
         }
     }
 
@@ -480,9 +533,15 @@ export default function Table(props) {
         }
         return fontWeight
     }
+
     return (
         <div>
-            {/* <ul className={styles.colID}>
+            <ul 
+                onMouseDown = {onMouseDown}
+                onMouseMove = {onMouseMove}
+                onMouseUp={onMouseUp}
+                className={styles.colID}
+            >
                 {renderHead.map((cell,index)=>{
                     return (
                         <li 
@@ -491,11 +550,11 @@ export default function Table(props) {
                                 width:cellSize.width.length ? cellSize.width[index] : defaultCellWidth,
                             }}
                         >
-                            A
+                            {cell["serialNumber"]}
                         </li>
                     )
                 })}
-            </ul> */}
+            </ul>
 
             <div className={styles.tableContainer}>
                 <div className={styles.rightPanel} ref={rightPanel} >
@@ -518,7 +577,11 @@ export default function Table(props) {
                     ref = {cellMarker}
                     style={{
                         pointerEvents:"none",
-                        border:"1px solid #2B7EFF"
+                        border:"2px solid #2B7EFF",
+                        left:cellMarker_all.offsetLeft + "px",
+                        top:cellMarker_all.offsetTop + "px",
+                        width:cellMarker_all.offsetWidth + "px",
+                        height:cellMarker_all.offsetHeight + "px",
                     }}
                     onKeyDown={(e)=>{
                         console.log(e)
@@ -528,9 +591,9 @@ export default function Table(props) {
                 </div>
                 <table
                     ref = {table_ref}
-                    onMouseDown = {onMouseDown}
-                    onMouseMove = {onMouseMove}
-                    onMouseUp={onMouseUp}
+                    // onMouseDown = {onMouseDown}
+                    // onMouseMove = {onMouseMove}
+                    // onMouseUp={onMouseUp}
                     style={{
                         width:tableWidth*1 + 1 + "px"
                     }}>
@@ -545,7 +608,7 @@ export default function Table(props) {
                                 return <th 
                                     tabIndex={0}
                                     onKeyDown = {(e)=>keyDown(e)}
-                                    onMouseEnter={selectCells_others}
+                                    onMouseEnter={selectCells_another}
                                     onMouseDown={selectCells_first}
                                     onFocus = {focus_cell}
                                     onMouseUp={
@@ -553,10 +616,6 @@ export default function Table(props) {
                                             setDragSelectCells(false)
                                         } 
                                     }
-                                    onClick = {(e)=>{
-                                        const {trIndex, tdIndex} = eventPosition(e);
-                                        console.log(trIndex,tdIndex)
-                                    }}
                                     onDoubleClick = {activateInputBox}
                                     key={cell["key"]}
                                     style={{
@@ -601,7 +660,7 @@ export default function Table(props) {
                                                 onKeyDown = {(e)=>keyDown(e)}
                                                 // onKeyDown = {(e)=>{console.log(e.keyCode)}}
                                                 onFocus={focus_cell}
-                                                onMouseEnter={selectCells_others}
+                                                onMouseEnter={selectCells_another}
                                                 onMouseDown={selectCells_first}
                                                 onMouseUp={
                                                     ()=>{
