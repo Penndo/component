@@ -10,7 +10,7 @@ import TableWidth from "./TableWidth"
 import TemplateSelecter from "./TemplateSelecter"
 
 export default function ConstrolSlider(props){
-    const {getControlData,changeTableAmout_rows,changeTableAmout_cols,renderData,renderHead,controlData,cellSize,syncBodyStyleToHeader,switchTemplate,backToInitialState,table_ref,fillInterval_usedCount,refreshInterval_usedCount,defaultStorageData,historyStorageData,updateData,lastPickedColor,getLastPickedColor,resizeCellMarker} = props;
+    const {getControlData,renderData,renderHead,controlData,cellSize,syncBodyStyleToHeader,switchTemplate,backToInitialState,table_ref,fillInterval_usedCount,refreshInterval_usedCount,defaultStorageData,historyStorageData,updateData,lastPickedColor,getLastPickedColor,resizeCellMarker} = props;
     const {tableWidth, tableAmount, tbodyPadding, theadPadding, theadFill, fill, border, textStyle, theadTextStyle} = controlData;
 
     function getValue(typeName,propertyName,value){
@@ -102,8 +102,8 @@ export default function ConstrolSlider(props){
         <div className={styles["constrolSlider"]}>
             <div className={styles["configureArea"]}>
                 <TemplateSelecter type="选择模板" defaultStorageData={defaultStorageData} historyStorageData={historyStorageData} switchTemplate={switchTemplate} backToInitialState={backToInitialState} updateData={updateData} refreshInterval_usedCount = {refreshInterval_usedCount}/>
-                <TableWidth type="表格宽度" typeName = "tableWidth" getValue = {getValue}  data = {tableWidth}/>
-                <CellAmount type="表格数量" typeName = "tableAmount" data={tableAmount} changeTableAmout_rows={changeTableAmout_rows} changeTableAmout_cols={changeTableAmout_cols}/>
+                <TableWidth type="表格宽度" typeName = "tableWidth" getValue = {getValue}  data = {tableWidth} resizeCellMarker = {resizeCellMarker}/>
+                <CellAmount type="表格数量" typeName = "tableAmount" data={tableAmount} resizeCellMarker = {resizeCellMarker}/>
                 {/* <TableData type = "数据源" getControlData = {getControlData} typeName="dataFrom" data={dataFrom}/> */}
                 <SwitchButton witchCheck = {witchCheck}  />
 

@@ -6,13 +6,13 @@ import TextInput from "../../Public/TextInput"
 class CellAmount extends React.Component {
 
     render(){
-        const {changeTableAmout_cols,changeTableAmout_rows,typeName,getValue,data} = this.props;
+        const {typeName,getValue,data,resizeCellMarker} = this.props;
         return (
             <div>
                 <p>{this.props.type}</p>
                 <div className={styles["cellAmount"]}>
-                    <TextInput defaultValue = {data.cols} labelDisplay={"block"} label = "列数" typeName={typeName} propertyName="cols" readOnly={false}  getValue = {getValue} changeTableAmount={changeTableAmout_cols} />
-                    <TextInput defaultValue = {data.rows} labelDisplay={"block"} label = "行数" typeName={typeName} propertyName="rows" readOnly={false} getValue = {getValue} changeTableAmount={changeTableAmout_rows} />
+                    <TextInput defaultValue = {data.cols} labelDisplay={"block"} label = "列数" typeName={typeName} propertyName="cols" readOnly={false}  getValue = {getValue} resizeCellMarker = {resizeCellMarker}/>
+                    <TextInput defaultValue = {data.rows} labelDisplay={"block"} label = "行数" typeName={typeName} propertyName="rows" readOnly={false} getValue = {getValue} resizeCellMarker = {resizeCellMarker}/>
                 </div>
             </div>
         )

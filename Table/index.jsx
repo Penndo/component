@@ -535,8 +535,26 @@ export default function Table(props) {
     }
 
     return (
-        <div>
+        <div className={styles.leftPart}>
+            <div className={styles.rightPanel} ref={rightPanel} >
+                <TableEdit 
+                    display={rightPanelDisplay}
+                    addRowOnTop={changeRow("front")} 
+                    addRowOnBottom={changeRow("after")}
+                    addColLeft={changeCol("front")}
+                    addColRight={changeCol("after")}
+                    removeCurrentRow={changeRow("remove")}
+                    removeCurrentCol={changeCol("remove")}
+                    duplicateRow = {duplicateRow()}
+                    duplicateCol = {duplicateCol()}
+                    clearRow = {clearRow()}
+                    clearCol = {clearCol()}
+                />
+            </div>
             <ul 
+                style={{
+                    width:cellSize.width.reduce((a,b)=>a+b,0)
+                }}
                 onMouseDown = {onMouseDown}
                 onMouseMove = {onMouseMove}
                 onMouseUp={onMouseUp}
@@ -555,23 +573,7 @@ export default function Table(props) {
                     )
                 })}
             </ul>
-
             <div className={styles.tableContainer}>
-                <div className={styles.rightPanel} ref={rightPanel} >
-                    <TableEdit 
-                        display={rightPanelDisplay}
-                        addRowOnTop={changeRow("front")} 
-                        addRowOnBottom={changeRow("after")}
-                        addColLeft={changeCol("front")}
-                        addColRight={changeCol("after")}
-                        removeCurrentRow={changeRow("remove")}
-                        removeCurrentCol={changeCol("remove")}
-                        duplicateRow = {duplicateRow()}
-                        duplicateCol = {duplicateCol()}
-                        clearRow = {clearRow()}
-                        clearCol = {clearCol()}
-                    />
-                </div>
                 <div 
                     className={styles.mark} 
                     ref = {cellMarker}
@@ -583,20 +585,15 @@ export default function Table(props) {
                         width:cellMarker_all.offsetWidth + "px",
                         height:cellMarker_all.offsetHeight + "px",
                     }}
-                    onKeyDown={(e)=>{
-                        console.log(e)
-                    }}
                 >
 
                 </div>
                 <table
                     ref = {table_ref}
-                    // onMouseDown = {onMouseDown}
-                    // onMouseMove = {onMouseMove}
-                    // onMouseUp={onMouseUp}
                     style={{
-                        width:tableWidth*1 + 1 + "px"
-                    }}>
+                        width:cellSize.width.reduce((a,b)=>a+b,0)
+                    }}
+                >
                     <colgroup>
                         {renderHead.map(()=>{
                             return (<col key={uuidv4()}></col>) 

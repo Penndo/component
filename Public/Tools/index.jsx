@@ -39,12 +39,10 @@ function arr_sum(arr) {
 }
 
 //重新计算列宽度。
-function recalculate_CellSize(count,controlData,cellSize){
-    const tableWidth = controlData.tableWidth;
+function recalculate_CellSize(count,preCount,tableWidth,cellSize){
     const cellWidthArr = cellSize.width;
-    const oldCellAmount = controlData.tableAmount.cols; //获取原有的数组长度
-    const width = Math.floor(tableWidth/oldCellAmount);
-    const changeAmount = count - oldCellAmount; //获取长度改变量，>0 是增加列，<0 是减少列。
+    const width = Math.floor(tableWidth/preCount);
+    const changeAmount = count - preCount; //获取长度改变量，>0 是增加列，<0 是减少列。
 
     let newCellWidthArr=[];//定义新的宽度数组。
 

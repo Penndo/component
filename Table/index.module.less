@@ -1,7 +1,11 @@
-.tableContainer {
+.leftPart {
     width: 100%;
     height: 100vh;
+    padding-left: 24px;
     overflow: scroll;
+    position: relative;
+}
+.tableContainer{
     position: relative;
 }
 .rightPanel {
@@ -12,10 +16,10 @@
 .mark {
     z-index: 400;
     position: absolute;
+    pointer-events: none;
 }
 
 .colID {
-
     margin: 24px 0;
     width:-moz-fit-content;
     width:-webkit-fit-content;
