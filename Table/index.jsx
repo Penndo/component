@@ -18,7 +18,7 @@ function getOffsetSize(e) {
 export default function Table(props) {
 
     const {controlData,cellSize,colID,rowID,getColID,getRowID,renderHead,renderData, getCellSize, getRenderData, getRenderHead,getDynamicHead,getDynamicData,table_ref,changeColsCount,changeRowsCount,
-        trIndex,tdIndex,lastSelectedTdIndex,cellMarker_first,cellMarker_all,getTrIndex,getTdIndex,getLastSelectedTrIndex,getLastSelectedTdIndex,getCellMarker_first,getCellMarker_all
+        trIndex,tdIndex,lastSelectedTdIndex,cellMarker_first,cellMarker_all,getTrIndex,getTdIndex,getLastSelectedTrIndex,getLastSelectedTdIndex,getCellMarker_first,getCellMarker_all,clipboard
     } = props;
     const {b_top,b_right,b_bottom,b_left} = controlData.tbodyPadding;
     const {h_top,h_bottom} = controlData.theadPadding;
@@ -42,14 +42,12 @@ export default function Table(props) {
 
         let tdIndex = Array.from(tds).indexOf(currentTd);
         let trIndex = Array.from(trs).indexOf(currentTr);
-        
+       
         return {"tdIndex":tdIndex,"trIndex":trIndex}
     }
 
     function keyDown(e) {
-        console.log(e.keyCode)
         const {trIndex,tdIndex} = eventPosition(e);
-
         let table = table_ref.current.childNodes;
         let thead = Array.from(table).find((element) => element.tagName === "THEAD");
         let tbody = Array.from(table).find((element) => element.tagName === "TBODY");
@@ -166,6 +164,7 @@ export default function Table(props) {
     const [dragSelectCells,setDragSelectCells] = useState(false)
 
     function selectCells_first(e){
+        if(e.button !== 0) return;
         const {trIndex,tdIndex} = eventPosition(e);
         const {offsetTop,offsetLeft,offsetWidth,offsetHeight} = getOffsetSize(e);
         setDragSelectCells(true);
@@ -276,7 +275,7 @@ export default function Table(props) {
                     insert.splice(trIndex-1, 0, {key:uuidv4(),rowID:rowID+1});
                     break;
                 case "remove":
-                    insert.splice(trIndex, 1)
+                    insert.splice(trIndex-1, 1)
                     break;
                 default:
                     break;
@@ -474,7 +473,6 @@ export default function Table(props) {
     
     //这里导致 width.length 为 0
     function onMouseUp(event){
-        console.log(event.target.offsetWidth,event.target.offsetHeight)
         if(event.target.tagName === "LI"){
             setDraggableCells({...draggableCells,draggable:false});
             event.target.style.cursor = "default";
@@ -498,18 +496,16 @@ export default function Table(props) {
             if(tdIndex === lastSelectedTdIndex){
                 getCellMarker_all({
                     ...cellMarker_all,
-                    offsetLeft:first.offsetLeft,
+                    offsetLeft:first.offsetLeft-24,
                     offsetWidth:first.offsetWidth
                 })
             }else{
-                let width,originX
-
+                let width,originX;
                 originX = first.offsetLeft >= last.offsetLeft ? last.offsetLeft : first.offsetLeft;
                 width = Math.abs(first.offsetLeft - last.offsetLeft) + (first.offsetLeft >= last.offsetLeft ? first.offsetWidth :  last.offsetWidth);
-    
                 getCellMarker_all({      
                     ...cellMarker_all,      
-                    offsetLeft:originX,
+                    offsetLeft:originX-24,
                     offsetWidth:width,
                 });
             }
@@ -573,7 +569,7 @@ export default function Table(props) {
                     )
                 })}
             </ul>
-            <div className={styles.tableContainer}>
+            <div className={styles.tableContainer} >
                 <div 
                     className={styles.mark} 
                     ref = {cellMarker}
@@ -614,6 +610,7 @@ export default function Table(props) {
                                         } 
                                     }
                                     onDoubleClick = {activateInputBox}
+                                    onPaste={clipboard}
                                     key={cell["key"]}
                                     style={{
                                         outline:"none",
@@ -663,9 +660,9 @@ export default function Table(props) {
                                                     ()=>{
                                                         setDragSelectCells(false)
                                                     }
-                                                    
                                                 }
                                                 onDoubleClick = {activateInputBox}
+                                                onPaste={clipboard}
                                                 style={{
                                                     //隔行换色开启，且行数为奇数时，填充intervalColor, 否则填充 basicColor
                                                     outline:"none",

@@ -10,7 +10,7 @@ import TableWidth from "./TableWidth"
 import TemplateSelecter from "./TemplateSelecter"
 
 export default function ConstrolSlider(props){
-    const {getControlData,renderData,renderHead,controlData,cellSize,syncBodyStyleToHeader,switchTemplate,backToInitialState,table_ref,fillInterval_usedCount,refreshInterval_usedCount,defaultStorageData,historyStorageData,updateData,lastPickedColor,getLastPickedColor,resizeCellMarker} = props;
+    const {getControlData,renderData,renderHead,controlData,cellSize,syncBodyStyleToHeader,switchTemplate,backToInitialState,table_ref,fillInterval_usedCount,refreshInterval_usedCount,defaultStorageData,historyStorageData,updateData,lastPickedColor,getLastPickedColor,resizeCellMarker,changeFontSize} = props;
     const {tableWidth, tableAmount, tbodyPadding, theadPadding, theadFill, fill, border, textStyle, theadTextStyle} = controlData;
 
     function getValue(typeName,propertyName,value){
@@ -100,6 +100,10 @@ export default function ConstrolSlider(props){
 
     return (
         <div className={styles["constrolSlider"]}>
+            <span >
+
+            </span>
+
             <div className={styles["configureArea"]}>
                 <TemplateSelecter type="选择模板" defaultStorageData={defaultStorageData} historyStorageData={historyStorageData} switchTemplate={switchTemplate} backToInitialState={backToInitialState} updateData={updateData} refreshInterval_usedCount = {refreshInterval_usedCount}/>
                 <TableWidth type="表格宽度" typeName = "tableWidth" getValue = {getValue}  data = {tableWidth} resizeCellMarker = {resizeCellMarker}/>
@@ -111,13 +115,13 @@ export default function ConstrolSlider(props){
                     <CellPaddingSetting type="padding" typeName="tbodyPadding" area="b" data={tbodyPadding} getValue = {getValue} resizeCellMarker = {resizeCellMarker}/>
                     <TableBg type="填充" fillInterval_usedCount={fillInterval_usedCount} toggleLabel="隔行换色" switchColor = {true} switchColorPicker={true} typeName="fill" data={fill} switchState={fill.switchState} changeSwitchState={changeSwitchState}  getValue={getValue}/>
                     <TableBg type="边框" fillInterval_usedCount={fillInterval_usedCount} toggleLabel="列分割线" switchColor = {true} switchColorPicker={false} typeName="border" data={border} switchState={border.switchState} changeSwitchState={changeSwitchState}  getValue={getValue} />
-                    <TextStyleSetting type="文本样式" typeName="textStyle" data={textStyle} getValue = {getValue}/>
+                    <TextStyleSetting type="文本样式" typeName="textStyle" data={textStyle} getValue = {getValue} changeFontSize={changeFontSize}/>
                 </div>
 
                 <div className={styles["theadStyle"]} style={{display: styleType === "theadStyle" ? "block" : "none"}}>
                     <CellPaddingSetting type="padding" typeName="theadPadding" area="h" data={theadPadding} getValue = {getValue} resizeCellMarker = {resizeCellMarker}/>
                     <TableBg type="填充" switchColor = {false} typeName="theadFill" data={theadFill} getValue={getValue}/>
-                    <TextStyleSetting type="文本样式" typeName="theadTextStyle" data={theadTextStyle} getValue = {getValue}/>
+                    <TextStyleSetting type="文本样式" typeName="theadTextStyle" data={theadTextStyle} getValue = {getValue} changeFontSize={changeFontSize}/>
                 </div>
 
             </div>

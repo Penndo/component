@@ -32,6 +32,9 @@ class TextInput extends React.Component {
         this.setState({
             defaultValue:value
         })
+        if(this.props.changeFontSize){
+            this.props.changeFontSize();
+        }
     }
 
 
@@ -58,6 +61,9 @@ class TextInput extends React.Component {
         if(this.props.resizeCellMarker){
             this.props.resizeCellMarker(e.target.value,this.props.defaultValue,this.props.typeName,this.props.propertyName)
         }
+        if(this.props.changeFontSize){
+            this.props.changeFontSize();
+        }
 
         if(this.props.getValue){
             this.props.getValue(this.props.typeName, this.props.propertyName, e.target.value)
@@ -71,11 +77,25 @@ class TextInput extends React.Component {
     }
 
     render(){
-        const {style, placeholder, hasPreInstall, label, labelDisplay, name, preInstallOptions,readOnly} = this.props;
+        const {style, placeholder, hasPreInstall, testInputHeight, label, labelDisplay, name, preInstallOptions,readOnly} = this.props;
         const {defaultValue,showOptions} = this.state;
 
         return (
             <div className={styles["textInput"]} style = {{...style}}>
+                {testInputHeight 
+                    ?
+                    <span
+                        type="text" 
+                        style={{
+                            position:"absolute",
+                            fontSize:defaultValue + "px",
+                            visibility:"hidden"
+                        }}
+                    />
+                    :
+                    null
+                }
+
                 <input 
                     type="text" 
                     onChange={!readOnly ? this.onChange : this.nothingChanged} 
