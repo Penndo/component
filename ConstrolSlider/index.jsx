@@ -12,6 +12,7 @@ import TemplateSelecter from "./TemplateSelecter"
 export default function ConstrolSlider(props){
     const {getControlData,renderData,renderHead,controlData,cellSize,syncBodyStyleToHeader,switchTemplate,backToInitialState,table_ref,fillInterval_usedCount,refreshInterval_usedCount,defaultStorageData,historyStorageData,updateData,lastPickedColor,getLastPickedColor,resizeCellMarker,changeFontSize} = props;
     const {tableWidth, tableAmount, tbodyPadding, theadPadding, theadFill, fill, border, textStyle, theadTextStyle} = controlData;
+    const [modalName, setModalName] = React.useState("默认内容");
 
     function getValue(typeName,propertyName,value){
 
@@ -98,6 +99,12 @@ export default function ConstrolSlider(props){
         syncBodyStyleToHeader(typeName === "theadStyle")
     }
 
+    function getModalName(value) {
+        setModalName(value)
+    }
+
+    console.log(modalName)
+
     return (
         <div className={styles["constrolSlider"]}>
             <span >
@@ -105,7 +112,7 @@ export default function ConstrolSlider(props){
             </span>
 
             <div className={styles["configureArea"]}>
-                <TemplateSelecter type="选择模板" defaultStorageData={defaultStorageData} historyStorageData={historyStorageData} switchTemplate={switchTemplate} backToInitialState={backToInitialState} updateData={updateData} refreshInterval_usedCount = {refreshInterval_usedCount}/>
+                <TemplateSelecter type="选择模板" defaultStorageData={defaultStorageData} historyStorageData={historyStorageData} switchTemplate={switchTemplate} backToInitialState={backToInitialState} updateData={updateData} refreshInterval_usedCount = {refreshInterval_usedCount} getModalName = {getModalName}/>
                 <TableWidth type="表格宽度" typeName = "tableWidth" getValue = {getValue}  data = {tableWidth} tableAmount = {tableAmount} tbodyPadding={tbodyPadding} resizeCellMarker = {resizeCellMarker}/>
                 <CellAmount type="表格数量" typeName = "tableAmount" data={tableAmount} tableWidth={tableWidth} cellPadding = {tbodyPadding} resizeCellMarker = {resizeCellMarker}/>
                 {/* <TableData type = "数据源" getControlData = {getControlData} typeName="dataFrom" data={dataFrom}/> */}
@@ -127,7 +134,7 @@ export default function ConstrolSlider(props){
             </div>
 
             <div className={styles["buttonGroup"]}>
-                    <ButtonGroup table_ref={table_ref} updateData={updateData} renderHead={renderHead} renderData={renderData} controlData={controlData} cellSize={cellSize} historyStorageData = {historyStorageData}/>
+                    <ButtonGroup table_ref={table_ref} updateData={updateData} renderHead={renderHead} renderData={renderData} controlData={controlData} cellSize={cellSize} modalName = {modalName}/>
             </div>
 
         </div>

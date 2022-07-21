@@ -69,6 +69,8 @@ class TemplateSelecter extends React.Component {
             selecter:false
         });
 
+        this.props.getModalName(value);
+
         if(value !== defaultSelection){
             createIDB().then((db)=>{
                 //更新历史选择数据

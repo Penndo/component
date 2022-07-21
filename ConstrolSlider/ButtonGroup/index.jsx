@@ -16,9 +16,8 @@ class ButtonGroup extends React.Component {
     }
 
     //点击确定的时候传递数据
-    transData = (renderHead,renderData,controlData,cellSize) => {
+    transData = (renderHead,renderData,controlData,cellSize,modalName) => {
         return ()=>{
-            const modalName = this.props.historyStorageData[0].history;
             // const newCellSize = this.newCellSize(this.props.table_ref,cellSize)
             const tableRows = this.props.table_ref.current.rows;
             let newCellSize = {};
@@ -37,8 +36,7 @@ class ButtonGroup extends React.Component {
     
     render(){
         const {createTemplate} = this.state;
-        const {renderHead,renderData,controlData,cellSize,updateData,historyStorageData} = this.props;
-        const modalName = historyStorageData[0].history;
+        const {renderHead,renderData,controlData,cellSize,updateData,modalName} = this.props;
 
         const storageData = {
             renderHead:renderHead,
