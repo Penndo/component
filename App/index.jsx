@@ -118,7 +118,7 @@ export default function App(){
     const [trIndex, setTrIndex] = useState(null)
     const [lastSelectedTdIndex, setLastSelectedTdIndex] = useState(null)
     const [lastSelectedTrIndex, setLastSelectedTrIndex] = useState(null)
-    let minWidth = Number(controlData.tbodyPadding.b_left) + Number(controlData.tbodyPadding.b_right) + 8;
+    let cellMinWidth = Number(controlData.tbodyPadding.b_left) + Number(controlData.tbodyPadding.b_right) + 8;
     // console.log(trIndex)
 
     const [cellMarker_first, setCellMarker_first] = useState({
@@ -241,7 +241,7 @@ export default function App(){
         }
         else if(typeName === "tableWidth"){
             const count = controlData.tableAmount.cols,preCount = controlData.tableAmount.cols;
-            let newCellSize = recalculate_CellSize(count,preCount,value,cellSize,minWidth);
+            let newCellSize = recalculate_CellSize(count,preCount,value,cellSize,cellMinWidth);
             dispatch_cellMarker({type:"left",value:newCellSize.width.slice(0,Math.min(tdIndex,lastSelectedTdIndex)).reduce((a,b)=>a+b,0)});
             dispatch_cellMarker({type:"width",value:newCellSize.width.slice(Math.min(tdIndex,lastSelectedTdIndex),Math.max(tdIndex,lastSelectedTdIndex) + 1).reduce((a,b) => a+b,0)});
             getCellSize({...cellSize,...newCellSize})
@@ -274,6 +274,7 @@ export default function App(){
         createIDB().then((db)=>{
             const defaultStorageData_result = Promise.resolve(getAllValue(db,defaultStoreName));
             const historyStorageData_result = Promise.resolve(getAllValue(db,defaultHistoryName));
+
             Promise.all([defaultStorageData_result,historyStorageData_result]).then((values)=>{
                 
                 const informationList = values[0];
@@ -413,7 +414,7 @@ export default function App(){
         const preCount = controlData.tableAmount.cols;
         const tableWidth = controlData.tableWidth;
 
-        let newCellSize = recalculate_CellSize(count,preCount,tableWidth,cellSize,minWidth);
+        let newCellSize = recalculate_CellSize(count,preCount,tableWidth,cellSize,cellMinWidth);
         dispatch({type:"all",value:{
             ...information,
             renderHead:mergedHead,

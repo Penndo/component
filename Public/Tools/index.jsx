@@ -61,28 +61,22 @@ function recalculate_CellSize(count,preCount,tableWidth,cellSize,minWidth){
     for(let i=0;i<newCellWidthArr.length;i++){
         cellSizePercentage.push(newCellWidthArr[i]/sum_NewCellSize)
     };//通过循环将比例值放入 cellSizePercentage 中
-    
-    // //更新宽度
-    // let newCellWidth = [];
-    // for(let i=0;i<cellSizePercentage.length;i++){
-    //     newCellWidth.push(Math.floor(cellSizePercentage[i] * tableWidth))
-    // }
 
-    //计算宽度不够的列
-    let shortIndexArr = [], newCellWidth = [], dif = 0;
+    //为了在改变列的数量时，不让列宽过小，这里需要设置最小列宽
+    /* —————————————————————————————————————————————————————————————————— */
+    //拆分宽度不够的列，总的差值；宽度富余的列，富余列的总宽；
+    let shortIndexArr = [], newCellWidth = [], dif = 0, totalLongWidth = 0;
     for(let i=0;i<cellSizePercentage.length;i++){
         if(Math.floor(cellSizePercentage[i] * tableWidth) <= minWidth){
             shortIndexArr.push(i);
             dif += minWidth - Math.floor(cellSizePercentage[i] * tableWidth)
         }else{
             newCellWidth.push(Math.floor(cellSizePercentage[i] * tableWidth))
+            totalLongWidth += Math.floor(cellSizePercentage[i] * tableWidth);
         }
     }
 
-    //宽列总宽
-    const totalLongWidth = newCellWidth.reduce((a,b)=>a+b,0);
-
-    //计算宽列的比例
+    //计算富余列的比例，并重新计算列宽。
     for(let i=0;i<newCellWidth.length;i++){
         let per = newCellWidth[i]/totalLongWidth;
         newCellWidth[i] = newCellWidth[i] - per*dif;
@@ -92,6 +86,7 @@ function recalculate_CellSize(count,preCount,tableWidth,cellSize,minWidth){
     for(let i=0;i<shortIndexArr.length;i++){
         newCellWidth.splice(shortIndexArr[i],0,minWidth)
     }
+    /* —————————————————————————————————————————————————————————————————— */
 
     //因为数据误差这里需要补全，简单处理，用最后一列的宽度吧
     const sum_checkCellWidth = arr_sum(newCellWidth);

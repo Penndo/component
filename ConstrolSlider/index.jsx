@@ -127,7 +127,7 @@ export default function ConstrolSlider(props){
             </div>
 
             <div className={styles["buttonGroup"]}>
-                    <ButtonGroup table_ref={table_ref} updateData={updateData} renderHead={renderHead} renderData={renderData} controlData={controlData} cellSize={cellSize}/>
+                    <ButtonGroup table_ref={table_ref} updateData={updateData} renderHead={renderHead} renderData={renderData} controlData={controlData} cellSize={cellSize} historyStorageData = {historyStorageData}/>
             </div>
 
         </div>

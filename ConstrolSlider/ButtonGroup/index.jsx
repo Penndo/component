@@ -18,7 +18,7 @@ class ButtonGroup extends React.Component {
     //点击确定的时候传递数据
     transData = (renderHead,renderData,controlData,cellSize) => {
         return ()=>{
-
+            const modalName = this.props.historyStorageData[0].history;
             // const newCellSize = this.newCellSize(this.props.table_ref,cellSize)
             const tableRows = this.props.table_ref.current.rows;
             let newCellSize = {};
@@ -29,15 +29,16 @@ class ButtonGroup extends React.Component {
             newCellSize.width = cellSize.width;
             newCellSize.height = newstHeightArr;
 
-            // postMessage('insert',renderHead,renderData,controlData,newCellSize);
-            console.log(renderHead,renderData,controlData,newCellSize);
+            // postMessage('insert',renderHead,renderData,controlData,newCellSize,modalName);
+            console.log(renderHead,renderData,controlData,newCellSize,modalName);
         }
     }
     //点击取消的时候需要关闭窗口
     
     render(){
         const {createTemplate} = this.state;
-        const {renderHead,renderData,controlData,cellSize,updateData} = this.props;
+        const {renderHead,renderData,controlData,cellSize,updateData,historyStorageData} = this.props;
+        const modalName = historyStorageData[0].history;
 
         const storageData = {
             renderHead:renderHead,
@@ -52,13 +53,9 @@ class ButtonGroup extends React.Component {
                     ? <Modal table_ref={this.props.table_ref} updateData={updateData} storageData={storageData} func = {this.createTemplate}  />
                     :   <div className = {styles["buttonGroup"]} >
                             <Button label = "创建为模板" type = "secondary" func = {this.createTemplate}/>
-                            <Button label = "生成表格" func={this.transData(renderHead,renderData,controlData,cellSize)}/>
+                            <Button label = "生成表格" func={this.transData(renderHead,renderData,controlData,cellSize,modalName)}/>
                         </div>
                 }
-                
-                
-
-                
             </div>
         )
     }
