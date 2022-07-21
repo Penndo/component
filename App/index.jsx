@@ -118,6 +118,7 @@ export default function App(){
     const [trIndex, setTrIndex] = useState(null)
     const [lastSelectedTdIndex, setLastSelectedTdIndex] = useState(null)
     const [lastSelectedTrIndex, setLastSelectedTrIndex] = useState(null)
+    let minWidth = Number(controlData.tbodyPadding.b_left) + Number(controlData.tbodyPadding.b_right) + 8;
     // console.log(trIndex)
 
     const [cellMarker_first, setCellMarker_first] = useState({
@@ -207,8 +208,8 @@ export default function App(){
         return arr.slice(Math.min(trIndex,lastSelectedTrIndex),Math.max(trIndex,lastSelectedTrIndex) + 1).reduce((a,b) => a+b,0)
     }
 
+    //修改字体大小，改变标记框大小
     function changeFontSize() {
-        console.log(219)
         const ro = new ResizeObserver( entries => {
             let newCellSize = {};
             let heights = [];
@@ -217,11 +218,10 @@ export default function App(){
                 for(let row of rows){
                     heights.push(row.clientHeight);
                 }
-                console.log(229)
             }
-            newCellSize.height = heights
-            dispatch_cellMarker({type:"top",value:cellMarkerPosition_top(heights)})
-            dispatch_cellMarker({type:"height",value:cellMarkerPosition_height(heights)})
+            newCellSize.height = heights;
+            dispatch_cellMarker({type:"top",value:cellMarkerPosition_top(heights)});
+            dispatch_cellMarker({type:"height",value:cellMarkerPosition_height(heights)});
         });
         ro.observe(table_ref.current);
         window.setTimeout(()=>{
@@ -229,6 +229,7 @@ export default function App(){
         },0)
     }
 
+    //改变 cellMarker 大小，代码待优化
     function resizeCellMarker(value,preValue,typeName,propertyName) {
         let dif = value - preValue;
         if(typeName === "tableAmount"){
@@ -240,19 +241,15 @@ export default function App(){
         }
         else if(typeName === "tableWidth"){
             const count = controlData.tableAmount.cols,preCount = controlData.tableAmount.cols;
-            let newCellSize = recalculate_CellSize(count,preCount,value,cellSize)
-            console.log(dif)
-            dispatch_cellMarker({type:"left",value:newCellSize.width.slice(0,Math.min(tdIndex,lastSelectedTdIndex)).reduce((a,b)=>a+b,0)})
-            dispatch_cellMarker({type:"width",value:newCellSize.width.slice(Math.min(tdIndex,lastSelectedTdIndex),Math.max(tdIndex,lastSelectedTdIndex) + 1).reduce((a,b) => a+b,0)})
-
+            let newCellSize = recalculate_CellSize(count,preCount,value,cellSize,minWidth);
+            dispatch_cellMarker({type:"left",value:newCellSize.width.slice(0,Math.min(tdIndex,lastSelectedTdIndex)).reduce((a,b)=>a+b,0)});
+            dispatch_cellMarker({type:"width",value:newCellSize.width.slice(Math.min(tdIndex,lastSelectedTdIndex),Math.max(tdIndex,lastSelectedTdIndex) + 1).reduce((a,b) => a+b,0)});
             getCellSize({...cellSize,...newCellSize})
         }else if(trIndex === 0 || lastSelectedTrIndex === 0){//焦点包含表头
             if(headerIndependentStyle && typeName === "theadPadding"){
                 dispatch_cellMarker({type:"height",value:cellMarker_all.offsetHeight + dif})
-
             }else if(headerIndependentStyle && typeName === "tbodyPadding"){
                 dispatch_cellMarker({type:"height",value:cellMarker_all.offsetHeight + dif * Math.abs(lastSelectedTrIndex - trIndex)})
-
             }else{
                 dispatch_cellMarker({type:"height",value:cellMarker_all.offsetHeight + dif * (Math.abs(lastSelectedTrIndex - trIndex)+1)})
             }
@@ -303,15 +300,13 @@ export default function App(){
                     historyStorageData:selectes
                 }})
                 
-                const {basicColor,intervalColor,switchState} = data.controlData.fill
+                const {basicColor,intervalColor,switchState} = data.controlData.fill;
                 if(switchState === true){
-                    setLastPickedColor(intervalColor === "" ? basicColor : intervalColor)
+                    setLastPickedColor(intervalColor === "" ? basicColor : intervalColor);
                 }else if(switchState === false){
-                    setLastPickedColor(basicColor)
+                    setLastPickedColor(basicColor);
                 }
-
-                setHeaderIndependentStyle(false)
-
+                setHeaderIndependentStyle(false);
             })
         })
     }
@@ -417,7 +412,8 @@ export default function App(){
         }
         const preCount = controlData.tableAmount.cols;
         const tableWidth = controlData.tableWidth;
-        let newCellSize = recalculate_CellSize(count,preCount,tableWidth,cellSize);
+
+        let newCellSize = recalculate_CellSize(count,preCount,tableWidth,cellSize,minWidth);
         dispatch({type:"all",value:{
             ...information,
             renderHead:mergedHead,

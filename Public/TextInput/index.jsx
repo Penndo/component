@@ -25,10 +25,12 @@ class TextInput extends React.Component {
         return reg;
     }
 
-    //在 react 中对 from 表单的修改都需要为 onChange 添加一个方法。
     onChange = (e) => {
         const reg = this.getInputType(this.props.inputType);
-        const value = e.target.value.replace(reg,"");
+        let value = e.target.value.replace(reg,"");
+
+        console.log(value)
+
         this.setState({
             defaultValue:value
         })
@@ -37,8 +39,6 @@ class TextInput extends React.Component {
         }
     }
 
-
-    //属性更新后，更新状态
     componentDidUpdate(prevProps){
         if(this.props.defaultValue !== prevProps.defaultValue){
             this.setState({defaultValue:this.props.defaultValue})
@@ -54,19 +54,28 @@ class TextInput extends React.Component {
 
     //输入框失焦后更新数据
     onBlur = (e) => {
+
+        const {max,min} = this.props
+        let value = this.state.defaultValue;
+
+        value = 
+            value < min ? min : 
+            value > max ? max : value ;
+
         this.setState({
+            defaultValue:value,
             showOptions:false
         })
 
         if(this.props.resizeCellMarker){
-            this.props.resizeCellMarker(e.target.value,this.props.defaultValue,this.props.typeName,this.props.propertyName)
+            this.props.resizeCellMarker(value,this.props.defaultValue,this.props.typeName,this.props.propertyName)
         }
         if(this.props.changeFontSize){
             this.props.changeFontSize();
         }
 
         if(this.props.getValue){
-            this.props.getValue(this.props.typeName, this.props.propertyName, e.target.value)
+            this.props.getValue(this.props.typeName, this.props.propertyName, value)
         }
     }
 

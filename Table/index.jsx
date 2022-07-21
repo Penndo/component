@@ -386,9 +386,27 @@ export default function Table(props) {
         mousePositon:"",
         indexOfCurrentCell:""
     });
+
+    const [enough,setEnough] = useState([]);
     
     //给一个初始的单元格宽度，表格宽度除以表头数量然后取整。
     const defaultCellWidth = Math.floor(tableWidth / renderHead.length);
+
+    function onMouseIn(event) {
+        if(event.target.tagName === "LI"){
+            //获取鼠标按下获取到的那个元素
+            let current = event.target;
+            //获取 thead 中的所有子元素
+            let lists = current.parentNode.childNodes;
+            //将获取的 thead 中的所有子元素放入数组
+            let listsArr = Array.from(lists);
+            //更新状态
+            setDraggableCells({
+                ...draggableCells,
+                variableCellWidthArr:listsArr,
+            });
+        }
+    }
 
     //鼠标按下的时候
     function onMouseDown(event){
@@ -400,7 +418,13 @@ export default function Table(props) {
             //将获取的 thead 中的所有子元素放入数组
             let listsArr = Array.from(lists);
             //获取当前单元格的序号
-            let mouseDownCurrentIndex = listsArr.indexOf(current)
+            let mouseDownCurrentIndex = listsArr.indexOf(current);
+
+            //更新状态
+            setDraggableCells({
+                ...draggableCells,
+                variableCellWidthArr:listsArr,
+            });
 
             //如果不是最后一个单元格，且鼠标位置在单元格右侧侧 8 像素范围内
             if(mouseDownCurrentIndex !== listsArr.length-1 && event.nativeEvent.offsetX > current.offsetWidth - 8){
@@ -426,10 +450,12 @@ export default function Table(props) {
             }
         }
     }
+
+
     
     //鼠标移动的时候
     function onMouseMove(event){
-        let current, lists, listsArr, currentIndex
+        let current, lists, listsArr, currentIndex;
         if(event.target.tagName === "LI"){
             current = event.target
             lists = current.parentNode.childNodes;
@@ -444,35 +470,78 @@ export default function Table(props) {
             }            
         }
 
-        //鼠标按下的时候将已经表格的拖动状态设置为 true
+        //鼠标按下的时候已经将表格的拖动状态设置为 true
         if(draggableCells.draggable === true){
     
             //x的变量等于当前鼠标的 offsetX 减去 mouseDown 时初次获取的鼠标位置
             const deltaX = event.clientX - draggableCells.mousePositon;
-
+            
             //有多少个需要改变宽度的单元格? 需要改变宽度的单元格数量是鼠标事件序号之后的所有单元格
-            const deltaCount = draggableCells.variableCellWidthArr.length - 1 - draggableCells.indexOfCurrentCell;
-
+            const deltaCount = draggableCells.variableCellWidthArr.length - 1 - draggableCells.indexOfCurrentCell - enough.length;
+            
             //基础增量，每一个单元格增加的量：deltaX 减去 除不净（deltaX % 要改变宽度的单元格数量）的量，然后再除以要改变宽度的单元格数量。
             const cellDeltaX = (deltaX - deltaX % deltaCount)/deltaCount;
-                      
+            
+            let minWidth = Number(b_left) + Number(b_right) + 8;
+            
+            function maxCellWidth(i) {
+                return(
+                    tableWidth - draggableCells.oldCellWidthArr.slice(0,i).reduce((a,b)=>a+b,0) - (draggableCells.oldCellWidthArr.length - 1 - i)*minWidth
+                )
+            }
+
             for(let i=0;i<draggableCells.variableCellWidthArr.length;i++){
-                if(i < draggableCells.indexOfCurrentCell){
-                    draggableCells.variableCellWidthArr[i].style.width = draggableCells.oldCellWidthArr[i] + "px"
-                }else if(i === draggableCells.indexOfCurrentCell){
-                    draggableCells.variableCellWidthArr[i].style.width = draggableCells.currentCellWidth + deltaX + "px";
-                }else if(i === currentIndex + 1){
-                    draggableCells.variableCellWidthArr[i].style.width = draggableCells.oldCellWidthArr[i] - cellDeltaX - deltaX % deltaCount + "px"
-                }else{
-                    draggableCells.variableCellWidthArr[i].style.width = draggableCells.oldCellWidthArr[i] - cellDeltaX + "px"
+                if(enough.indexOf(i) === -1){
+                    
+                    if(i < draggableCells.indexOfCurrentCell){
+                        draggableCells.variableCellWidthArr[i].style.width = draggableCells.oldCellWidthArr[i] + "px" //如果小于 左右padding + 8 就不再减小了。
+                    }else if(i === draggableCells.indexOfCurrentCell){
+                        let width;
+                        if(draggableCells.currentCellWidth + deltaX > maxCellWidth(i) && deltaX > 0){
+                            width = maxCellWidth(i);                          
+                        }else if(draggableCells.currentCellWidth + deltaX < minWidth && deltaX < 0){
+                            width = minWidth;
+                            onMouseUp(event);
+                        }else{
+                            width = draggableCells.currentCellWidth + deltaX;
+                        }
+                        draggableCells.variableCellWidthArr[i].style.width = width + "px";
+
+                    }else if(i === currentIndex + 1){
+                        let width;
+                        if(draggableCells.oldCellWidthArr[i] - cellDeltaX - deltaX % deltaCount < minWidth && deltaX > 0){
+                            width = minWidth;
+                            enough.push(i)
+                            setEnough(enough);
+                        }else{
+                            width = draggableCells.oldCellWidthArr[i] - cellDeltaX - deltaX % deltaCount;
+                        }
+                        draggableCells.variableCellWidthArr[i].style.width = width + "px"
+                    }else{
+                        let width;
+                        if(draggableCells.oldCellWidthArr[i] - cellDeltaX < minWidth){
+                            width = minWidth;
+                            enough.push(i)
+                            setEnough(enough);
+                        }else{
+                            width = draggableCells.oldCellWidthArr[i] - cellDeltaX;
+                        }
+                        draggableCells.variableCellWidthArr[i].style.width = width + "px"
+                    }
                 }
             }    
-            
+        }
+    }
+
+    function onMouseOut(event) {
+        if(event.target.tagName === "LI"){
+            onMouseUp(event)
         }
     }
     
     //这里导致 width.length 为 0
     function onMouseUp(event){
+        setEnough([]);
         if(event.target.tagName === "LI"){
             setDraggableCells({...draggableCells,draggable:false});
             event.target.style.cursor = "default";
@@ -549,11 +618,13 @@ export default function Table(props) {
             </div>
             <ul 
                 style={{
-                    width:cellSize.width.reduce((a,b)=>a+b,0)
+                    width:cellSize.width.reduce((a,b)=>a+b,0),
                 }}
+                onMouseEnter = {onMouseIn}
                 onMouseDown = {onMouseDown}
                 onMouseMove = {onMouseMove}
                 onMouseUp={onMouseUp}
+                onMouseLeave = {onMouseOut}
                 className={styles.colID}
             >
                 {renderHead.map((cell,index)=>{

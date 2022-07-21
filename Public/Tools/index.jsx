@@ -39,7 +39,7 @@ function arr_sum(arr) {
 }
 
 //重新计算列宽度。
-function recalculate_CellSize(count,preCount,tableWidth,cellSize){
+function recalculate_CellSize(count,preCount,tableWidth,cellSize,minWidth){
     const cellWidthArr = cellSize.width;
     const width = Math.floor(tableWidth/preCount);
     const changeAmount = count - preCount; //获取长度改变量，>0 是增加列，<0 是减少列。
@@ -57,15 +57,40 @@ function recalculate_CellSize(count,preCount,tableWidth,cellSize){
     const sum_NewCellSize = arr_sum(newCellWidthArr);//新数组所有值的和。用于比例的计算;
     
     //计算比例
-    const cellSizePercentage = [];//用来存放比例值
+    let cellSizePercentage = [];//用来存放比例值
     for(let i=0;i<newCellWidthArr.length;i++){
         cellSizePercentage.push(newCellWidthArr[i]/sum_NewCellSize)
     };//通过循环将比例值放入 cellSizePercentage 中
     
-    //更新宽度
-    const newCellWidth = [];
+    // //更新宽度
+    // let newCellWidth = [];
+    // for(let i=0;i<cellSizePercentage.length;i++){
+    //     newCellWidth.push(Math.floor(cellSizePercentage[i] * tableWidth))
+    // }
+
+    //计算宽度不够的列
+    let shortIndexArr = [], newCellWidth = [], dif = 0;
     for(let i=0;i<cellSizePercentage.length;i++){
-        newCellWidth.push(Math.floor(cellSizePercentage[i] * tableWidth))
+        if(Math.floor(cellSizePercentage[i] * tableWidth) <= minWidth){
+            shortIndexArr.push(i);
+            dif += minWidth - Math.floor(cellSizePercentage[i] * tableWidth)
+        }else{
+            newCellWidth.push(Math.floor(cellSizePercentage[i] * tableWidth))
+        }
+    }
+
+    //宽列总宽
+    const totalLongWidth = newCellWidth.reduce((a,b)=>a+b,0);
+
+    //计算宽列的比例
+    for(let i=0;i<newCellWidth.length;i++){
+        let per = newCellWidth[i]/totalLongWidth;
+        newCellWidth[i] = newCellWidth[i] - per*dif;
+    }
+
+    //插入 minWidth 到指定位置
+    for(let i=0;i<shortIndexArr.length;i++){
+        newCellWidth.splice(shortIndexArr[i],0,minWidth)
     }
 
     //因为数据误差这里需要补全，简单处理，用最后一列的宽度吧
