@@ -4,27 +4,39 @@ import SketchPicker from 'react-color/lib/Sketch';
 import styles from './index.module.less';
 
 class ColorPicker extends React.Component {
+
     state = {
-        colorValue:this.props.defaultColor,
-        isVisable:"none",
+        isVisable:false,
     }
 
-    componentDidUpdate(prevProps){
-        if(this.props.defaultColor !== prevProps.defaultColor){
-            this.setState({colorValue:this.props.defaultColor})
+    hexToRgb = (hex) => {
+        if(hex.indexOf("#") === 0){
+            return (
+                {
+                    r:parseInt("0x" + hex.slice(1,3)),
+                    g:parseInt("0x" + hex.slice(3,5)),
+                    b:parseInt("0x" + hex.slice(5,7)),
+                    a:1
+                }
+            )
+        }else{
+            return hex
+        }
+    }
+
+    toRgba = (obj) => {
+        if(typeof obj === "object"){
+            return(
+                `rgba(${obj.r},${obj.g},${obj.b},${obj.a})`
+            )
+        }else{
+            return obj
         }
     }
 
     changeColor = (color) => {
-        this.setState({colorValue: color.hex});
-        this.props.getValue(this.props.typeName,this.props.propertyName,color.hex)
-    }
-
-    HiddenPopover = (e) => {
-        if(e.target !== this.state.corlorPickerTarget){
-            this.setState({isVisable:"none"})
-            document.removeEventListener("click",this.HiddenPopover)
-        }
+        const {typeName,propertyName} = this.props;
+        this.props.getValue(typeName,propertyName,this.toRgba(color.rgb))
     }
 
     //给sketchpicker的包裹层加一个 click 事件，用来阻止事件冒泡。
@@ -32,37 +44,37 @@ class ColorPicker extends React.Component {
     sketchPickerHandle = (e) => {
         e.stopPropagation();
     }
-    
+
+    hiddenSketchPicker = (e) => {
+        if(e.target !== this.state.corlorPickerTarget){
+            this.setState({isVisable:false})
+            document.removeEventListener("click",this.hiddenSketchPicker)
+        }
+    }   
     
     showSketchPicker = (e) => {
-        //点击颜色按钮时，再次去获取 props 。这时 props 已经更新了，将会拿到最新的 props。因此不是所有情况下 props 改变去驱动子页面的改变都需要使用 componentDitUpdate 或者 useEffect 要看你是要主动去更新，还是被动的接受更新。
-        this.setState({
-            colorValue:this.props.defaultColor
-        })
-        if(this.state.isVisable === "none"){
+        const {isVisable} = this.state;
+        if(isVisable === false){
             //点击的时候 创建一个 colorPickerTarget 状态，可以看见原始状态是没有这个的。状态毕竟只是一个对象，可以自由的增删。这在某些不知如果定义初始值的时候非常有用。
-            this.setState({isVisable:"block",corlorPickerTarget:e.currentTarget})
-            document.addEventListener("click",this.HiddenPopover)
-        }else if(this.state.isVisable === "block"){
-            this.setState({isVisable:"none"})
-            document.removeEventListener("click",this.HiddenPopover)
+            this.setState({isVisable:!isVisable,corlorPickerTarget:e.currentTarget})
+            document.addEventListener("click",this.hiddenSketchPicker)
+        }else if(isVisable === true){
+            this.setState({isVisable:!isVisable})
+            document.removeEventListener("click",this.hiddenSketchPicker)
         }
-
     }
     
     render() {
-        const {style} = this.props;
-        const {isVisable, colorValue} = this.state;
+        const {style,defaultColor} = this.props;
+        const {isVisable} = this.state;
         return (
             <div className={styles["colorPicker"]}>
-                {/* 颜色显示的包裹框，如图的边框 */}
                 <div 
                     className = {styles['trigger-wrapper']} 
                     style={{
                             ...style
                         }}
                 >
-                    {/* 颜色显示块 */}
                     <div
                         title={'点击修改颜色'}
                         className={styles['color-picker-trigger']}
@@ -70,21 +82,24 @@ class ColorPicker extends React.Component {
                         style={{
                             width:style.width-6,
                             height:style.height-6,
-                            backgroundColor: colorValue
+                            backgroundColor: this.toRgba(this.hexToRgb(defaultColor))
                         }}
                     ></div>
                 </div>
-                <div 
-                    onClick = {this.sketchPickerHandle}
-                    style = {{display:isVisable, position:"absolute",right:0,top:28,zIndex:1000}}
-                >
-                    <SketchPicker
-                        color={colorValue}
-                        onChange={this.changeColor}
-                        width={252}
-                    />
-                </div>
-
+                {
+                    isVisable ? 
+                    <div 
+                        onClick = {this.sketchPickerHandle}
+                        style = {{position:"absolute",right:0,bottom:28,zIndex:100}}
+                    >
+                        <SketchPicker
+                            color={this.hexToRgb(defaultColor)}
+                            onChange={this.changeColor}
+                            // width={252}
+                        />
+                    </div>
+                    : null
+                }
             </div>
 
         );

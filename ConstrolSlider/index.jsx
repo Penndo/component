@@ -103,8 +103,6 @@ export default function ConstrolSlider(props){
         setModalName(value)
     }
 
-    console.log(modalName)
-
     return (
         <div className={styles["constrolSlider"]}>
             <span >
