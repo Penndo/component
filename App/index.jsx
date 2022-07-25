@@ -108,7 +108,7 @@ export default function App(){
     const [information, dispatch] = React.useReducer(reducer, initialInformation)
     const [cellMarker_all, dispatch_cellMarker] = React.useReducer(reducer_cellMarker, initialCellMarker)
     const {controlData,renderData,renderHead,cellSize,dynamicData,dynamicHead,defaultStorageData,historyStorageData} = information
-    const [headerIndependentStyle, setHeaderIndependentStyle] = useState(false);
+    const [headerIndependentStyle, setHeaderIndependentStyle] = useState(true);
     const [lastPickedColor,setLastPickedColor] = useState(controlData.fill.basicColor);
     const [fillInterval_usedCount, setFillInterval_usedCount] = React.useState(1);//隔行换色的开启次数，作为其key，每重新开启一次，重新创建一个新的组件
     const [colID, setColID] = useState(maxID(dynamicHead,"colID"))
@@ -188,9 +188,9 @@ export default function App(){
         setCellMarker_first(obj)
     }
 
-    function getCellMarker_all(obj) {
+    let getCellMarker_all = React.useCallback((obj)=>{
         dispatch_cellMarker({type:"all",value:obj})
-    }
+    },[])
 
     function maxID(data,name){
         let IDArr = [];
@@ -200,38 +200,8 @@ export default function App(){
         return Math.max(...IDArr)
     }
 
-    function cellMarkerPosition_top(arr) {
-        return arr.slice(0,Math.min(trIndex,lastSelectedTrIndex)).reduce((a,b)=>a+b,0)
-    }
-
-    function cellMarkerPosition_height(arr) {
-        return arr.slice(Math.min(trIndex,lastSelectedTrIndex),Math.max(trIndex,lastSelectedTrIndex) + 1).reduce((a,b) => a+b,0)
-    }
-
-    //修改字体大小，改变标记框大小
-    function changeFontSize() {
-        const ro = new ResizeObserver( entries => {
-            let newCellSize = {};
-            let heights = [];
-            for (let entry of entries) {
-                const rows = entry.target.rows;
-                for(let row of rows){
-                    heights.push(row.clientHeight);
-                }
-            }
-            newCellSize.height = heights;
-            dispatch_cellMarker({type:"top",value:cellMarkerPosition_top(heights)});
-            dispatch_cellMarker({type:"height",value:cellMarkerPosition_height(heights)});
-        });
-        ro.observe(table_ref.current);
-        window.setTimeout(()=>{
-            ro.unobserve(table_ref.current);//取消事件监听
-        },0)
-    }
-
     //改变 cellMarker 大小，代码待优化
-    function resizeCellMarker(value,preValue,typeName,propertyName) {
-        let dif = value - preValue;
+    function resizeTableSize(value,typeName,propertyName) {
         if(typeName === "tableAmount"){
             if(propertyName === "cols"){
                 changeColsCount(value,dynamicHead,dynamicData)
@@ -240,37 +210,29 @@ export default function App(){
             }
         }
         else if(typeName === "tableWidth"){
-            const count = controlData.tableAmount.cols,preCount = controlData.tableAmount.cols;
+            const count = controlData.tableAmount.cols, preCount = controlData.tableAmount.cols;
             let newCellSize = recalculate_CellSize(count,preCount,value,cellSize,cellMinWidth);
-            dispatch_cellMarker({type:"left",value:newCellSize.width.slice(0,Math.min(tdIndex,lastSelectedTdIndex)).reduce((a,b)=>a+b,0)});
-            dispatch_cellMarker({type:"width",value:newCellSize.width.slice(Math.min(tdIndex,lastSelectedTdIndex),Math.max(tdIndex,lastSelectedTdIndex) + 1).reduce((a,b) => a+b,0)});
-            getCellSize({...cellSize,...newCellSize})
-        }else if(trIndex === 0 || lastSelectedTrIndex === 0){//焦点包含表头
-            if(headerIndependentStyle && typeName === "theadPadding"){
-                dispatch_cellMarker({type:"height",value:cellMarker_all.offsetHeight + dif})
-            }else if(headerIndependentStyle && typeName === "tbodyPadding"){
-                dispatch_cellMarker({type:"height",value:cellMarker_all.offsetHeight + dif * Math.abs(lastSelectedTrIndex - trIndex)})
-            }else{
-                dispatch_cellMarker({type:"height",value:cellMarker_all.offsetHeight + dif * (Math.abs(lastSelectedTrIndex - trIndex)+1)})
-            }
+            getCellSize({...cellSize,...newCellSize})}
+    }
+
+    function headerIndependentStyle_condition(data) {
+        const headerIndependentStyle_condition = 
+            data.tbodyPadding.b_top !== data.theadPadding.h_top || 
+            data.tbodyPadding.b_bottom !== data.theadPadding.h_bottom ||
+            data.fill.basicColor !== data.theadFill.basicColor ||
+            data.textStyle.basicColor !== data.theadTextStyle.basicColor ||
+            data.textStyle.fontSize !== data.theadTextStyle.fontSize ||
+            data.textStyle.fontWeight !== data.theadTextStyle.fontWeight;
+
+        if(headerIndependentStyle_condition){
+            setHeaderIndependentStyle(true)
         }else{
-            if(headerIndependentStyle && typeName === "theadPadding"){
-                dispatch_cellMarker({type:"top",value:cellMarker_all.offsetTop + dif})
-
-            }else if(headerIndependentStyle && typeName === "tbodyPadding"){
-                dispatch_cellMarker({type:"top",value:cellMarker_all.offsetTop + dif * (Math.min(lastSelectedTrIndex, trIndex) - 1)})
-                dispatch_cellMarker({type:"height",value:cellMarker_all.offsetHeight + dif * (Math.abs(lastSelectedTrIndex - trIndex) + 1)})
-
-            }else{
-                dispatch_cellMarker({type:"top",value:cellMarker_all.offsetTop + dif * Math.min(lastSelectedTrIndex, trIndex)})
-                dispatch_cellMarker({type:"height",value:cellMarker_all.offsetHeight + dif * (Math.abs(lastSelectedTrIndex - trIndex) + 1)})
-
-            }
+            setHeaderIndependentStyle(false)
         }
     }
 
     //从模板更新页面数据
-    function refreshDataFromComponent(){
+    const refreshDataFromComponent = React.useCallback(() => {
         createIDB().then((db)=>{
             const defaultStorageData_result = Promise.resolve(getAllValue(db,defaultStoreName));
             const historyStorageData_result = Promise.resolve(getAllValue(db,defaultHistoryName));
@@ -302,34 +264,27 @@ export default function App(){
                 }})
                 
                 const {basicColor,intervalColor,switchState} = data.controlData.fill;
+
                 if(switchState === true){
                     setLastPickedColor(intervalColor === "" ? basicColor : intervalColor);
                 }else if(switchState === false){
                     setLastPickedColor(basicColor);
                 }
-                setHeaderIndependentStyle(false);
+
+                headerIndependentStyle_condition(data.controlData);
             })
         })
-    }
+    },[])
 
     function getControlData(name, data) {
-        //用来判断表头样式和表格样式是否全等。如果不全等就让样式独立编辑。
-        const headerIndependentStyle_condition = 
-            controlData.tbodyPadding.b_top !== controlData.theadPadding.h_top || 
-            controlData.tbodyPadding.b_bottom !== controlData.theadPadding.h_bottom ||
-            controlData.fill.basicColor !== controlData.theadFill.basicColor ||
-            controlData.textStyle.basicColor !== controlData.theadTextStyle.basicColor ||
-            controlData.textStyle.fontSize !== controlData.theadTextStyle.fontSize ||
-            controlData.textStyle.fontWeight !== controlData.theadTextStyle.fontWeight;
 
-        if(headerIndependentStyle_condition){
-            setHeaderIndependentStyle(true)
-        }
+        //用来判断表头样式和表格样式是否全等。如果不全等就让样式独立编辑。
+        headerIndependentStyle_condition(controlData)
 
         //同步表格样式数据至表头
         function syncControlData() {
             let syncData = {}
-            if(!headerIndependentStyle){       
+            if(!headerIndependentStyle){     
                 switch (name) {
                     case "tbodyPadding":
                         const {b_top,b_bottom} = data.tbodyPadding
@@ -425,29 +380,16 @@ export default function App(){
             cellSize:{...cellSize,...newCellSize}
         }})
 
-        let cellMarker_all_left = null,cellMarker_all_width = null;
+        //重新设置高亮框的位置
+        if(Math.min(tdIndex,lastSelectedTdIndex) + 1 > count){
+            getTdIndex(null);
+        }else if(Math.min(tdIndex,lastSelectedTdIndex)+1 <= count && Math.max(tdIndex,lastSelectedTdIndex) + 1 > count){
+            getTdIndex(Math.min(tdIndex,lastSelectedTdIndex));
+            getLastSelectedTdIndex(count-1);
+        }else{
+            return
+        }
 
-        //重新设置高亮框的左侧
-        if(Math.min(tdIndex,lastSelectedTdIndex) + 1 > count){
-            cellMarker_all_left = -100;
-        }else{
-            cellMarker_all_left = newCellSize.width.slice(0,Math.min(tdIndex,lastSelectedTdIndex)).reduce((a,b)=>a+b,0);
-        }
-        //重新设置高亮框的宽度
-        if(Math.min(tdIndex,lastSelectedTdIndex) + 1 > count){
-            cellMarker_all_width = 0;
-        }else if((Math.max(tdIndex,lastSelectedTdIndex) + 1) < count){
-            cellMarker_all_width = newCellSize.width.slice(Math.min(tdIndex,lastSelectedTdIndex),Math.max(tdIndex,lastSelectedTdIndex)+1).reduce((a,b)=>a+b,0);
-        }else{
-            cellMarker_all_width = newCellSize.width.slice(Math.min(tdIndex,lastSelectedTdIndex),count+1).reduce((a,b)=>a+b,0);
-        }
-        dispatch_cellMarker({type:"left",value:cellMarker_all_left})
-        dispatch_cellMarker({type:"width",value:cellMarker_all_width})
-        // setCellMarker_all({
-        //     ...cellMarker_all,
-        //     offsetLeft:cellMarker_all_left,
-        //     offsetWidth:cellMarker_all_width
-        // })
     }
 
     function changeRowsCount(count,renderHead,renderData){
@@ -471,21 +413,14 @@ export default function App(){
             controlData:{...controlData,tableAmount:{...controlData.tableAmount,rows:count}}
         }})
 
-        let cellMarker_all_height = null;
         if(Math.min(trIndex,lastSelectedTrIndex) > count){
-            cellMarker_all_height = 0;
-        }else if(Math.max(trIndex,lastSelectedTrIndex) < count){
-            cellMarker_all_height = cellMarker_all.offsetHeight;
+            getTrIndex(null);
+        }else if(Math.min(trIndex,lastSelectedTrIndex) < count && Math.max(trIndex,lastSelectedTrIndex) > count){
+            getTrIndex(Math.min(trIndex,lastSelectedTrIndex));
+            getLastSelectedTrIndex(count);
         }else{
-            cellMarker_all_height = cellMarker_all.offsetHeight * ((count - Math.min(trIndex,lastSelectedTrIndex) + 1)/(Math.max(trIndex,lastSelectedTrIndex) - Math.min(trIndex,lastSelectedTrIndex) + 1));
+            return
         }
-        dispatch_cellMarker({type:"top",value:trIndex+1 > count ? -100 : cellMarker_all.offsetTop})
-        dispatch_cellMarker({type:"height",value:cellMarker_all_height})
-        // setCellMarker_all({
-        //     ...cellMarker_all,
-        //     offsetTop:trIndex+1 > count ? -100 : cellMarker_all.offsetTop,
-        //     offsetHeight:cellMarker_all_height
-        // })
     }
 
     //切换模板更新初始数据
@@ -516,7 +451,7 @@ export default function App(){
     //页面加载时，加载一次本地存储的数据
     React.useEffect(()=>{
         refreshDataFromComponent();
-    },[])
+    },[refreshDataFromComponent])
 
     function clipboard(e) {
         console.log(e.target.tagName)
@@ -580,6 +515,7 @@ export default function App(){
                 trIndex = {trIndex}
                 tdIndex = {tdIndex}
                 lastSelectedTdIndex = {lastSelectedTdIndex}
+                lastSelectedTrIndex = {lastSelectedTrIndex}
                 cellMarker_first = {cellMarker_first}
                 cellMarker_all = {cellMarker_all}
                 getTrIndex = {getTrIndex}
@@ -611,10 +547,10 @@ export default function App(){
             />
 
             <ConstrolSlider 
-                changeFontSize = {changeFontSize}
-                resizeCellMarker = {resizeCellMarker}
+                resizeTableSize = {resizeTableSize}
                 lastPickedColor={lastPickedColor}
                 getLastPickedColor = {getLastPickedColor}
+                getCellMarker_all = {getCellMarker_all}
                 defaultStorageData={defaultStorageData}
                 historyStorageData={historyStorageData}
                 updateData={refreshDataFromComponent}

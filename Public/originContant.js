@@ -31,7 +31,7 @@ const originControlData = {
         intervalColor:"#EDEDED"
     },
     theadFill:{
-        basicColor:"#FFFFFF"
+        basicColor:"#F5F5F5"
     },
     textStyle:{
         basicColor:"#333333",
@@ -41,7 +41,7 @@ const originControlData = {
     theadTextStyle:{
         basicColor:"#333333",
         fontSize:"14",
-        fontWeight:"regular"
+        fontWeight:"bold"
     }
 }
 
@@ -66,4 +66,11 @@ const originData = [
     {rowID:4,1:"具",2:"",3:"",4:"",key:uuidv4()}
 ]
 
-export {originControlData, originCellSize, originHead, originData};
+const initialCellMarker = {
+    offsetLeft:-100,
+    offsetTop:-100,
+    offsetWidth:0,
+    offsetHeight:0
+}
+
+export {originControlData, originCellSize, originHead, originData, initialCellMarker};

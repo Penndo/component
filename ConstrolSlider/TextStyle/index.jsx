@@ -7,7 +7,7 @@ import styles from "./index.module.less"
 
 class TextStyleSetting extends React.Component {
     render(){
-        const {type,typeName,getValue,data,changeFontSize} = this.props;
+        const {type,typeName,getValue,data} = this.props;
         return(
             <div>
                 <p>{type}</p>
@@ -16,7 +16,7 @@ class TextStyleSetting extends React.Component {
                         <ColorPicker style={{ width: 62, height: 24}} defaultColor={data.basicColor} typeName={typeName} propertyName="basicColor" getValue={getValue}/>
                         <label>颜色</label>
                     </div>
-                    <TextInput style={{width:62}} labelDisplay={"block"} hasPreInstall={true} preInstallOptions={[12,14,16,20]} readOnly={true} label = "字号" defaultValue={data.fontSize} typeName={typeName} propertyName="fontSize" inputType="number"  getValue={getValue} changeFontSize={changeFontSize}/>
+                    <TextInput style={{width:62}} labelDisplay={"block"} hasPreInstall={true} preInstallOptions={[12,14,16,20]} readOnly={true} label = "字号" defaultValue={data.fontSize} typeName={typeName} propertyName="fontSize" inputType="number"  getValue={getValue} />
                     <TextInput style={{width:132}} labelDisplay={"block"} hasPreInstall={true} preInstallOptions={["light", "regular", "bold"]} readOnly={false} label = "字重" defaultValue={data.fontWeight} typeName={typeName} propertyName="fontWeight"  getValue={getValue}/>
                 </div>
             </div>

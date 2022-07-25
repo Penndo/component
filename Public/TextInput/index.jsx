@@ -34,9 +34,6 @@ class TextInput extends React.Component {
         this.setState({
             defaultValue:value
         })
-        if(this.props.changeFontSize){
-            this.props.changeFontSize();
-        }
     }
 
     componentDidUpdate(prevProps){
@@ -67,8 +64,8 @@ class TextInput extends React.Component {
             showOptions:false
         })
 
-        if(this.props.resizeCellMarker){
-            this.props.resizeCellMarker(value,this.props.defaultValue,this.props.typeName,this.props.propertyName)
+        if(this.props.resizeTableSize){
+            this.props.resizeTableSize(value,this.props.typeName,this.props.propertyName)
         }
         if(this.props.changeFontSize){
             this.props.changeFontSize();
@@ -110,6 +107,11 @@ class TextInput extends React.Component {
                     onChange={!readOnly ? this.onChange : this.nothingChanged} 
                     onFocus={this.focus}
                     onBlur={this.onBlur} 
+                    onKeyDown = {(e)=>{
+                        if(e.code === "Enter" || e.keyCode === 13){
+                            this.onBlur()
+                        }
+                    }}
                     name={name} 
                     value={defaultValue} 
                     placeholder={placeholder}

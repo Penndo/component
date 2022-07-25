@@ -2,33 +2,28 @@ import * as React from "react"
 import { useRef, useState } from "react"
 import { v4 as uuidv4 } from "uuid"
 import TableEdit from "./TableEdit"
+import { initialCellMarker } from "../Public/originContant"
 
 import styles from "./index.module.less"
-
-function getOffsetSize(e) {
-    const element = e.currentTarget;
-    return {
-        offsetTop:element.offsetTop,
-        offsetLeft:element.offsetLeft,
-        offsetWidth:element.offsetWidth,
-        offsetHeight:element.offsetHeight
-    }
-}
 
 export default function Table(props) {
 
     const {controlData,cellSize,colID,rowID,getColID,getRowID,renderHead,renderData, getCellSize, getRenderData, getRenderHead,getDynamicHead,getDynamicData,table_ref,changeColsCount,changeRowsCount,
-        trIndex,tdIndex,lastSelectedTdIndex,cellMarker_first,cellMarker_all,getTrIndex,getTdIndex,getLastSelectedTrIndex,getLastSelectedTdIndex,getCellMarker_first,getCellMarker_all,clipboard
+        trIndex,tdIndex,lastSelectedTdIndex,lastSelectedTrIndex,cellMarker_all,getTrIndex,getTdIndex,getLastSelectedTrIndex,getLastSelectedTdIndex,getCellMarker_all,clipboard
     } = props;
     const {b_top,b_right,b_bottom,b_left} = controlData.tbodyPadding;
     const {h_top,h_bottom} = controlData.theadPadding;
     const tableWidth = controlData.tableWidth;
     const reservedWidth = (b_left*1 + b_right*1) + "px";
     
-    const [rightPanelDisplay, setRightPanelDisplay] = useState("none");
+    const [rightPanelState, setRightPanelState] = useState({
+        display:false,
+        area:null
+    });
 
     const rightPanel = useRef(null);
     const cellMarker = useRef(null);
+    const [dragSelectCells,setDragSelectCells] = useState(false)
 
     //获取当前事件的位置
     function eventPosition(e) {
@@ -37,7 +32,6 @@ export default function Table(props) {
         let currentTr = currentTd.parentNode;
 
         let tds = currentTr.childNodes
-        // let trs = currentTr.parentNode.childNodes
         let trs = table_ref.current.rows;
 
         let tdIndex = Array.from(tds).indexOf(currentTd);
@@ -49,6 +43,7 @@ export default function Table(props) {
     function keyDown(e) {
         const {trIndex,tdIndex} = eventPosition(e);
         let table = table_ref.current.childNodes;
+        console.log(table)
         let thead = Array.from(table).find((element) => element.tagName === "THEAD");
         let tbody = Array.from(table).find((element) => element.tagName === "TBODY");
 
@@ -151,35 +146,56 @@ export default function Table(props) {
         }
     }
 
+    React.useEffect(()=>{
+        if(trIndex !== null && tdIndex !== null){
+            const firstRows = table_ref.current.rows[trIndex];
+            const firstCell = Array.from(firstRows.childNodes)[tdIndex];
+            const lastRows = table_ref.current.rows[lastSelectedTrIndex];
+            const lastCell =  Array.from(lastRows.childNodes)[lastSelectedTdIndex];
+
+            const firstTop = firstCell.offsetTop;
+            const firstLeft = firstCell.offsetLeft;
+            const firstWidth = firstCell.offsetWidth;
+            const firstHeight = firstCell.offsetHeight;
+
+            const lastTop = lastCell.offsetTop;
+            const lastLeft = lastCell.offsetLeft;
+            const lastWidth = lastCell.offsetWidth;
+            const lastHeight = lastCell.offsetHeight;
+
+            const originX = lastLeft >= firstLeft ? firstLeft : lastLeft;
+            const originY = lastTop >= firstTop ? firstTop : lastTop;
+            const width = lastLeft >= firstLeft ? Math.abs(lastLeft - firstLeft) + lastWidth : Math.abs(lastLeft - firstLeft) + firstWidth;
+            const height = lastTop >= firstTop ? Math.abs(lastTop - firstTop) + lastHeight : Math.abs(lastTop - firstTop) + firstHeight;
+
+            getCellMarker_all({            
+                offsetTop:originY,
+                offsetLeft:originX,
+                offsetWidth:width,
+                offsetHeight:height
+            });
+        }else {
+            getCellMarker_all(initialCellMarker);
+        }
+    },[table_ref,trIndex,tdIndex,lastSelectedTdIndex,lastSelectedTrIndex,getCellMarker_all,controlData.tableWidth,controlData.tbodyPadding,controlData.theadPadding,controlData.tableAmount,controlData.textStyle.fontSize,cellSize])
+
     function focus_cell(e) {
-        const cell = e.currentTarget;
-        getCellMarker_all({
-            offsetLeft:cell.offsetLeft,
-            offsetTop:cell.offsetTop,
-            offsetWidth:cell.offsetWidth,
-            offsetHeight:cell.offsetHeight
-        })
+        const {trIndex,tdIndex} = eventPosition(e);
+        getTdIndex(tdIndex);
+        getTrIndex(trIndex);
+        getLastSelectedTdIndex(tdIndex);
+        getLastSelectedTrIndex(trIndex);
     }
 
-    const [dragSelectCells,setDragSelectCells] = useState(false)
-
     function selectCells_first(e){
-        if(e.button !== 0) return;
         const {trIndex,tdIndex} = eventPosition(e);
-        const {offsetTop,offsetLeft,offsetWidth,offsetHeight} = getOffsetSize(e);
-        setDragSelectCells(true);
-        getCellMarker_first({            
-            offsetTop:offsetTop,
-            offsetLeft:offsetLeft,
-            offsetWidth:offsetWidth,
-            offsetHeight:offsetHeight
-        });
-        getCellMarker_all({            
-            offsetTop:offsetTop,
-            offsetLeft:offsetLeft,
-            offsetWidth:offsetWidth,
-            offsetHeight:offsetHeight
-        });
+
+        if(e.button === 0){
+            setDragSelectCells(true);
+        }else{
+            setDragSelectCells(false);
+        }
+        
         getTdIndex(tdIndex);
         getTrIndex(trIndex);
         getLastSelectedTdIndex(tdIndex);
@@ -188,23 +204,7 @@ export default function Table(props) {
 
     function selectCells_another(e) {
         const {trIndex,tdIndex} = eventPosition(e);
-        const {offsetTop,offsetLeft,offsetWidth,offsetHeight} = getOffsetSize(e)
-
         if(dragSelectCells){
-            let width,height,originX,originY;
-
-            originX = cellMarker_first.offsetLeft >= offsetLeft ? offsetLeft : cellMarker_first.offsetLeft;
-            originY = cellMarker_first.offsetTop >= offsetTop ? offsetTop : cellMarker_first.offsetTop;
-            width = cellMarker_first.offsetLeft >= offsetLeft ? Math.abs(cellMarker_first.offsetLeft - offsetLeft) + cellMarker_first.offsetWidth : Math.abs(cellMarker_first.offsetLeft - offsetLeft) + offsetWidth;
-            height = cellMarker_first.offsetTop >= offsetTop ? Math.abs(cellMarker_first.offsetTop - offsetTop) + cellMarker_first.offsetHeight : Math.abs(cellMarker_first.offsetTop - offsetTop) + offsetHeight;
-
-            getCellMarker_all({            
-                offsetTop:originY,
-                offsetLeft:originX,
-                offsetWidth:width,
-                offsetHeight:height
-            });
-
             getLastSelectedTrIndex(trIndex);
             getLastSelectedTdIndex(tdIndex);
         }
@@ -240,7 +240,10 @@ export default function Table(props) {
     //自定义右键菜单
     function forRight(e) {
         e.preventDefault()
-        setRightPanelDisplay("block")
+        setRightPanelState({
+            display:true,
+            area:e.target
+        })
         //获取当前鼠标的坐标
         const clickX = e.clientX
         const clickY = e.clientY
@@ -258,21 +261,28 @@ export default function Table(props) {
 
     //隐藏右键
     function handleDocument(){
-        setRightPanelDisplay("none")
+        setRightPanelState({
+            ...rightPanelState,
+            display:false
+        })
         //隐藏后移除全局事件。
         document.removeEventListener("click",handleDocument)
     }
 
     //增减行
     function changeRow(how){
+        console.log(trIndex)
         return function() {
             let insert = renderData.slice()
             switch (how) {
                 case "after":
                     insert.splice(trIndex, 0, {key:uuidv4(),rowID:rowID+1});
+                    getTrIndex(trIndex + 1);
+                    getLastSelectedTrIndex(trIndex + 1)
                     break;
                 case "front":
                     insert.splice(trIndex-1, 0, {key:uuidv4(),rowID:rowID+1});
+                    console.log(trIndex + 1)
                     break;
                 case "remove":
                     insert.splice(trIndex-1, 1)
@@ -280,9 +290,12 @@ export default function Table(props) {
                 default:
                     break;
             }
-            changeRowsCount(insert.length,renderHead,insert)
-            setRightPanelDisplay("none");
-            getRowID(rowID + 1)
+            changeRowsCount(insert.length,renderHead,insert);
+            setRightPanelState({
+                ...rightPanelState,
+                display:false
+            });
+            getRowID(rowID + 1);
         }
     }
 
@@ -293,6 +306,8 @@ export default function Table(props) {
             switch (how) {
                 case "after":
                     insert.splice(tdIndex + 1, 0, {key:uuidv4(),colID:colID+1});
+                    getTdIndex(tdIndex + 1)
+                    getLastSelectedTdIndex(tdIndex + 1)
                     break;
                 case "front":
                     insert.splice(tdIndex, 0, {key:uuidv4(),colID:colID+1});
@@ -304,7 +319,10 @@ export default function Table(props) {
                     break;
             }
             changeColsCount(insert.length,insert,renderData);
-            setRightPanelDisplay("none");
+            setRightPanelState({
+                ...rightPanelState,
+                display:false
+            });
             getColID(colID + 1)
         }
     }
@@ -313,16 +331,20 @@ export default function Table(props) {
     function duplicateRow(){
         return function() {
             let insert = renderData.slice();
-            let copiedRow = insert[trIndex];
+            let copiedRow = insert[trIndex-1];
             let keyWords = {
                 key:uuidv4(),rowID:rowID+1
             };
             let merged = {...copiedRow,...keyWords};
-
-            insert.splice(trIndex + 1, 0, merged);
+            insert.splice(trIndex, 0, merged);
             changeRowsCount(insert.length,renderHead,insert)
-            setRightPanelDisplay("none");
-            getRowID(rowID + 1)
+            setRightPanelState({
+                ...rightPanelState,
+                display:false
+            });
+            getRowID(rowID + 1);
+            getTrIndex(trIndex+1);
+            getLastSelectedTrIndex(trIndex+1);
         }
     }
 
@@ -340,8 +362,13 @@ export default function Table(props) {
             });
 
             changeColsCount(insert_Head.length,insert_Head,insert_Data)
-            setRightPanelDisplay("none");
-            getColID(colID + 1)
+            setRightPanelState({
+                ...rightPanelState,
+                display:false
+            });
+            getColID(colID + 1);
+            getTdIndex(tdIndex + 1);
+            getLastSelectedTdIndex(tdIndex + 1);
         }
     }
 
@@ -349,15 +376,18 @@ export default function Table(props) {
     function clearRow(){
         return function() {
             let insert = renderData.slice();
-            let willClearRow = insert[trIndex];
+            let willClearRow = insert[trIndex-1];
 
             for(let property in willClearRow){
                 if(property !== "key" && property !== rowID){
-                    insert[trIndex][property] = ""
+                    insert[trIndex-1][property] = ""
                 }
             };
             changeRowsCount(insert.length,renderHead,insert)
-            setRightPanelDisplay("none");
+            setRightPanelState({
+                ...rightPanelState,
+                display:false
+            });
         }
     }
 
@@ -373,7 +403,10 @@ export default function Table(props) {
             });
 
             changeColsCount(insert_Head.length,insert_Head,insert_Data)
-            setRightPanelDisplay("none");
+            setRightPanelState({
+                ...rightPanelState,
+                display:false
+            });
         }
     }
 
@@ -451,8 +484,6 @@ export default function Table(props) {
         }
     }
 
-
-    
     //鼠标移动的时候
     function onMouseMove(event){
         let current, lists, listsArr, currentIndex;
@@ -557,27 +588,6 @@ export default function Table(props) {
             cellSize.width = newstWidthArr;
             cellSize.height = newstHeightArr;
             getCellSize(cellSize);
-
-            if(tdIndex === null && lastSelectedTdIndex === null) return;
-
-            let first = Array.from(event.target.parentNode.childNodes)[tdIndex]
-            let last = Array.from(event.target.parentNode.childNodes)[lastSelectedTdIndex]
-            if(tdIndex === lastSelectedTdIndex){
-                getCellMarker_all({
-                    ...cellMarker_all,
-                    offsetLeft:first.offsetLeft-24,
-                    offsetWidth:first.offsetWidth
-                })
-            }else{
-                let width,originX;
-                originX = first.offsetLeft >= last.offsetLeft ? last.offsetLeft : first.offsetLeft;
-                width = Math.abs(first.offsetLeft - last.offsetLeft) + (first.offsetLeft >= last.offsetLeft ? first.offsetWidth :  last.offsetWidth);
-                getCellMarker_all({      
-                    ...cellMarker_all,      
-                    offsetLeft:originX-24,
-                    offsetWidth:width,
-                });
-            }
         }
     }
 
@@ -601,21 +611,25 @@ export default function Table(props) {
 
     return (
         <div className={styles.leftPart}>
-            <div className={styles.rightPanel} ref={rightPanel} >
-                <TableEdit 
-                    display={rightPanelDisplay}
-                    addRowOnTop={changeRow("front")} 
-                    addRowOnBottom={changeRow("after")}
-                    addColLeft={changeCol("front")}
-                    addColRight={changeCol("after")}
-                    removeCurrentRow={changeRow("remove")}
-                    removeCurrentCol={changeCol("remove")}
-                    duplicateRow = {duplicateRow()}
-                    duplicateCol = {duplicateCol()}
-                    clearRow = {clearRow()}
-                    clearCol = {clearCol()}
-                />
-            </div>
+            <div className={styles.rightPanel} ref={rightPanel} onContextMenu={(e)=>{e.preventDefault()}} >
+                {
+                    rightPanelState.display ?                 
+                    <TableEdit 
+                        rightPanelState={rightPanelState}
+                        addRowOnTop={changeRow("front")} 
+                        addRowOnBottom={changeRow("after")}
+                        addColLeft={changeCol("front")}
+                        addColRight={changeCol("after")}
+                        removeCurrentRow={changeRow("remove")}
+                        removeCurrentCol={changeCol("remove")}
+                        duplicateRow = {duplicateRow()}
+                        duplicateCol = {duplicateCol()}
+                        clearRow = {clearRow()}
+                        clearCol = {clearCol()}
+                    />:
+                    null
+                }
+            </div> 
             <ul 
                 style={{
                     width:cellSize.width.reduce((a,b)=>a+b,0),
@@ -682,6 +696,7 @@ export default function Table(props) {
                                     }
                                     onDoubleClick = {activateInputBox}
                                     onPaste={clipboard}
+                                    onContextMenu={forRight}
                                     key={cell["key"]}
                                     style={{
                                         outline:"none",

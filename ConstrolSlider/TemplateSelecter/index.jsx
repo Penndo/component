@@ -2,6 +2,7 @@ import * as React from "react";
 import {createIDB,update} from "../../Public/IDB"
 import styles from './index.module.less';
 import Options from "../../Public/Options";
+import { initialCellMarker } from "../../Public/originContant";
 
 const defaultHistoryName = "historyStore";
 const defaultSelection = "默认内容"
@@ -18,16 +19,13 @@ class TemplateSelecter extends React.Component {
 
     //props 更新后 更新 state
     componentDidUpdate(prevProps){
-
         if(this.props.historyStorageData !== prevProps.historyStorageData){
-            
             if(this.props.historyStorageData.length){
                 if(this.state.inputValue === defaultSelection){
                     this.setState({inputValue:defaultSelection})
                 }else{
                     this.setState({inputValue:this.props.historyStorageData[0].history})
                 }
-                
             }else{
                 this.setState({inputValue:""})
             }
@@ -70,6 +68,9 @@ class TemplateSelecter extends React.Component {
         });
 
         this.props.getModalName(value);
+        if(value !== this.state.inputValue){
+            this.props.getCellMarker_all(initialCellMarker)
+        }
 
         if(value !== defaultSelection){
             createIDB().then((db)=>{
