@@ -31,99 +31,78 @@ export default function Table(props) {
         let currentTd = e.target.tagName === "TD" || e.target.tagName === "TH" ? e.target : e.target.parentNode;
         let currentTr = currentTd.parentNode;
 
-        let tds = currentTr.childNodes
-        let trs = table_ref.current.rows;
+        let cols = currentTr.childNodes
+        let rows = table_ref.current.rows;
 
-        let tdIndex = Array.from(tds).indexOf(currentTd);
-        let trIndex = Array.from(trs).indexOf(currentTr);
+        let tdIndex = Array.from(cols).indexOf(currentTd);
+        let trIndex = Array.from(rows).indexOf(currentTr);
        
         return {"tdIndex":tdIndex,"trIndex":trIndex}
     }
 
     function keyDown(e) {
-        const {trIndex,tdIndex} = eventPosition(e);
-        let table = table_ref.current.childNodes;
-        let thead = Array.from(table).find((element) => element.tagName === "THEAD");
-        let tbody = Array.from(table).find((element) => element.tagName === "TBODY");
 
+        const {trIndex,tdIndex} = eventPosition(e);
+        let rows = table_ref.current.rows
         let maxRows = renderData.length
         let maxCols = renderHead.length
 
         //目标对象是 INPUT
         if(e.target.tagName === "INPUT"){
+
             if(e.keyCode === 13){
                 let cell;
-
-                switch (e.target.parentNode.tagName) {
-                    //不同位置的跳跃情况
-                    case "TH":
-                        cell = tbody.rows[0].childNodes[tdIndex];
-                        break;
-                    case "TD":
-                        if(trIndex === maxRows && tdIndex === maxCols - 1){
-                            cell = thead.rows[0].childNodes[0];
-                        }else if(trIndex === maxRows){
-                            cell = thead.rows[0].childNodes[tdIndex+1];
-                        }else{
-                            cell = tbody.rows[trIndex].childNodes[tdIndex];
-                        }
-                        break;
-                    default:
-                        break;
+                if(trIndex === maxRows && tdIndex === maxCols - 1){
+                    cell = rows[0].childNodes[0];
+                }else if(trIndex === maxRows){
+                    cell = rows[0].childNodes[tdIndex+1];
+                }else{
+                    cell = rows[trIndex+1].childNodes[tdIndex];
                 }
+
                 cell.focus();
             }
-        //点击对象是 TD 或者 TH
+
+        //目标对象是 TD 或者 TH
         }else if(e.target.tagName === "TD" || e.target.tagName === "TH"){
 
             if(e.keyCode === 9 || e.keyCode === 37 || e.keyCode === 38 || e.keyCode === 39 || e.keyCode === 40){
                 //阻止 tab 的自动聚焦到下一个聚焦点。但是 input 中没有执行此操作，所以 input 点击 tab 可以顺利跳到下一个聚焦点。
                 e.preventDefault();
-                let cell;
-                switch (e.target.tagName) {
-                    //不同位置的跳跃情况
-                    case "TH":
-                        if(e.keyCode === 9){
-                            if(tdIndex === maxCols -1){
-                                cell = tbody.rows[0].childNodes[0]
-                            }else{
-                                cell = thead.rows[0].childNodes[tdIndex+1];
-                            }
-                        }else if(e.keyCode === 37 && tdIndex !== 0){
-                            cell = thead.rows[0].childNodes[tdIndex-1];
-                        }else if(e.keyCode === 39 && tdIndex !== maxCols - 1){
-                            cell = thead.rows[0].childNodes[tdIndex+1];
-                        }else if(e.keyCode === 40){
-                            cell = tbody.rows[0].childNodes[tdIndex]
+                let cell = rows[trIndex].childNodes[tdIndex];
+                switch (e.keyCode) {
+                    case 9:
+                        if(tdIndex === maxCols -1){
+                            cell = rows[trIndex + 1].childNodes[0]
                         }else{
-                            return;
+                            cell = rows[trIndex].childNodes[tdIndex+1];
                         }
                         break;
-                    case "TD":
-                        if(e.keyCode === 9){
-                            if(trIndex === maxRows && tdIndex === maxCols - 1){
-                                cell = thead.rows[0].childNodes[0];
-                            }else if(tdIndex === maxCols - 1){
-                                cell = tbody.rows[trIndex].childNodes[0];
-                            }else{
-                                cell = tbody.rows[trIndex-1].childNodes[tdIndex+1];
-                            }
-                        }else if(e.keyCode === 37 && tdIndex !== 0){
-                            cell = tbody.rows[trIndex - 1].childNodes[tdIndex-1];
-                        }else if(e.keyCode === 38){
-                            cell = trIndex===1 ? thead.rows[0].childNodes[tdIndex] : tbody.rows[trIndex-2].childNodes[tdIndex]
-                        }else if(e.keyCode === 39 && tdIndex !== maxCols - 1){
-                            cell = tbody.rows[trIndex - 1].childNodes[tdIndex + 1];
-                        }else if(e.keyCode === 40 && trIndex !== maxRows){
-                            cell = tbody.rows[trIndex].childNodes[tdIndex];
-                        }else {
-                            return;
+                    case 37:
+                        if(tdIndex !== 0){
+                            cell = rows[trIndex].childNodes[tdIndex-1];
+                        }
+                        break;
+                    case 38:
+                        if(trIndex !== 0){
+                            cell = rows[trIndex - 1].childNodes[tdIndex]
+                        }
+                        break;
+                    case 39:
+                        if(tdIndex !== maxCols - 1){
+                            cell = rows[trIndex].childNodes[tdIndex + 1]
+                        }
+                        break;
+                    case 40:
+                        if(trIndex !== maxRows){
+                            cell = rows[trIndex + 1].childNodes[tdIndex]
                         }
                         break;
                     default:
                         break;
                 }
                 cell.focus();
+
             }else if(e.keyCode !== 91 && 
                     e.keyCode !== 93 && 
                     e.keyCode !== 17 && 
@@ -188,13 +167,11 @@ export default function Table(props) {
 
     function selectCells_first(e){
         const {trIndex,tdIndex} = eventPosition(e);
-
         if(e.button === 0){
             setDragSelectCells(true);
         }else{
             setDragSelectCells(false);
         }
-        
         getTdIndex(tdIndex);
         getTrIndex(trIndex);
         getLastSelectedTdIndex(tdIndex);
@@ -644,7 +621,7 @@ export default function Table(props) {
                                 width:cellSize.width.length ? cellSize.width[index] : defaultCellWidth,
                             }}
                         >
-                            {cell["serialNumber"]}
+                            {cell["serialNumber"]*1 + 1}
                         </li>
                     )
                 })}
