@@ -28,8 +28,8 @@ class ButtonGroup extends React.Component {
             newCellSize.width = cellSize.width;
             newCellSize.height = newstHeightArr;
 
-            // postMessage('insert',renderHead,renderData,controlData,newCellSize,modalName);
-            console.log(renderHead,renderData,controlData,newCellSize,modalName);
+            postMessage('insert',renderHead,renderData,controlData,newCellSize,modalName);
+            // console.log(renderHead,renderData,controlData,newCellSize,modalName);
         }
     }
     //点击取消的时候需要关闭窗口
