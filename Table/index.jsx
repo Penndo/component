@@ -23,7 +23,7 @@ export default function Table(props) {
 
     const rightPanel = useRef(null);
     const cellMarker = useRef(null);
-    const [dragSelectCells,setDragSelectCells] = useState(false)
+    const [dragSelectCells,setDragSelectCells] = useState(false);
 
     //获取当前事件的位置
     function eventPosition(e) {
@@ -43,7 +43,6 @@ export default function Table(props) {
     function keyDown(e) {
         const {trIndex,tdIndex} = eventPosition(e);
         let table = table_ref.current.childNodes;
-        console.log(table)
         let thead = Array.from(table).find((element) => element.tagName === "THEAD");
         let tbody = Array.from(table).find((element) => element.tagName === "TBODY");
 
@@ -419,8 +418,6 @@ export default function Table(props) {
         mousePositon:"",
         indexOfCurrentCell:""
     });
-
-    const [enough,setEnough] = useState([]);
     
     //给一个初始的单元格宽度，表格宽度除以表头数量然后取整。
     const defaultCellWidth = Math.floor(tableWidth / renderHead.length);
@@ -503,63 +500,61 @@ export default function Table(props) {
 
         //鼠标按下的时候已经将表格的拖动状态设置为 true
         if(draggableCells.draggable === true){
-    
+
+            const minWidth = Number(b_left) + Number(b_right) + 8;
+            const currentIndex = draggableCells.indexOfCurrentCell;
+            const currentWidth = draggableCells.currentCellWidth;
+            const variableWidthArr = draggableCells.variableCellWidthArr;
+
+
             //x的变量等于当前鼠标的 offsetX 减去 mouseDown 时初次获取的鼠标位置
             const deltaX = event.clientX - draggableCells.mousePositon;
             
             //有多少个需要改变宽度的单元格? 需要改变宽度的单元格数量是鼠标事件序号之后的所有单元格
-            const deltaCount = draggableCells.variableCellWidthArr.length - 1 - draggableCells.indexOfCurrentCell - enough.length;
-            
+            const deltaCount = variableWidthArr.length - currentIndex - 1;
+
             //基础增量，每一个单元格增加的量：deltaX 减去 除不净（deltaX % 要改变宽度的单元格数量）的量，然后再除以要改变宽度的单元格数量。
             const cellDeltaX = (deltaX - deltaX % deltaCount)/deltaCount;
-            
-            let minWidth = Number(b_left) + Number(b_right) + 8;
-            
+
             function maxCellWidth(i) {
                 return(
                     tableWidth - draggableCells.oldCellWidthArr.slice(0,i).reduce((a,b)=>a+b,0) - (draggableCells.oldCellWidthArr.length - 1 - i)*minWidth
                 )
             }
 
-            for(let i=0;i<draggableCells.variableCellWidthArr.length;i++){
-                if(enough.indexOf(i) === -1){
+            for(let i=0;i<variableWidthArr.length;i++){
                     
-                    if(i < draggableCells.indexOfCurrentCell){
-                        draggableCells.variableCellWidthArr[i].style.width = draggableCells.oldCellWidthArr[i] + "px" //如果小于 左右padding + 8 就不再减小了。
-                    }else if(i === draggableCells.indexOfCurrentCell){
+                    if(i < currentIndex){
+                        variableWidthArr[i].style.width = draggableCells.oldCellWidthArr[i] + "px" //如果小于 左右padding + 8 就不再减小了。
+                    }else if(i === currentIndex){
                         let width;
-                        if(draggableCells.currentCellWidth + deltaX > maxCellWidth(i) && deltaX > 0){
-                            width = maxCellWidth(i);                          
-                        }else if(draggableCells.currentCellWidth + deltaX < minWidth && deltaX < 0){
+                        if(currentWidth + deltaX > maxCellWidth(i) && deltaX > 0){
+                            width = maxCellWidth(i);
+                            onMouseUp(event);
+                        }else if(currentWidth + deltaX < minWidth && deltaX < 0){
                             width = minWidth;
                             onMouseUp(event);
                         }else{
-                            width = draggableCells.currentCellWidth + deltaX;
+                            width = currentWidth + deltaX;
                         }
-                        draggableCells.variableCellWidthArr[i].style.width = width + "px";
-
+                        variableWidthArr[i].style.width = width + "px";
                     }else if(i === currentIndex + 1){
                         let width;
                         if(draggableCells.oldCellWidthArr[i] - cellDeltaX - deltaX % deltaCount < minWidth && deltaX > 0){
                             width = minWidth;
-                            enough.push(i)
-                            setEnough(enough);
                         }else{
                             width = draggableCells.oldCellWidthArr[i] - cellDeltaX - deltaX % deltaCount;
                         }
-                        draggableCells.variableCellWidthArr[i].style.width = width + "px"
+                        variableWidthArr[i].style.width = width + "px"
                     }else{
                         let width;
                         if(draggableCells.oldCellWidthArr[i] - cellDeltaX < minWidth){
                             width = minWidth;
-                            enough.push(i)
-                            setEnough(enough);
                         }else{
                             width = draggableCells.oldCellWidthArr[i] - cellDeltaX;
                         }
-                        draggableCells.variableCellWidthArr[i].style.width = width + "px"
+                        variableWidthArr[i].style.width = width + "px"
                     }
-                }
             }    
         }
     }
@@ -572,7 +567,7 @@ export default function Table(props) {
     
     //这里导致 width.length 为 0
     function onMouseUp(event){
-        setEnough([]);
+        const variableWidthArr = draggableCells.variableCellWidthArr
         if(event.target.tagName === "LI"){
             setDraggableCells({...draggableCells,draggable:false});
             event.target.style.cursor = "default";
@@ -580,9 +575,9 @@ export default function Table(props) {
             let newstHeightArr = [];
             let cellSize = {};
         
-            for(let i=0;i<draggableCells.variableCellWidthArr.length;i++){
-                newstWidthArr.push(draggableCells.variableCellWidthArr[i].offsetWidth)
-                newstHeightArr.push(draggableCells.variableCellWidthArr[i].offsetHeight*1)
+            for(let i=0;i<variableWidthArr.length;i++){
+                newstWidthArr.push(variableWidthArr[i].offsetWidth)
+                newstHeightArr.push(variableWidthArr[i].offsetHeight*1)
             }
             
             cellSize.width = newstWidthArr;

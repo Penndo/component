@@ -60,10 +60,10 @@ const originHead = [
 
 //初始表格数据及格式
 const originData = [
-    {rowID:1,1:"表",2:"",3:"",4:"",key:uuidv4()},
-    {rowID:2,1:"格",2:"",3:"",4:"",key:uuidv4()},
-    {rowID:3,1:"工",2:"",3:"",4:"",key:uuidv4()},
-    {rowID:4,1:"具",2:"",3:"",4:"",key:uuidv4()}
+    {rowID:1,1:"",2:"",3:"",4:"",key:uuidv4()},
+    {rowID:2,1:"",2:"",3:"",4:"",key:uuidv4()},
+    {rowID:3,1:"",2:"",3:"",4:"",key:uuidv4()},
+    {rowID:4,1:"",2:"",3:"",4:"",key:uuidv4()}
 ]
 
 const initialCellMarker = {
