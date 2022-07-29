@@ -18,7 +18,6 @@ class ButtonGroup extends React.Component {
     //点击确定的时候传递数据
     transData = (renderHead,renderData,controlData,cellSize,modalName) => {
         return ()=>{
-            // const newCellSize = this.newCellSize(this.props.table_ref,cellSize)
             const tableRows = this.props.table_ref.current.rows;
             let newCellSize = {};
             let newstHeightArr = [];

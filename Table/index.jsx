@@ -542,7 +542,6 @@ export default function Table(props) {
         }
     }
     
-    //这里导致 width.length 为 0
     function onMouseUp(event){
         const variableWidthArr = draggableCells.variableCellWidthArr
         if(event.target.tagName === "LI"){
@@ -582,7 +581,18 @@ export default function Table(props) {
     }
 
     return (
-        <div className={styles.leftPart}>
+        <div className={styles.leftPart}
+            onClick = {
+                (e)=>{
+                    //node.contains(otherNode) 判断某个元素是否包含其他元素
+                    if(!table_ref.current.contains(e.target) && e.target.tagName !== "LI"){
+                        getCellMarker_all(initialCellMarker);
+                        getTdIndex(null);
+                        getTrIndex(null);
+                    }
+                }
+            }
+        >
             <div className={styles.rightPanel} ref={rightPanel} onContextMenu={(e)=>{e.preventDefault()}} >
                 {
                     rightPanelState.display ?                 
@@ -710,7 +720,6 @@ export default function Table(props) {
                                             <td
                                                 tabIndex={0}
                                                 onKeyDown = {(e)=>keyDown(e)}
-                                                // onKeyDown = {(e)=>{console.log(e.keyCode)}}
                                                 onFocus={focus_cell}
                                                 onMouseEnter={selectCells_another}
                                                 onMouseDown={selectCells_first}
@@ -722,7 +731,6 @@ export default function Table(props) {
                                                 onDoubleClick = {activateInputBox}
                                                 onPaste={clipboard}
                                                 style={{
-                                                    //隔行换色开启，且行数为奇数时，填充intervalColor, 否则填充 basicColor
                                                     outline:"none",
                                                     backgroundColor:controlData.fill.intervalColor !== "" && rowIndex%2 === 0 ? controlData.fill.intervalColor : controlData.fill.basicColor,
                                                     borderRight:controlData.border.intervalColor !== "" && cellIndex !== renderHead.length-1 ? `1px solid ${controlData.border.intervalColor}`: "none",
@@ -734,13 +742,13 @@ export default function Table(props) {
                                                 <input type="text" 
                                                     disabled = {true}
                                                     onBlur = {blur_inputBox}
-                                                    // onMouseDown={preventDefault}
                                                     onKeyDown={(e)=>keyDown(e)}
                                                     value={perObject[cell["colID"]]} 
                                                     onChange={changeTbodyValue}
                                                     style={{
                                                         width:`calc(100% - ${reservedWidth})`,
                                                         color:controlData.textStyle.basicColor,
+                                                        WebkitTextFillColor:controlData.textStyle.basicColor,
                                                         fontSize:controlData.textStyle.fontSize+"px",
                                                         fontWeight:fontWeight(controlData.textStyle.fontWeight),
                                                         marginTop:b_top+"px",
