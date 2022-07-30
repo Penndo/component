@@ -126,32 +126,39 @@ export default function Table(props) {
 
     React.useEffect(()=>{
         if(trIndex !== null && tdIndex !== null){
+
             const firstRows = table_ref.current.rows[trIndex];
-            const firstCell = Array.from(firstRows.childNodes)[tdIndex];
             const lastRows = table_ref.current.rows[lastSelectedTrIndex];
-            const lastCell =  Array.from(lastRows.childNodes)[lastSelectedTdIndex];
 
-            const firstTop = firstCell.offsetTop;
-            const firstLeft = firstCell.offsetLeft;
-            const firstWidth = firstCell.offsetWidth;
-            const firstHeight = firstCell.offsetHeight;
+            let firstCell = undefined, lastCell=undefined;
+            if(firstRows !== undefined && lastRows !== undefined){
+                firstCell = Array.from(firstRows.childNodes)[tdIndex];
+                lastCell =  Array.from(lastRows.childNodes)[lastSelectedTdIndex];
+            }
 
-            const lastTop = lastCell.offsetTop;
-            const lastLeft = lastCell.offsetLeft;
-            const lastWidth = lastCell.offsetWidth;
-            const lastHeight = lastCell.offsetHeight;
-
-            const originX = lastLeft >= firstLeft ? firstLeft : lastLeft;
-            const originY = lastTop >= firstTop ? firstTop : lastTop;
-            const width = lastLeft >= firstLeft ? Math.abs(lastLeft - firstLeft) + lastWidth : Math.abs(lastLeft - firstLeft) + firstWidth;
-            const height = lastTop >= firstTop ? Math.abs(lastTop - firstTop) + lastHeight : Math.abs(lastTop - firstTop) + firstHeight;
-
-            getCellMarker_all({            
-                offsetTop:originY,
-                offsetLeft:originX,
-                offsetWidth:width,
-                offsetHeight:height
-            });
+            if(firstCell !== undefined && lastCell !== undefined){
+                const firstTop = firstCell.offsetTop;
+                const firstLeft = firstCell.offsetLeft;
+                const firstWidth = firstCell.offsetWidth;
+                const firstHeight = firstCell.offsetHeight;
+    
+                const lastTop = lastCell.offsetTop;
+                const lastLeft = lastCell.offsetLeft;
+                const lastWidth = lastCell.offsetWidth;
+                const lastHeight = lastCell.offsetHeight;
+    
+                const originX = lastLeft >= firstLeft ? firstLeft : lastLeft;
+                const originY = lastTop >= firstTop ? firstTop : lastTop;
+                const width = lastLeft >= firstLeft ? Math.abs(lastLeft - firstLeft) + lastWidth : Math.abs(lastLeft - firstLeft) + firstWidth;
+                const height = lastTop >= firstTop ? Math.abs(lastTop - firstTop) + lastHeight : Math.abs(lastTop - firstTop) + firstHeight;
+    
+                getCellMarker_all({            
+                    offsetTop:originY,
+                    offsetLeft:originX,
+                    offsetWidth:width,
+                    offsetHeight:height
+                });
+            }
         }else {
             getCellMarker_all(initialCellMarker);
         }
