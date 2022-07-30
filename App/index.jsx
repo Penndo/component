@@ -113,8 +113,6 @@ export default function App(){
     const [fillInterval_usedCount, setFillInterval_usedCount] = React.useState(1);//隔行换色的开启次数，作为其key，每重新开启一次，重新创建一个新的组件
     const [colID, setColID] = useState(maxID(dynamicHead,"colID"))
     const [rowID, setRowID] = useState(maxID(dynamicData,"rowID"))
-    console.log(colID)
-    console.log(rowID)
     const [tdIndex, setTdIndex] = useState(null)
     const [trIndex, setTrIndex] = useState(null)
     const [lastSelectedTdIndex, setLastSelectedTdIndex] = useState(null)
