@@ -15,8 +15,8 @@ class CellAmount extends React.Component {
             <div>
                 <p>{this.props.type}</p>
                 <div className={styles["cellAmount"]}>
-                    <TextInput defaultValue = {data.cols} labelDisplay={"block"} label = "列数" typeName={typeName} propertyName="cols" readOnly={false}  getValue = {getValue} resizeTableSize = {resizeTableSize} max = {maxColsCount} min = {1}/>
-                    <TextInput defaultValue = {data.rows} labelDisplay={"block"} label = "行数" typeName={typeName} propertyName="rows" readOnly={false} getValue = {getValue} resizeTableSize = {resizeTableSize} max = {20} min = {1}/>
+                    <TextInput inputType = {"number"} defaultValue = {data.cols} labelDisplay={"block"} label = "列数" typeName={typeName} propertyName="cols" readOnly={false}  getValue = {getValue} resizeTableSize = {resizeTableSize} max = {maxColsCount} min = {1}/>
+                    <TextInput inputType = {"number"} defaultValue = {data.rows} labelDisplay={"block"} label = "行数" typeName={typeName} propertyName="rows" readOnly={false} getValue = {getValue} resizeTableSize = {resizeTableSize} max = {20} min = {1}/>
                 </div>
             </div>
         )

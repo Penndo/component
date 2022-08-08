@@ -8,7 +8,7 @@ class TableWidth extends React.Component {
         return (
             <div>
                 <p>{this.props.type}</p>
-                <TextInput defaultValue = {this.props.data} typeName = {typeName} propertyName = "tableWidth" labelDisplay = "none" readOnly={false} getValue = {getValue} resizeTableSize={resizeTableSize} max={3200} min={minWidth}/>
+                <TextInput inputType = {"number"} defaultValue = {this.props.data} typeName = {typeName} propertyName = "tableWidth" labelDisplay = "none" readOnly={false} getValue = {getValue} resizeTableSize={resizeTableSize} max={3200} min={minWidth}/>
             </div>
         )
     }
