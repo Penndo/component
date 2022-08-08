@@ -1,8 +1,6 @@
 import * as React from "react"
 import style from "./index.module.less"
 
-//示例：https://www.w3schools.com/howto/howto_css_switch.asp
-
 class TableEdit extends React.Component {
     
     render(){
