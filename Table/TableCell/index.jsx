@@ -44,7 +44,7 @@ export default function TableCell(props) {
         let rows = table_ref.current.rows
         let maxRows = renderData.length
         let maxCols = renderHead.length
-        let cell = rows[trIndex].childNodes[tdIndex].lastChild;
+        let cell = rows[trIndex].childNodes[tdIndex].firstChild;
 
         //不同方式的聚焦，输入框样式表现不同
         function focusInput(styleName,cursorPositon){
@@ -65,27 +65,27 @@ export default function TableCell(props) {
                 case 9:
                     e.preventDefault();
                     if(trIndex === maxRows && tdIndex === maxCols -1){
-                        cell = rows[0].childNodes[0].lastChild
+                        cell = rows[0].childNodes[0].firstChild
                     }else if(tdIndex === maxCols -1){
-                        cell = rows[trIndex + 1].childNodes[0].lastChild
+                        cell = rows[trIndex + 1].childNodes[0].firstChild
                     }else{
-                        cell = rows[trIndex].childNodes[tdIndex+1].lastChild;
+                        cell = rows[trIndex].childNodes[tdIndex+1].firstChild;
                     }
                     focusInput("input");
                     break;
                 case 13:
                     e.preventDefault();
                     if(inputStyleName === "input"){
-                        cell = rows[trIndex].childNodes[tdIndex].lastChild;
+                        cell = rows[trIndex].childNodes[tdIndex].firstChild;
                         const cursorPositon = cell.value.length;
                         focusInput("focusInput",cursorPositon)            
                     }else{
                         if(trIndex === maxRows && tdIndex === maxCols - 1){
-                            cell = rows[0].childNodes[0].lastChild;
+                            cell = rows[0].childNodes[0].firstChild;
                         }else if(trIndex === maxRows){
-                            cell = rows[0].childNodes[tdIndex+1].lastChild;
+                            cell = rows[0].childNodes[tdIndex+1].firstChild;
                         }else{
-                            cell = rows[trIndex+1].childNodes[tdIndex].lastChild;
+                            cell = rows[trIndex+1].childNodes[tdIndex].firstChild;
                         }
                         focusInput("input");
                     }
@@ -93,26 +93,26 @@ export default function TableCell(props) {
                 case 37:
                     if(tdIndex !== 0 && inputStyleName !== "focusInput"){
                         e.preventDefault();
-                        cell = rows[trIndex].childNodes[tdIndex-1].lastChild;
+                        cell = rows[trIndex].childNodes[tdIndex-1].firstChild;
                         focusInput("input");
                     }
                     break;
                 case 38:
                     if(trIndex !== 0){
-                        cell = rows[trIndex - 1].childNodes[tdIndex].lastChild;
+                        cell = rows[trIndex - 1].childNodes[tdIndex].firstChild;
                     }
                     focusInput("input");
                     break;
                 case 39:
                     if(tdIndex !== maxCols - 1 && inputStyleName !== "focusInput"){
                         e.preventDefault();
-                        cell = rows[trIndex].childNodes[tdIndex + 1].lastChild;
+                        cell = rows[trIndex].childNodes[tdIndex + 1].firstChild;
                         focusInput("input");
                     }
                     break;
                 case 40:
                     if(trIndex !== maxRows){
-                        cell = rows[trIndex + 1].childNodes[tdIndex].lastChild
+                        cell = rows[trIndex + 1].childNodes[tdIndex].firstChild
                     }
                     focusInput("input");
                     break;
@@ -135,7 +135,7 @@ export default function TableCell(props) {
 
     const count = useRef(0);
     function cell_click(e) {
-        const element = e.target.parentNode.lastChild;
+        const element = e.target.parentNode.firstChild;
         let timeOut;
         clearTimeout(timeOut)
         count.current += 1
@@ -167,6 +167,19 @@ export default function TableCell(props) {
             style={props.cellStyle}
             onContextMenu={forRight}
         >
+
+            <input 
+                onFocus={focus_cell}
+                onPaste={clipboard}
+                className={styles[inputStyleName]}
+                type="text" 
+                disabled = {true}
+                onKeyDown = {keyDown}
+                onBlur = {blur_inputBox}
+                value={props.value} 
+                onChange={changeValue}
+                style={props.inputStyle}
+            />
             {
                 inputStyleName !== "focusInput" ? 
                 <div style={{
@@ -181,18 +194,6 @@ export default function TableCell(props) {
                 ></div> : 
                 null
             }
-            <input 
-                onFocus={focus_cell}
-                onPaste={clipboard}
-                className={styles[inputStyleName]}
-                type="text" 
-                disabled = {true}
-                onKeyDown = {keyDown}
-                onBlur = {blur_inputBox}
-                value={props.value} 
-                onChange={changeValue}
-                style={props.inputStyle}
-            />
         </td>
     )
 }
