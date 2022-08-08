@@ -1,8 +1,9 @@
-import * as React from "react"
-import { useRef, useState } from "react"
-import { v4 as uuidv4 } from "uuid"
-import TableEdit from "./TableEdit"
-import { initialCellMarker } from "../Public/originContant"
+import * as React from "react";
+import { useRef, useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
+import TableEdit from "./TableEdit";
+import TableCell from "./TableCell";
+import { initialCellMarker } from "../Public/originContant";
 
 import styles from "./index.module.less"
 
@@ -17,14 +18,18 @@ export default function Table(props) {
     const reservedWidth = (b_left*1 + b_right*1) + "px";
     
     const [rightPanelState, setRightPanelState] = useState({
-        display:false,
-        area:null
+        display:false
     });
 
     const rightPanel = useRef(null);
     const cellMarker = useRef(null);
     const [dragSelectCells,setDragSelectCells] = useState(false);
 
+    function getDragSelectCells(value) {
+        return (
+            setDragSelectCells(value)
+        )
+    }
     //获取当前事件的位置
     function eventPosition(e) {
 
@@ -40,91 +45,9 @@ export default function Table(props) {
         return {"tdIndex":tdIndex,"trIndex":trIndex}
     }
 
-    function keyDown(e) {
 
-        const {trIndex,tdIndex} = eventPosition(e);
-        let rows = table_ref.current.rows
-        let maxRows = renderData.length
-        let maxCols = renderHead.length
 
-        //目标对象是 INPUT
-        if(e.target.tagName === "INPUT"){
-
-            if(e.keyCode === 13){
-                let cell;
-                if(trIndex === maxRows && tdIndex === maxCols - 1){
-                    cell = rows[0].childNodes[0];
-                }else if(trIndex === maxRows){
-                    cell = rows[0].childNodes[tdIndex+1];
-                }else{
-                    cell = rows[trIndex+1].childNodes[tdIndex];
-                }
-
-                cell.focus();
-            }
-
-        //目标对象是 TD 或者 TH
-        }else if(e.target.tagName === "TD" || e.target.tagName === "TH"){
-
-            if(e.keyCode === 9 || e.keyCode === 37 || e.keyCode === 38 || e.keyCode === 39 || e.keyCode === 40){
-                //阻止 tab 的自动聚焦到下一个聚焦点。但是 input 中没有执行此操作，所以 input 点击 tab 可以顺利跳到下一个聚焦点。
-                e.preventDefault();
-                let cell = rows[trIndex].childNodes[tdIndex];
-                switch (e.keyCode) {
-                    case 9:
-                        if(tdIndex === maxCols -1){
-                            cell = rows[trIndex + 1].childNodes[0]
-                        }else{
-                            cell = rows[trIndex].childNodes[tdIndex+1];
-                        }
-                        break;
-                    case 37:
-                        if(tdIndex !== 0){
-                            cell = rows[trIndex].childNodes[tdIndex-1];
-                        }
-                        break;
-                    case 38:
-                        if(trIndex !== 0){
-                            cell = rows[trIndex - 1].childNodes[tdIndex]
-                        }
-                        break;
-                    case 39:
-                        if(tdIndex !== maxCols - 1){
-                            cell = rows[trIndex].childNodes[tdIndex + 1]
-                        }
-                        break;
-                    case 40:
-                        if(trIndex !== maxRows){
-                            cell = rows[trIndex + 1].childNodes[tdIndex]
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                cell.focus();
-
-            }else if(e.keyCode !== 91 && 
-                    e.keyCode !== 93 && 
-                    e.keyCode !== 17 && 
-                    e.keyCode !== 18 && 
-                    e.keyCode !== 16 && 
-                    e.keyCode !== 20 && 
-                    e.keyCode !== 27 && 
-                    e.keyCode !== 37 && 
-                    e.keyCode !== 38 && 
-                    e.keyCode !== 39 && 
-                    e.keyCode !== 40
-                ){
-                    e.target.childNodes[0].disabled = false;
-                    e.target.childNodes[0].focus();
-                    e.target.childNodes[0].select();
-                }
-        }else {
-            return;
-        }
-    }
-
-    React.useEffect(()=>{
+    useEffect(()=>{
         if(trIndex !== null && tdIndex !== null){
 
             const firstRows = table_ref.current.rows[trIndex];
@@ -137,6 +60,7 @@ export default function Table(props) {
             }
 
             if(firstCell !== undefined && lastCell !== undefined){
+                
                 const firstTop = firstCell.offsetTop;
                 const firstLeft = firstCell.offsetLeft;
                 const firstWidth = firstCell.offsetWidth;
@@ -164,47 +88,7 @@ export default function Table(props) {
         }
     },[table_ref,trIndex,tdIndex,lastSelectedTdIndex,lastSelectedTrIndex,getCellMarker_all,controlData.tableWidth,controlData.tbodyPadding,controlData.theadPadding,controlData.tableAmount,controlData.textStyle.fontSize,cellSize])
 
-    function focus_cell(e) {
-        const {trIndex,tdIndex} = eventPosition(e);
-        getTdIndex(tdIndex);
-        getTrIndex(trIndex);
-        getLastSelectedTdIndex(tdIndex);
-        getLastSelectedTrIndex(trIndex);
-    }
-
-    function selectCells_first(e){
-        const {trIndex,tdIndex} = eventPosition(e);
-        if(e.button === 0){
-            setDragSelectCells(true);
-        }else{
-            setDragSelectCells(false);
-        }
-        getTdIndex(tdIndex);
-        getTrIndex(trIndex);
-        getLastSelectedTdIndex(tdIndex);
-        getLastSelectedTrIndex(trIndex);
-    }
-
-    function selectCells_another(e) {
-        const {trIndex,tdIndex} = eventPosition(e);
-        if(dragSelectCells){
-            getLastSelectedTrIndex(trIndex);
-            getLastSelectedTdIndex(tdIndex);
-        }
-    }
-
-    function blur_inputBox(e) {
-        e.currentTarget.disabled = true
-    }
-
-    function activateInputBox(e) {
-        e.currentTarget.childNodes[0].disabled = false;
-        e.currentTarget.childNodes[0].focus();
-        
-    }
-    
-    //table 输入
-    function changeTbodyValue(e){
+    function changeTbodyValue(e) {
         const {trIndex,tdIndex} = eventPosition(e);
         let insert = renderData.slice();
         insert[trIndex-1][renderHead[tdIndex]["colID"]] = e.target.value;
@@ -222,6 +106,7 @@ export default function Table(props) {
     
     //自定义右键菜单
     function forRight(e) {
+        const {trIndex,tdIndex} = eventPosition(e);
         e.preventDefault()
         setRightPanelState({
             display:true,
@@ -230,7 +115,6 @@ export default function Table(props) {
         //获取当前鼠标的坐标
         const clickX = e.clientX
         const clickY = e.clientY
-        const {trIndex,tdIndex} = eventPosition(e);
         //为 右键菜单 标记了 refs 标签 (rightPanel)。这里引用并设置右键菜单的位置
         //（已经设置 ul 的 position 为 absolute ）。
         rightPanel.current.style.left = clickX + "px"
@@ -245,7 +129,6 @@ export default function Table(props) {
     //隐藏右键
     function handleDocument(){
         setRightPanelState({
-            ...rightPanelState,
             display:false
         })
         //隐藏后移除全局事件。
@@ -254,7 +137,6 @@ export default function Table(props) {
 
     //增减行
     function changeRow(how){
-        console.log(trIndex)
         return function() {
             let insert = renderData.slice()
             switch (how) {
@@ -275,7 +157,6 @@ export default function Table(props) {
             }
             changeRowsCount(insert.length,renderHead,insert);
             setRightPanelState({
-                ...rightPanelState,
                 display:false
             });
             getRowID(rowID + 1);
@@ -303,7 +184,6 @@ export default function Table(props) {
             }
             changeColsCount(insert.length,insert,renderData);
             setRightPanelState({
-                ...rightPanelState,
                 display:false
             });
             getColID(colID + 1)
@@ -322,7 +202,6 @@ export default function Table(props) {
             insert.splice(trIndex, 0, merged);
             changeRowsCount(insert.length,renderHead,insert)
             setRightPanelState({
-                ...rightPanelState,
                 display:false
             });
             getRowID(rowID + 1);
@@ -346,7 +225,6 @@ export default function Table(props) {
 
             changeColsCount(insert_Head.length,insert_Head,insert_Data)
             setRightPanelState({
-                ...rightPanelState,
                 display:false
             });
             getColID(colID + 1);
@@ -368,7 +246,6 @@ export default function Table(props) {
             };
             changeRowsCount(insert.length,renderHead,insert)
             setRightPanelState({
-                ...rightPanelState,
                 display:false
             });
         }
@@ -387,7 +264,6 @@ export default function Table(props) {
 
             changeColsCount(insert_Head.length,insert_Head,insert_Data)
             setRightPanelState({
-                ...rightPanelState,
                 display:false
             });
         }
@@ -602,9 +478,9 @@ export default function Table(props) {
         >
             <div className={styles.rightPanel} ref={rightPanel} onContextMenu={(e)=>{e.preventDefault()}} >
                 {
-                    rightPanelState.display ?                 
+                    rightPanelState.display ?
                     <TableEdit 
-                        rightPanelState={rightPanelState}
+                        trIndex = {trIndex}
                         addRowOnTop={changeRow("front")} 
                         addRowOnBottom={changeRow("after")}
                         addColLeft={changeCol("front")}
@@ -672,49 +548,46 @@ export default function Table(props) {
                     <thead>
                         <tr>
                             {renderHead.map((cell,index) => {
-                                return <th 
-                                    tabIndex={0}
-                                    onKeyDown = {(e)=>keyDown(e)}
-                                    onMouseEnter={selectCells_another}
-                                    onMouseDown={selectCells_first}
-                                    onFocus = {focus_cell}
-                                    onMouseUp={
-                                        ()=>{
-                                            setDragSelectCells(false)
-                                        } 
-                                    }
-                                    onDoubleClick = {activateInputBox}
-                                    onPaste={clipboard}
-                                    onContextMenu={forRight}
-                                    key={cell["key"]}
-                                    style={{
-                                        outline:"none",
-                                        width:cellSize.width.length ? cellSize.width[index] : defaultCellWidth,
-                                        backgroundColor:controlData.theadFill.basicColor,
-                                        borderRight:controlData.border.intervalColor !== "" && index !== renderHead.length-1 ? `1px solid ${controlData.border.intervalColor}`: "none",
-                                        borderBottom:`1px solid ${controlData.border.basicColor}`
-                                    }}
-                                >
-                                    <input 
-                                        disabled = {true}
-                                        type="text" 
-                                        value={cell["title"]} 
-                                        onKeyDown={(e)=>keyDown(e)}
-                                        onChange={changeTheadValue}
-                                        onBlur = {blur_inputBox}
-                                        style={{
-                                            width:`calc(100% - ${reservedWidth})`,
-                                            color:controlData.theadTextStyle.basicColor,
-                                            fontSize:controlData.theadTextStyle.fontSize+ "px",
-                                            fontWeight:fontWeight(controlData.theadTextStyle.fontWeight),
-                                            marginTop:h_top + "px",
-                                            marginRight:b_right + "px",
-                                            marginBottom:h_bottom + "px" ,
-                                            marginLeft:b_left + "px",
-                                            padding:0
-                                        }}
+                                const cellStyle = {
+                                    outline:"none",
+                                    width:cellSize.width.length ? cellSize.width[index] : defaultCellWidth,
+                                    backgroundColor:controlData.theadFill.basicColor,
+                                    borderRight:controlData.border.intervalColor !== "" && index !== renderHead.length-1 ? `1px solid ${controlData.border.intervalColor}`: "none",
+                                    borderBottom:`1px solid ${controlData.border.basicColor}`
+                                }
+                                const inputStyle = {
+                                    width:`calc(100% - ${reservedWidth})`,
+                                    color:controlData.theadTextStyle.basicColor,
+                                    WebkitTextFillColor:controlData.theadTextStyle.basicColor,
+                                    fontSize:controlData.theadTextStyle.fontSize+ "px",
+                                    fontWeight:fontWeight(controlData.theadTextStyle.fontWeight),
+                                    marginTop:h_top + "px",
+                                    marginRight:b_right + "px",
+                                    marginBottom:h_bottom + "px" ,
+                                    marginLeft:b_left + "px",
+                                    padding:0
+                                }
+                                return (
+                                    <TableCell
+                                        value = {cell["title"]}
+                                        cellStyle = {cellStyle}
+                                        inputStyle = {inputStyle}
+                                        table_ref = {table_ref}
+                                        eventPosition = {eventPosition}
+                                        clipboard = {clipboard}
+                                        forRight = {forRight}
+                                        renderHead = {renderHead}
+                                        renderData = {renderData}
+                                        changeValue = {changeTheadValue}
+                                        dragSelectCells = {dragSelectCells}
+                                        getDragSelectCells = {getDragSelectCells} 
+                                        getTdIndex = {getTdIndex}
+                                        getTrIndex = {getTrIndex}
+                                        getLastSelectedTdIndex = {getLastSelectedTdIndex}
+                                        getLastSelectedTrIndex = {getLastSelectedTrIndex}
+                                        key={cell["key"]}
                                     />
-                                </th>
+                                )
                             })}
                         </tr>
                     </thead>
@@ -723,49 +596,42 @@ export default function Table(props) {
                             return (
                                 <tr key={perObject["key"]}>
                                     {renderHead.map((cell,cellIndex) => {
+                                        const cellStyle = {
+                                            backgroundColor:controlData.fill.intervalColor !== "" && rowIndex%2 === 0 ? controlData.fill.intervalColor : controlData.fill.basicColor,
+                                            borderRight:controlData.border.intervalColor !== "" && cellIndex !== renderHead.length-1 ? `1px solid ${controlData.border.intervalColor}`: "none",
+                                            borderBottom:`1px solid ${controlData.border.basicColor}`
+                                        }
+                                        const inputStyle = {
+                                            width:`calc(100% - ${reservedWidth})`,
+                                            color:controlData.textStyle.basicColor,
+                                            WebkitTextFillColor:controlData.textStyle.basicColor,
+                                            fontSize:controlData.textStyle.fontSize+"px",
+                                            fontWeight:fontWeight(controlData.textStyle.fontWeight),
+                                            marginTop:b_top+"px",
+                                            marginRight:b_right+"px",
+                                            marginBottom:b_bottom+"px",
+                                            marginLeft:b_left+"px",
+                                        }
                                         return (
-                                            <td
-                                                tabIndex={0}
-                                                onKeyDown = {(e)=>keyDown(e)}
-                                                onFocus={focus_cell}
-                                                onMouseEnter={selectCells_another}
-                                                onMouseDown={selectCells_first}
-                                                onMouseUp={
-                                                    ()=>{
-                                                        setDragSelectCells(false)
-                                                    }
-                                                }
-                                                onDoubleClick = {activateInputBox}
-                                                onPaste={clipboard}
-                                                style={{
-                                                    outline:"none",
-                                                    backgroundColor:controlData.fill.intervalColor !== "" && rowIndex%2 === 0 ? controlData.fill.intervalColor : controlData.fill.basicColor,
-                                                    borderRight:controlData.border.intervalColor !== "" && cellIndex !== renderHead.length-1 ? `1px solid ${controlData.border.intervalColor}`: "none",
-                                                    borderBottom:`1px solid ${controlData.border.basicColor}`
-                                                }}
-                                                onContextMenu={forRight}
+                                            <TableCell
+                                                value = {perObject[cell["colID"]]}
+                                                cellStyle = {cellStyle}
+                                                inputStyle = {inputStyle}
+                                                table_ref = {table_ref}
+                                                eventPosition = {eventPosition}
+                                                clipboard = {clipboard}
+                                                forRight = {forRight}
+                                                renderHead = {renderHead}
+                                                renderData = {renderData}
+                                                changeValue = {changeTbodyValue}
+                                                dragSelectCells = {dragSelectCells}
+                                                getDragSelectCells = {getDragSelectCells} 
+                                                getTdIndex = {getTdIndex}
+                                                getTrIndex = {getTrIndex}
+                                                getLastSelectedTdIndex = {getLastSelectedTdIndex}
+                                                getLastSelectedTrIndex = {getLastSelectedTrIndex}
                                                 key={perObject["key"]+cell["key"]}
-                                            >
-                                                <input type="text" 
-                                                    disabled = {true}
-                                                    onBlur = {blur_inputBox}
-                                                    onKeyDown={(e)=>keyDown(e)}
-                                                    value={perObject[cell["colID"]]} 
-                                                    onChange={changeTbodyValue}
-                                                    style={{
-                                                        width:`calc(100% - ${reservedWidth})`,
-                                                        color:controlData.textStyle.basicColor,
-                                                        WebkitTextFillColor:controlData.textStyle.basicColor,
-                                                        fontSize:controlData.textStyle.fontSize+"px",
-                                                        fontWeight:fontWeight(controlData.textStyle.fontWeight),
-                                                        marginTop:b_top+"px",
-                                                        marginRight:b_right+"px",
-                                                        marginBottom:b_bottom+"px",
-                                                        marginLeft:b_left+"px",
-                                                        padding:0
-                                                    }}
-                                                />
-                                            </td>
+                                            />
                                         )
                                     })}
                                 </tr>

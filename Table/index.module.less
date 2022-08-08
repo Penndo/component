@@ -78,11 +78,19 @@ table {
         -moz-appearance: none;
         outline: 0;
         /* 设置新的默认样式 */
-        padding: 10px 8px;
         font-size: 14px;
         border-style:hidden;
         background-color: transparent;
+        cursor: auto;
     }
+    .input::selection{
+        color:black;
+        background-color: #fff;
+    }
+    .focusInput {
+        cursor: auto;
+    }
+
     th, td {
         box-sizing:border-box;
     }
