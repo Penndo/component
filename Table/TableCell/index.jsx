@@ -32,14 +32,12 @@ export default function TableCell(props) {
     function selectCells_another(e) {
         const {trIndex,tdIndex} = eventPosition(e);
         if(dragSelectCells){
-            console.log("123")
             getLastSelectedTrIndex(trIndex);
             getLastSelectedTdIndex(tdIndex);
         }
     }
 
     function keyDown(e) {
-        console.log(e)
         const {trIndex,tdIndex} = eventPosition(e);
         let rows = table_ref.current.rows
         let maxRows = renderData.length

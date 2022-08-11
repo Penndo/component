@@ -10,9 +10,10 @@ import TableWidth from "./TableWidth"
 import TemplateSelecter from "./TemplateSelecter"
 
 export default function ConstrolSlider(props){
-    const {getControlData,renderData,renderHead,controlData,cellSize,syncBodyStyleToHeader,switchTemplate,backToInitialState,table_ref,fillInterval_usedCount,refreshInterval_usedCount,defaultStorageData,historyStorageData,updateData,lastPickedColor,getLastPickedColor,resizeTableSize,getCellMarker_all} = props;
+    const {getControlData,renderData,renderHead,controlData,cellSize,syncBodyStyleToHeader,switchTemplate,backToInitialState,table_ref,fillInterval_usedCount,refreshInterval_usedCount,defaultStorageData,historyStorageData,refreshDataFromComponent,lastPickedColor,getLastPickedColor,resizeTableSize,getCellMarker_all,getTdIndex,getTrIndex} = props;
     const {tableWidth, tableAmount, tbodyPadding, theadPadding, theadFill, fill, border, textStyle, theadTextStyle} = controlData;
     const [modalName, setModalName] = React.useState("默认内容");
+    const [backToInitial, setBackToInitial] = React.useState(false)
 
     function getValue(typeName,propertyName,value){
 
@@ -88,7 +89,10 @@ export default function ConstrolSlider(props){
             }
         }
     }
-        
+    
+    function getBackToInitial(value) {
+        setBackToInitial(value)
+    }
     //默认样式给到 tbodyStyle.通过下面 return 查看
     const [styleType, setStyleType] = React.useState("tbodyStyle");
 
@@ -100,7 +104,12 @@ export default function ConstrolSlider(props){
     }
 
     function getModalName(value) {
-        setModalName(value)
+        const modalName = value.trim();
+        if(modalName === ""){
+            setModalName("自定义")
+        }else{
+            setModalName(modalName)
+        }
     }
 
     return (
@@ -110,7 +119,21 @@ export default function ConstrolSlider(props){
             </span>
 
             <div className={styles["configureArea"]}>
-                <TemplateSelecter type="选择模板" defaultStorageData={defaultStorageData} historyStorageData={historyStorageData} switchTemplate={switchTemplate} backToInitialState={backToInitialState} updateData={updateData} refreshInterval_usedCount = {refreshInterval_usedCount} getModalName = {getModalName} getCellMarker_all={getCellMarker_all}/>
+                <TemplateSelecter 
+                    type="选择模板" 
+                    getTrIndex = {getTrIndex}
+                    getTdIndex = {getTdIndex}
+                    backToInitial = {backToInitial} 
+                    getBackToInitial={getBackToInitial} 
+                    defaultStorageData={defaultStorageData} 
+                    historyStorageData={historyStorageData} 
+                    switchTemplate={switchTemplate} 
+                    backToInitialState={backToInitialState} 
+                    refreshDataFromComponent={refreshDataFromComponent} 
+                    refreshInterval_usedCount = {refreshInterval_usedCount} 
+                    getModalName = {getModalName} 
+                    getCellMarker_all={getCellMarker_all}
+                />
                 <TableWidth type="表格宽度" typeName = "tableWidth" getValue = {getValue}  data = {tableWidth} tableAmount = {tableAmount} tbodyPadding={tbodyPadding} resizeTableSize = {resizeTableSize}/>
                 <CellAmount type="表格数量" typeName = "tableAmount" data={tableAmount} tableWidth={tableWidth} cellPadding = {tbodyPadding} resizeTableSize = {resizeTableSize}/>
                 {/* <TableData type = "数据源" getControlData = {getControlData} typeName="dataFrom" data={dataFrom}/> */}
@@ -132,7 +155,7 @@ export default function ConstrolSlider(props){
             </div>
 
             <div className={styles["buttonGroup"]}>
-                    <ButtonGroup table_ref={table_ref} updateData={updateData} renderHead={renderHead} renderData={renderData} controlData={controlData} cellSize={cellSize} modalName = {modalName}/>
+                    <ButtonGroup table_ref={table_ref} refreshDataFromComponent={refreshDataFromComponent} getBackToInitial={getBackToInitial} renderHead={renderHead} renderData={renderData} controlData={controlData} cellSize={cellSize} modalName = {modalName}/>
             </div>
 
         </div>

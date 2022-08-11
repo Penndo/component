@@ -12,10 +12,10 @@ class Options extends React.Component{
 
     handleClick = (e)=>{
         const value = e.currentTarget.innerHTML;
-        this.props.selectOption(value)
+        this.props.selectOptionValue(value)
     }
 
-    deleteData = (keyValue,updateData)=>{
+    deleteData = (keyValue,refreshDataFromComponent)=>{
         return ()=>{
             createIDB().then((db)=>{
                 //从默认库中删除数据；
@@ -25,11 +25,12 @@ class Options extends React.Component{
                     if(result.length){
                         const keyValue = result[result.length-1].title;
                         update(db,historyStoreName,{id:1,history:keyValue});
-                        this.props.selectOption(keyValue);
-                        updateData();
+                        this.props.selectOptionValue(keyValue);
+                        refreshDataFromComponent();
                     }else{
                         deleteItem(db,historyStoreName,1);
                         this.props.backToInitialState();
+                        this.props.selectOptionValue("")
                     }
                 });
                 
@@ -38,30 +39,22 @@ class Options extends React.Component{
 
     }
 
-    defaultData = () => {
-        this.props.refreshInterval_usedCount(1)
-        this.props.backToInitialState();
-        this.props.selectOption(this.props.defaultSelection)
-    }
-
     render(){
-        const {options,canDelete,updateData,defaultSelection} = this.props;
+        const {options,refreshDataFromComponent} = this.props;
         return(
             <ul className={styles.ul}>
                 {
                     options.map((item)=>{
                         return (
                             <li key={uuidv4()} >
-                                <p onMouseDown = { item !== defaultSelection ? this.handleClick : this.defaultData}>{item}</p>
+                                <p onMouseDown = {this.handleClick}>{item}</p>
                                 {
-                                    canDelete && item !== defaultSelection ? 
-                                        <div className={styles["closePart"]}>
-                                            <p onClick={this.deleteData(item,updateData)}>删除模板</p>
-                                            <div className={styles["toolTips"]}>
-                                                <ToolTips  tips="删除模板" />
-                                            </div>
+                                    <div className={styles["closePart"]}>
+                                        <p onClick={this.deleteData(item,refreshDataFromComponent)}>删除模板</p>
+                                        <div className={styles["toolTips"]}>
+                                            <ToolTips  tips="删除模板" />
                                         </div>
-                                    : null
+                                    </div>
                                 }
                             </li>
                         ) 

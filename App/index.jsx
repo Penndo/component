@@ -5,21 +5,23 @@ import {createIDB, getAllValue} from "../Public/IDB";
 import { shearData,recalculate_CellSize } from "../Public/Tools";
 import Table from "../Table";
 import ConstrolSlider from "../ConstrolSlider";
-import { originControlData, originCellSize, originHead, originData } from "../Public/originContant";
+import { originControlData, originCellSize, originHead, originData} from "../Public/originContant";
 
 import styles from "./index.module.less";
 
 const defaultStoreName = "defaultStore";
 const defaultHistoryName = "historyStore";
+const _originData = originData();
+const _originHead = originHead();
 
 export default function App(){
     const initialInformation = {
         controlData:originControlData,
-        renderData:originData,
-        renderHead:originHead,
+        renderData:_originData,
+        renderHead:_originHead,
         cellSize:originCellSize,
-        dynamicData:originData,
-        dynamicHead:originHead,
+        dynamicData:_originData,
+        dynamicHead:_originHead,
         defaultStorageData:[],
         historyStorageData:[{id:1,history:""}]
     }
@@ -199,7 +201,7 @@ export default function App(){
         return Math.max(...IDArr)
     }
 
-    //改变 cellMarker 大小，代码待优化
+    //改变 Table 大小，代码待优化
     function resizeTableSize(value,typeName,propertyName) {
         if(typeName === "tableAmount"){
             if(propertyName === "cols"){
@@ -434,14 +436,17 @@ export default function App(){
         createIDB().then((db)=>{
             const defaultStorageData_result = Promise.resolve(getAllValue(db,defaultStoreName));
             const historyStorageData_result = Promise.resolve(getAllValue(db,defaultHistoryName));
+
             Promise.all([defaultStorageData_result,historyStorageData_result]).then((values)=>{
+                const _originData = originData();
+                const _originHead = originHead();
                 dispatch({type:"all",value:{
                     controlData:originControlData,
-                    renderData:originData,
-                    renderHead:originHead,
+                    renderData:_originData,
+                    renderHead:_originHead,
                     cellSize:originCellSize,
-                    dynamicData:originData,
-                    dynamicHead:originHead,
+                    dynamicData:_originData,
+                    dynamicHead:_originHead,
                     defaultStorageData:values[0],
                     historyStorageData:values[1]
                 }})
@@ -548,13 +553,15 @@ export default function App(){
             />
 
             <ConstrolSlider 
+                getTrIndex = {getTrIndex}
+                getTdIndex = {getTdIndex}
                 resizeTableSize = {resizeTableSize}
                 lastPickedColor={lastPickedColor}
                 getLastPickedColor = {getLastPickedColor}
                 getCellMarker_all = {getCellMarker_all}
                 defaultStorageData={defaultStorageData}
                 historyStorageData={historyStorageData}
-                updateData={refreshDataFromComponent}
+                refreshDataFromComponent={refreshDataFromComponent}
                 fillInterval_usedCount = {fillInterval_usedCount}
                 refreshInterval_usedCount = {refreshInterval_usedCount}
                 table_ref = {table_ref}

@@ -51,20 +51,28 @@ const originCellSize = {
 }
 
 //初始表头数据及格式
-const originHead = [
-    {serialNumber:"0",colID:1,title:"A",key:uuidv4()},
-    {serialNumber:"1",colID:2,title:"B",key:uuidv4()},
-    {serialNumber:"2",colID:3,title:"C",key:uuidv4()},
-    {serialNumber:"3",colID:4,title:"D",key:uuidv4()}
-]
+const originHead = function () {
+    return(
+        [
+            {serialNumber:"0",colID:1,title:"A",key:uuidv4()},
+            {serialNumber:"1",colID:2,title:"B",key:uuidv4()},
+            {serialNumber:"2",colID:3,title:"C",key:uuidv4()},
+            {serialNumber:"3",colID:4,title:"D",key:uuidv4()}
+        ]
+    )
+}
 
 //初始表格数据及格式
-const originData = [
-    {rowID:1,1:"",2:"",3:"",4:"",key:uuidv4()},
-    {rowID:2,1:"",2:"",3:"",4:"",key:uuidv4()},
-    {rowID:3,1:"",2:"",3:"",4:"",key:uuidv4()},
-    {rowID:4,1:"",2:"",3:"",4:"",key:uuidv4()}
-]
+const originData = function () {
+    return(
+        [
+            {rowID:1,1:"",2:"",3:"",4:"",key:uuidv4()},
+            {rowID:2,1:"",2:"",3:"",4:"",key:uuidv4()},
+            {rowID:3,1:"",2:"",3:"",4:"",key:uuidv4()},
+            {rowID:4,1:"",2:"",3:"",4:"",key:uuidv4()}
+        ]
+    )
+}
 
 const initialCellMarker = {
     offsetLeft:-100,

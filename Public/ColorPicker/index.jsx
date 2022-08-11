@@ -72,7 +72,7 @@ class ColorPicker extends React.Component {
                 <div 
                     className = {styles['trigger-wrapper']} 
                     style={{
-                            ...style
+                            ...style,
                         }}
                 >
                     <div
