@@ -121,6 +121,7 @@ export default function TableCell(props) {
         }else if(e.code === "Escape" || e.code === "CapsLock" || e.code === "ShiftRight" || e.code === "ShiftLeft" || e.code === "ControlLeft" || e.code === "AltRight" || e.code === "MetaLeft" || e.code === "MetaRight" || e.code === "Unidentified"){
             return;
         }else{
+            if(e.metaKey || e.altKey || e.ctrlKey || e.shiftKey) return;
             setInputStyleName("focusInput")
             return;
         }
