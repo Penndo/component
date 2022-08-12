@@ -120,7 +120,6 @@ export default function App(){
     const [lastSelectedTdIndex, setLastSelectedTdIndex] = useState(null)
     const [lastSelectedTrIndex, setLastSelectedTrIndex] = useState(null)
     let cellMinWidth = Number(controlData.tbodyPadding.b_left) + Number(controlData.tbodyPadding.b_right) + 8;
-    // console.log(trIndex)
 
     const [cellMarker_first, setCellMarker_first] = useState({
         offsetLeft:0,
@@ -459,8 +458,8 @@ export default function App(){
         refreshDataFromComponent();
     },[refreshDataFromComponent])
 
-    function clipboard(e) {
-        console.log(e.target.tagName)
+    function clipboard(e,inputStyleName) {
+        if(inputStyleName === "focusInput") return;
         e.preventDefault();
         let newRenderHead = renderHead.slice();
         let newRenderData = renderData.slice();
@@ -475,7 +474,6 @@ export default function App(){
         navigator.clipboard.readText().then(
             (clipText) => {
                 copiedRow = clipText.split("\n").filter(word => word !== "");
-                console.log(clipText,copiedRow)
                 for(let i=0;i<copiedRow.length;i++){
                     copiedTable.push(copiedRow[i].split("\t"));
                 }
@@ -484,12 +482,7 @@ export default function App(){
                 let textCols = copiedTable[0].length;
                 let rowLoopTimes = Math.min(textRows,rows-minTrIndex+1); //因为这里的 rows 数量不包含表头，所以要 +1
                 let colLoopTimes = Math.min(textCols,cols-minTdIndex);
-
-                console.log(rowLoopTimes,colLoopTimes)
-                if(tdIndex === null || trIndex === null){
-                    alert("请选择要粘贴的位置");
-                    return;
-                }
+                
                 if(minTrIndex === 0){ //表头参与
                     //更新表头数据
                     for(let k=0;k<colLoopTimes;k++){
