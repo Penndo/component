@@ -6,10 +6,6 @@ const originControlData = {
         cols:"4",
         rows:"4"
     },
-    dataFrom:{
-        api:"https://randomuser.me/api/?results=5&inc=",
-        parameter:"gender,email,nat,phone"
-    },
     tbodyPadding:{
         b_top:"12",
         b_right:"16",
@@ -21,25 +17,25 @@ const originControlData = {
         h_bottom:"12"
     },
     fill:{
-        basicColor:"#FFFFFF",
+        basicColor:"rgba(255,255,255,1)",
         switchState:false,
         intervalColor:""
     },
     border:{
-        basicColor:"#EDEDED",
+        basicColor:"rgba(237,237,237,1)",
         switchState:true,
-        intervalColor:"#EDEDED"
+        intervalColor:"rgba(237,237,237,1)"
     },
     theadFill:{
-        basicColor:"#F5F5F5"
+        basicColor:"rgba(245,245,245,1)"
     },
     textStyle:{
-        basicColor:"#333333",
+        basicColor:"rgba(51,51,51,1)",
         fontSize:"14",
         fontWeight:"regular"
     },
     theadTextStyle:{
-        basicColor:"#333333",
+        basicColor:"rgba(51,51,51,1)",
         fontSize:"14",
         fontWeight:"bold"
     }
