@@ -103,7 +103,7 @@ class TemplateSelecter extends React.Component {
                         label = "恢复默认" 
                         type = "secondary" 
                         customStyle = {{
-                            height:"24px",
+                            height:"25px",
                             width:"120px",
                             fontSize:"12px",
                             borderRadius:"6px",

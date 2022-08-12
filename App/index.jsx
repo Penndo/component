@@ -512,11 +512,13 @@ export default function App(){
                 getRenderData(newRenderData);
             }
         );
-
     }
 
     return (
-        <div className={styles["container"]}>
+        <div 
+            className={styles["container"]} 
+            onContextMenu = {(e)=>{e.preventDefault()}}
+        >
             <Table 
                 trIndex = {trIndex}
                 tdIndex = {tdIndex}

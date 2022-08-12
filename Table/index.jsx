@@ -106,8 +106,18 @@ export default function Table(props) {
     
     //自定义右键菜单
     function forRight(e) {
+        e.preventDefault();
         const {trIndex,tdIndex} = eventPosition(e);
-        e.preventDefault()
+
+        let winHeight = window.innerHeight;
+
+        let rightPanelHeight = 0;
+        if(trIndex === 0){
+            rightPanelHeight = 176;
+        }else {
+            rightPanelHeight = 336
+        }
+
         setRightPanelState({
             display:true,
             area:e.target
@@ -115,10 +125,16 @@ export default function Table(props) {
         //获取当前鼠标的坐标
         const clickX = e.clientX
         const clickY = e.clientY
+
         //为 右键菜单 标记了 refs 标签 (rightPanel)。这里引用并设置右键菜单的位置
         //（已经设置 ul 的 position 为 absolute ）。
-        rightPanel.current.style.left = clickX + "px"
-        rightPanel.current.style.top = clickY + "px"
+        rightPanel.current.style.left = clickX + 2 + "px"
+        if(clickY + rightPanelHeight > winHeight){
+            rightPanel.current.style.top = winHeight - rightPanelHeight + "px"
+        }else{
+            rightPanel.current.style.top = clickY + "px"
+        }
+
         //更新当前事件的位置
         getTdIndex(tdIndex)
         getTrIndex(trIndex)
