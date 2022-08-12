@@ -123,7 +123,6 @@ export default function TableCell(props) {
         }else{
             if(e.metaKey || e.altKey || e.ctrlKey || e.shiftKey) return;
             setInputStyleName("focusInput")
-            return;
         }
     }
 
@@ -169,7 +168,7 @@ export default function TableCell(props) {
 
             <input 
                 onFocus={focus_cell}
-                onPaste={clipboard}
+                onPaste={(e)=>{clipboard(e,inputStyleName)}}
                 className={styles[inputStyleName]}
                 type="text" 
                 disabled = {true}
