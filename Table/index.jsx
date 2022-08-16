@@ -10,7 +10,7 @@ import styles from "./index.module.less"
 export default function Table(props) {
 
     const {controlData,cellSize,colID,rowID,getColID,getRowID,renderHead,renderData, getCellSize, getRenderData, getRenderHead,getDynamicHead,getDynamicData,table_ref,changeColsCount,changeRowsCount,
-        trIndex,tdIndex,lastSelectedTdIndex,lastSelectedTrIndex,cellMarker_all,getTrIndex,getTdIndex,getLastSelectedTrIndex,getLastSelectedTdIndex,getCellMarker_all,clipboard
+        trIndex,tdIndex,lastSelectedTdIndex,lastSelectedTrIndex,cellMarker_all,getTrIndex,getTdIndex,getLastSelectedTrIndex,getLastSelectedTdIndex,getCellMarker_all
     } = props;
     const {b_top,b_right,b_bottom,b_left} = controlData.tbodyPadding;
     const {h_top,h_bottom} = controlData.theadPadding;
@@ -45,6 +45,162 @@ export default function Table(props) {
         return {"tdIndex":tdIndex,"trIndex":trIndex}
     }
 
+    function clearSelectedCells(e) {
+        e.preventDefault();
+        let newRenderHead = renderHead.slice();
+        let newRenderData = renderData.slice();
+
+        let minTdIndex = Math.min(tdIndex,lastSelectedTdIndex);
+        let minTrIndex = Math.min(trIndex,lastSelectedTrIndex);
+
+        let rowLoopTimes = Math.abs(trIndex-lastSelectedTrIndex) + 1;
+        let colLoopTimes = Math.abs(tdIndex-lastSelectedTdIndex) + 1;
+
+        if(minTrIndex === 0){ //表头参与
+            //更新表头数据
+            for(let k=0;k<colLoopTimes;k++){
+                newRenderHead[minTdIndex+k]["title"] = ""
+            }
+            // 更新表格数据
+            for(let j=0;j<rowLoopTimes-1;j++){
+                for(let k=0;k<colLoopTimes;k++){
+                    newRenderData[j][newRenderHead[minTdIndex + k]["colID"]] = ""
+                }
+            }
+        }else{ //表头不参与
+            for(let j=0;j<rowLoopTimes;j++){
+                for(let k=0;k<colLoopTimes;k++){
+                    newRenderData[minTrIndex+j-1][newRenderHead[minTdIndex + k]["colID"]] = ""
+                }
+            }
+        }
+        getRenderHead(newRenderHead);
+        getRenderData(newRenderData);
+    }
+
+    function cut(e) {
+        e.preventDefault()
+        copy(e);
+        clearSelectedCells(e)
+    }
+
+    function copy(e) {
+        e.preventDefault()
+        let newRenderHead = renderHead.slice();
+        let newRenderData = renderData.slice();
+
+        let minTdIndex = Math.min(tdIndex,lastSelectedTdIndex);
+        let minTrIndex = Math.min(trIndex,lastSelectedTrIndex);
+
+        let rowLoopTimes = Math.abs(trIndex-lastSelectedTrIndex) + 1;
+        let colLoopTimes = Math.abs(tdIndex-lastSelectedTdIndex) + 1;
+
+        let data = "";
+
+        if(minTrIndex === 0){ //表头参与
+            //更新表头数据
+            for(let k=0;k<colLoopTimes;k++){
+                data += newRenderHead[minTdIndex+k]["title"] + (k === colLoopTimes - 1 ? "" : "\t")
+            }
+            data = data + "\n"
+            // 更新表格数据
+            for(let j=0;j<rowLoopTimes-1;j++){
+                for(let k=0;k<colLoopTimes;k++){
+                    data += newRenderData[j][newRenderHead[minTdIndex + k]["colID"]] + (k === colLoopTimes - 1 ? "" : "\t")
+                }
+                data += "\n"
+            }
+        }else{ //表头不参与
+            for(let j=0;j<rowLoopTimes;j++){
+                for(let k=0;k<colLoopTimes;k++){
+                    data += newRenderData[minTrIndex+j-1][newRenderHead[minTdIndex + k]["colID"]] + (k === colLoopTimes - 1 ? "" : "\t")
+                }
+                data += "\n"
+            }
+        }
+
+        e.clipboardData.setData("text/plain",data)
+    }
+
+    function clipboard(e,inputStyleName) {
+        if(inputStyleName === "focusInput") return;
+        e.preventDefault();
+        let newRenderHead = renderHead.slice();
+        let newRenderData = renderData.slice();
+
+        let minTdIndex = Math.min(tdIndex,lastSelectedTdIndex);
+        let minTrIndex = Math.min(trIndex,lastSelectedTrIndex);
+        let maxTdIndex = Math.max(tdIndex,lastSelectedTdIndex);
+        let maxTrIndex = Math.max(trIndex,lastSelectedTrIndex);
+
+        let rows = controlData.tableAmount.rows;
+        let cols = controlData.tableAmount.cols;
+        let copiedRow = [];
+        let copiedTable = [];
+
+        navigator.clipboard.readText().then(
+            (clipText) => {
+                console.log(clipText)
+                copiedRow = clipText.split("\n").filter(word => word !== "");
+                for(let i=0;i<copiedRow.length;i++){
+                    copiedTable.push(copiedRow[i].split("\t"));
+                }
+
+                let textRows = copiedRow.length;
+                let textCols = copiedTable[0].length;
+
+                //如果数据量小于框选范围，数据将重复出现，以覆盖框选范围
+                let rowLoopTimes,colLoopTimes;
+                const trDif = maxTrIndex - minTrIndex + 1 - textRows;
+                const tdDif = maxTdIndex - minTdIndex + 1 - textCols;
+                
+                if(trDif > 0){
+                    const concatData = copiedTable.slice();//复制一份用来添加的数据
+                    let addTimes = Math.ceil(trDif/textRows);
+                    for(let i=0;i<addTimes;i++){
+                        copiedTable = copiedTable.concat(concatData)
+                    }
+                    rowLoopTimes = maxTrIndex - minTrIndex + 1
+                }else {
+                    rowLoopTimes = Math.min(textRows,rows-minTrIndex+1); //因为这里的 rows 数量不包含表头，所以要 +1
+                }
+
+                if(tdDif >0){
+                    const concatData = copiedTable.slice();//复制一份用来添加的数据，行和列需要重新引用，才能获取到最新的 copiedTable
+                    let addTimes = Math.ceil(tdDif/textCols);
+                    for(let i=0;i<copiedTable.length;i++){
+                        for(let j=0;j<addTimes;j++){
+                            copiedTable[i] = copiedTable[i].concat(concatData[i])
+                        }
+                    }
+                    colLoopTimes = maxTdIndex - minTdIndex + 1
+                }else{
+                    colLoopTimes = Math.min(textCols,cols-minTdIndex);
+                }
+                
+                if(minTrIndex === 0){ //表头参与
+                    //更新表头数据
+                    for(let k=0;k<colLoopTimes;k++){
+                        newRenderHead[minTdIndex+k]["title"] = copiedTable[0][k]
+                    }
+                    //更新表格数据
+                    for(let j=0;j<rowLoopTimes-1;j++){
+                        for(let k=0;k<colLoopTimes;k++){
+                            newRenderData[j][newRenderHead[minTdIndex + k]["colID"]] = copiedTable[j+1][k]
+                        }
+                    }
+                }else{ //表头不参与
+                    for(let j=0;j<rowLoopTimes;j++){
+                        for(let k=0;k<colLoopTimes;k++){
+                            newRenderData[minTrIndex+j-1][newRenderHead[minTdIndex + k]["colID"]] = copiedTable[j][k]
+                        }
+                    }
+                }
+                getRenderHead(newRenderHead);
+                getRenderData(newRenderData);
+            }
+        );
+    }
 
 
     useEffect(()=>{
@@ -537,11 +693,19 @@ export default function Table(props) {
             </ul>
             <div className={styles.tableContainer} >
                 <div 
-                    className={styles.mark} 
                     ref = {cellMarker}
+                    tabIndex={-1}
+                    contentEditable = {true}
+                    onKeyDown={(e)=>{
+                        if(e.code === "Backspace" || e.keyCode === 8){
+                            clearSelectedCells(e)
+                        }
+                    }}
+                    onCopy = {copy}
+                    onCut = {cut}
+                    onPaste={(e)=>{clipboard(e,"input")}}
+                    className={styles.mark} 
                     style={{
-                        pointerEvents:"none",
-                        border:"2px solid #2B7EFF",
                         left:cellMarker_all.offsetLeft + "px",
                         top:cellMarker_all.offsetTop + "px",
                         width:cellMarker_all.offsetWidth + "px",
@@ -585,6 +749,7 @@ export default function Table(props) {
                                 }
                                 return (
                                     <TableCell
+                                        cellMarker = {cellMarker}
                                         value = {cell["title"]}
                                         cellStyle = {cellStyle}
                                         inputStyle = {inputStyle}
@@ -597,6 +762,8 @@ export default function Table(props) {
                                         changeValue = {changeTheadValue}
                                         dragSelectCells = {dragSelectCells}
                                         getDragSelectCells = {getDragSelectCells} 
+                                        trIndex = {trIndex}
+                                        tdIndex = {tdIndex}
                                         getTdIndex = {getTdIndex}
                                         getTrIndex = {getTrIndex}
                                         getLastSelectedTdIndex = {getLastSelectedTdIndex}
@@ -630,6 +797,7 @@ export default function Table(props) {
                                         }
                                         return (
                                             <TableCell
+                                                cellMarker = {cellMarker}
                                                 value = {perObject[cell["colID"]]}
                                                 cellStyle = {cellStyle}
                                                 inputStyle = {inputStyle}
@@ -642,8 +810,12 @@ export default function Table(props) {
                                                 changeValue = {changeTbodyValue}
                                                 dragSelectCells = {dragSelectCells}
                                                 getDragSelectCells = {getDragSelectCells} 
+                                                trIndex = {trIndex}
+                                                tdIndex = {tdIndex}
                                                 getTdIndex = {getTdIndex}
                                                 getTrIndex = {getTrIndex}
+                                                lastSelectedTdIndex = {lastSelectedTdIndex}
+                                                lastSelectedTrIndex = {lastSelectedTrIndex}
                                                 getLastSelectedTdIndex = {getLastSelectedTdIndex}
                                                 getLastSelectedTrIndex = {getLastSelectedTrIndex}
                                                 key={perObject["key"]+cell["key"]}

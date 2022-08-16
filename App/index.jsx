@@ -458,55 +458,6 @@ export default function App(){
         refreshDataFromComponent();
     },[refreshDataFromComponent])
 
-    function clipboard(e,inputStyleName) {
-        if(inputStyleName === "focusInput") return;
-        e.preventDefault();
-        let newRenderHead = renderHead.slice();
-        let newRenderData = renderData.slice();
-
-        let minTdIndex = Math.min(tdIndex,lastSelectedTdIndex);
-        let minTrIndex = Math.min(trIndex,lastSelectedTrIndex);
-        let rows = controlData.tableAmount.rows;
-        let cols = controlData.tableAmount.cols;
-        let copiedRow = [];
-        let copiedTable = [];
-
-        navigator.clipboard.readText().then(
-            (clipText) => {
-                copiedRow = clipText.split("\n").filter(word => word !== "");
-                for(let i=0;i<copiedRow.length;i++){
-                    copiedTable.push(copiedRow[i].split("\t"));
-                }
-                //限制循环次数
-                let textRows = copiedRow.length;
-                let textCols = copiedTable[0].length;
-                let rowLoopTimes = Math.min(textRows,rows-minTrIndex+1); //因为这里的 rows 数量不包含表头，所以要 +1
-                let colLoopTimes = Math.min(textCols,cols-minTdIndex);
-                
-                if(minTrIndex === 0){ //表头参与
-                    //更新表头数据
-                    for(let k=0;k<colLoopTimes;k++){
-                        newRenderHead[minTdIndex+k]["title"] = copiedTable[0][k]
-                    }
-                    //更新表格数据
-                    for(let j=0;j<rowLoopTimes-1;j++){
-                        for(let k=0;k<colLoopTimes;k++){
-                            newRenderData[j][newRenderHead[minTdIndex + k]["colID"]] = copiedTable[j+1][k]
-                        }
-                    }
-                }else{ //表头不参与
-                    for(let j=0;j<rowLoopTimes;j++){
-                        for(let k=0;k<colLoopTimes;k++){
-                            newRenderData[minTrIndex+j-1][newRenderHead[minTdIndex + k]["colID"]] = copiedTable[j][k]
-                        }
-                    }
-                }
-                getRenderHead(newRenderHead);
-                getRenderData(newRenderData);
-            }
-        );
-    }
-
     return (
         <div 
             className={styles["container"]} 
@@ -525,8 +476,6 @@ export default function App(){
                 getLastSelectedTdIndex = {getLastSelectedTdIndex}
                 getCellMarker_first = {getCellMarker_first}
                 getCellMarker_all = {getCellMarker_all}
-
-                clipboard={clipboard}
                 changeColsCount = {changeColsCount}
                 changeRowsCount = {changeRowsCount}
                 table_ref = {table_ref}

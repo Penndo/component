@@ -3,7 +3,21 @@ import { useRef, useState} from "react";
 import styles from "./index.module.less"
 
 export default function TableCell(props) {
-    const {dragSelectCells,getDragSelectCells,clipboard,forRight,renderHead,renderData,changeValue,table_ref,eventPosition,getTdIndex,getTrIndex,getLastSelectedTdIndex,getLastSelectedTrIndex} = props
+    const {
+        cellMarker,
+        dragSelectCells,
+        getDragSelectCells,
+        clipboard,
+        forRight,renderHead,
+        renderData,
+        changeValue,
+        table_ref,
+        eventPosition,
+        getTdIndex,
+        getTrIndex,
+        getLastSelectedTdIndex,
+        getLastSelectedTrIndex
+    } = props
 
     const [inputStyleName,setInputStyleName] = useState("input");
 
@@ -32,6 +46,7 @@ export default function TableCell(props) {
     function selectCells_another(e) {
         const {trIndex,tdIndex} = eventPosition(e);
         if(dragSelectCells){
+            cellMarker.current.focus();
             getLastSelectedTrIndex(trIndex);
             getLastSelectedTdIndex(tdIndex);
         }
@@ -133,7 +148,7 @@ export default function TableCell(props) {
 
     const count = useRef(0);
     function cell_click(e) {
-        const element = e.target.parentNode.firstChild;
+        const element = e.currentTarget.parentNode.firstChild;
         let timeOut;
         clearTimeout(timeOut)
         count.current += 1
