@@ -46,36 +46,42 @@ export default function Table(props) {
     }
 
     function clearSelectedCells(e) {
-        e.preventDefault();
-        let newRenderHead = renderHead.slice();
-        let newRenderData = renderData.slice();
-
-        let minTdIndex = Math.min(tdIndex,lastSelectedTdIndex);
-        let minTrIndex = Math.min(trIndex,lastSelectedTrIndex);
-
-        let rowLoopTimes = Math.abs(trIndex-lastSelectedTrIndex) + 1;
-        let colLoopTimes = Math.abs(tdIndex-lastSelectedTdIndex) + 1;
-
-        if(minTrIndex === 0){ //表头参与
-            //更新表头数据
-            for(let k=0;k<colLoopTimes;k++){
-                newRenderHead[minTdIndex+k]["title"] = ""
-            }
-            // 更新表格数据
-            for(let j=0;j<rowLoopTimes-1;j++){
+        console.log(e)
+        if(e.code === "Backspace"){
+            let newRenderHead = renderHead.slice();
+            let newRenderData = renderData.slice();
+    
+            let minTdIndex = Math.min(tdIndex,lastSelectedTdIndex);
+            let minTrIndex = Math.min(trIndex,lastSelectedTrIndex);
+    
+            let rowLoopTimes = Math.abs(trIndex-lastSelectedTrIndex) + 1;
+            let colLoopTimes = Math.abs(tdIndex-lastSelectedTdIndex) + 1;
+    
+            if(minTrIndex === 0){ //表头参与
+                //更新表头数据
                 for(let k=0;k<colLoopTimes;k++){
-                    newRenderData[j][newRenderHead[minTdIndex + k]["colID"]] = ""
+                    newRenderHead[minTdIndex+k]["title"] = ""
+                }
+                // 更新表格数据
+                for(let j=0;j<rowLoopTimes-1;j++){
+                    for(let k=0;k<colLoopTimes;k++){
+                        newRenderData[j][newRenderHead[minTdIndex + k]["colID"]] = ""
+                    }
+                }
+            }else{ //表头不参与
+                for(let j=0;j<rowLoopTimes;j++){
+                    for(let k=0;k<colLoopTimes;k++){
+                        newRenderData[minTrIndex+j-1][newRenderHead[minTdIndex + k]["colID"]] = ""
+                    }
                 }
             }
-        }else{ //表头不参与
-            for(let j=0;j<rowLoopTimes;j++){
-                for(let k=0;k<colLoopTimes;k++){
-                    newRenderData[minTrIndex+j-1][newRenderHead[minTdIndex + k]["colID"]] = ""
-                }
-            }
+            getRenderHead(newRenderHead);
+            getRenderData(newRenderData);
+        }else if(e.shiftKey === true || e.altKey === true || e.ctrlKey === true || e.metaKey === true){
+            return;
+        }else{
+            e.preventDefault()
         }
-        getRenderHead(newRenderHead);
-        getRenderData(newRenderData);
     }
 
     function cut(e) {
@@ -695,11 +701,7 @@ export default function Table(props) {
                 <input 
                     ref = {cellMarker}
                     tabIndex={-1}
-                    onKeyDown={(e)=>{
-                        if(e.code === "Backspace" || e.keyCode === 8){
-                            clearSelectedCells(e)
-                        }
-                    }}
+                    onKeyDown={clearSelectedCells}
                     onCopy = {copy}
                     onCut = {cut}
                     onPaste={(e)=>{clipboard(e,"input")}}
