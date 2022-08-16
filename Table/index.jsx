@@ -690,10 +690,8 @@ export default function Table(props) {
                 })}
             </ul>
             <div className={styles.tableContainer} >
-                <div
+                <input
                     ref = {cellMarker}
-                    tabIndex = {-1}
-                    contentEditable = {false}
                     disabled = {true}
                     onKeyDown={(e)=>{
                         if(e.code === "Backspace"){
@@ -716,7 +714,7 @@ export default function Table(props) {
                     }}
                 >
 
-                </div>
+                </input>
                 <table
                     ref = {table_ref}
                     style={{
