@@ -24,7 +24,6 @@ function createIDB(){
         request.onupgradeneeded = function(e){
  
             db = e.target.result;
-            console.log("重新创建数据库！")
 
             //创建仓库；
             var defaultStore = db.createObjectStore(defaultStoreName,{keyPath:"title"});//仓库 1

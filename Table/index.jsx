@@ -46,7 +46,6 @@ export default function Table(props) {
     }
 
     function clearSelectedCells(e) {
-        console.log("clear")
         let newRenderHead = renderHead.slice();
         let newRenderData = renderData.slice();
 
@@ -80,7 +79,6 @@ export default function Table(props) {
     }
 
     function cut(e) {
-        console.log(123)
         e.preventDefault()
         copy(e);
         clearSelectedCells(e)
@@ -142,7 +140,6 @@ export default function Table(props) {
 
         navigator.clipboard.readText().then(
             (clipText) => {
-                console.log(clipText)
                 copiedRow = clipText.split("\n").filter(word => word !== "");
                 for(let i=0;i<copiedRow.length;i++){
                     copiedTable.push(copiedRow[i].split("\t"));
@@ -321,7 +318,6 @@ export default function Table(props) {
                     break;
                 case "front":
                     insert.splice(trIndex-1, 0, {key:uuidv4(),rowID:rowID+1});
-                    console.log(trIndex + 1)
                     break;
                 case "remove":
                     insert.splice(trIndex-1, 1)
@@ -694,9 +690,10 @@ export default function Table(props) {
                 })}
             </ul>
             <div className={styles.tableContainer} >
-                <input 
+                <div
                     ref = {cellMarker}
                     tabIndex = {-1}
+                    contentEditable = {false}
                     disabled = {true}
                     onKeyDown={(e)=>{
                         if(e.code === "Backspace"){
@@ -719,7 +716,7 @@ export default function Table(props) {
                     }}
                 >
 
-                </input>
+                </div>
                 <table
                     ref = {table_ref}
                     style={{

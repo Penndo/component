@@ -6,10 +6,8 @@ class CellPaddingSetting extends React.Component {
 
     render(){
         const {type, area, data, typeName, getValue,resizeTableSize, tableWidth, tableAmount} = this.props;
-        // let a = tableAmount
         let maxPadding_right = Math.floor(tableWidth / tableAmount.cols) - data.b_left - 8;
         let maxPadding_left = Math.floor(tableWidth / tableAmount.cols) - data.b_right - 8;
-        // console.log(area)
         return (
             <div>
                 <p>{type}</p>

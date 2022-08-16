@@ -28,9 +28,6 @@ class TextInput extends React.Component {
     onChange = (e) => {
         const reg = this.getInputType(this.props.inputType);
         let value = e.target.value.replace(reg,"");
-
-        console.log(value)
-
         this.setState({
             defaultValue:value
         })
@@ -54,6 +51,10 @@ class TextInput extends React.Component {
 
         const {max,min} = this.props
         let value = this.state.defaultValue;
+
+        if(this.props.inputType === "number"){
+            value =parseInt(value.replace(/[^0-9]/ig,""));
+        }
 
         value = 
             value < min ? min : 

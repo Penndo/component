@@ -46,6 +46,7 @@ export default function TableCell(props) {
     function selectCells_another(e) {
         const {trIndex,tdIndex} = eventPosition(e);
         if(dragSelectCells){
+            cellMarker.current.contentEditable = true;
             cellMarker.current.disabled = false;
             cellMarker.current.focus();
             getLastSelectedTrIndex(trIndex);
