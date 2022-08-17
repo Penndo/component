@@ -458,10 +458,6 @@ export default function App(){
         refreshDataFromComponent();
     },[refreshDataFromComponent])
 
-<<<<<<< HEAD
-    //
-=======
->>>>>>> 69f6237f75a1201fc28d8ce4d9c5c6f99637a37e
     return (
         <div 
             className={styles["container"]} 
