@@ -51,9 +51,9 @@ class TextInput extends React.Component {
 
         const {max,min} = this.props
         let value = this.state.defaultValue;
-
+        console.log(value)
         if(this.props.inputType === "number"){
-            value =parseInt(value.replace(/[^0-9]/ig,""));
+            value = value.replace(/[^0-9]/ig,"");
         }
 
         value = 
