@@ -84,7 +84,7 @@ class TemplateSelecter extends React.Component {
     }
 
     render(){
-        const {defaultStorageData, refreshDataFromComponent, backToInitialState, refreshInterval_usedCount} = this.props
+        const {defaultStorageData, refreshDataFromComponent, backToInitialState, refreshInterval_usedCount, candelete} = this.props
         const {selecter,inputValue} = this.state;
         //获取defaultStorageData 中所有的 title 值，也就是选项
         let options = [];
@@ -124,6 +124,7 @@ class TemplateSelecter extends React.Component {
                     defaultStorageData.length ? 
                     <div className={styles["preInstall"]} style={{display:selecter ? "block" : "none"}}>
                         <Options 
+                            candelete = {candelete}
                             backToInitialState={backToInitialState} 
                             options ={options} 
                             refreshDataFromComponent={refreshDataFromComponent} 
@@ -139,6 +140,3 @@ class TemplateSelecter extends React.Component {
 }
 
 export default TemplateSelecter;
-
-
-

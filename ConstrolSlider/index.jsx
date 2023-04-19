@@ -17,6 +17,8 @@ export default function ConstrolSlider(props){
 
     function getValue(typeName,propertyName,value){
 
+        
+
         if(value !== "" && typeName === "fill"){
             getLastPickedColor(value)
         }
@@ -35,6 +37,7 @@ export default function ConstrolSlider(props){
             }
         }
         getControlData(typeName,newData)
+        console.log("getvalue")
     }
 
     function changeSwitchState(typeName,state){
@@ -133,6 +136,7 @@ export default function ConstrolSlider(props){
                     refreshInterval_usedCount = {refreshInterval_usedCount} 
                     getModalName = {getModalName} 
                     getCellMarker_all={getCellMarker_all}
+                    candelete = {true}
                 />
                 <TableWidth type="表格宽度" typeName = "tableWidth" getValue = {getValue}  data = {tableWidth} tableAmount = {tableAmount} tbodyPadding={tbodyPadding} resizeTableSize = {resizeTableSize}/>
                 <CellAmount type="表格数量" typeName = "tableAmount" data={tableAmount} tableWidth={tableWidth} cellPadding = {tbodyPadding} resizeTableSize = {resizeTableSize}/>

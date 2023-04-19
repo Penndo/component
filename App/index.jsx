@@ -280,13 +280,15 @@ export default function App(){
 
     function getControlData(name, data) {
 
+        
+
         //用来判断表头样式和表格样式是否全等。如果不全等就让样式独立编辑。
         headerIndependentStyle_condition(controlData)
 
         //同步表格样式数据至表头
         function syncControlData() {
             let syncData = {}
-            if(!headerIndependentStyle){     
+            if(!headerIndependentStyle){
                 switch (name) {
                     case "tbodyPadding":
                         const {b_top,b_bottom} = data.tbodyPadding
@@ -306,6 +308,7 @@ export default function App(){
                         break;
                     case "textStyle":
                         const {basicColor,fontSize,fontWeight} = data.textStyle;
+                        console.log(fontSize,fontWeight)
                         syncData = {
                             theadTextStyle:{
                                 basicColor:basicColor,
@@ -323,6 +326,7 @@ export default function App(){
         dispatch({type:"controlData",value:{
             ...controlData,...syncControlData()
         }})
+        
     }
 
     function changeColsCount(count,renderHead,renderData){

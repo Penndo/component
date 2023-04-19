@@ -12,7 +12,7 @@ class Options extends React.Component{
 
     handleClick = (e)=>{
         const value = e.currentTarget.innerHTML;
-        this.props.selectOptionValue(value)
+        this.props.selectOption(value)
     }
 
     deleteData = (keyValue,refreshDataFromComponent)=>{
@@ -40,7 +40,7 @@ class Options extends React.Component{
     }
 
     render(){
-        const {options,refreshDataFromComponent} = this.props;
+        const {options,refreshDataFromComponent,candelete} = this.props;
         return(
             <ul className={styles.ul}>
                 {
@@ -48,13 +48,15 @@ class Options extends React.Component{
                         return (
                             <li key={uuidv4()} >
                                 <p onMouseDown = {this.handleClick}>{item}</p>
-                                {
+                                {   
+                                    candelete ?
                                     <div className={styles["closePart"]}>
                                         <p onClick={this.deleteData(item,refreshDataFromComponent)}>删除模板</p>
                                         <div className={styles["toolTips"]}>
                                             <ToolTips  tips="删除模板" />
                                         </div>
-                                    </div>
+                                    </div> :
+                                    null
                                 }
                             </li>
                         ) 

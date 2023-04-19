@@ -51,7 +51,6 @@ class TextInput extends React.Component {
 
         const {max,min} = this.props
         let value = this.state.defaultValue;
-        console.log(value)
         if(this.props.inputType === "number"){
             value = value.replace(/[^0-9]/ig,"");
         }
@@ -84,7 +83,7 @@ class TextInput extends React.Component {
     }
 
     render(){
-        const {style, placeholder, hasPreInstall, testInputHeight, label, labelDisplay, name, preInstallOptions,readOnly} = this.props;
+        const {style, placeholder, hasPreInstall, testInputHeight, label, labelDisplay, name, preInstallOptions,readOnly, candelete} = this.props;
         const {defaultValue,showOptions} = this.state;
 
         return (
@@ -123,8 +122,8 @@ class TextInput extends React.Component {
                     <div 
                         className={styles["preInstall"]}
                         style={{display:showOptions?"block":"none"}}>
-                        <Options selectOption={this.selectOption} options={preInstallOptions}/>
-                    </div>  
+                        <Options selectOption={this.selectOption} options={preInstallOptions} candelete = {candelete}/>
+                    </div>
                     : 
                     null
                 }
